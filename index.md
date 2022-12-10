@@ -1,5 +1,7 @@
-Here you can say lots of fun things about your site.
+Just some nerd's personal blog, developer, motorcycle enthusiast, cat person.
 
-Maybe say a some things about yourself.
+The business side of this blog is mostly about  programming tips, some research Resource.
 
-Or maybe what you plan to blog about.
+I also like to post about my hobbies…pet, nerdy home projects and whenever I have time.
+
+Hope you enjoy what you’re reading here!
