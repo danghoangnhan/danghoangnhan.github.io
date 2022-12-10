@@ -2,7 +2,7 @@
 layout: page
 title: Personal Project
 ---
-{%- assign allposts =  site._projects_ | sort_natural: "date" | reverse %}
+{%- assign allposts =  site.projects | sort_natural: "date" | reverse %}
 
 {%- assign postsByYearMonth = allposts | group_by_exp:"allposts", "allposts.date | date: '%Y %B'"  %}
 
