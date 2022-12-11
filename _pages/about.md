@@ -13,23 +13,30 @@ permalink: /about
 >
   <div class="column" style="float: left;width: 50%;">
   <p>
-    I’m Daniel ,弘仁 in chinese, or Nhân in Vietnamese (some buddy try to call me in Viets after knowing me as a Vienamese and i love it too).
-    a computer-science student . I grew up chasing grasshoppers in a small  village in Vietnam , currently living in taiwan.
+        I’m Daniel ,弘仁 in chinese, or Nhân in Vietnamese (some buddy try to call me in Viets after knowing me as a Vienamese and i love it too :D).
+  </p>
+  <p>
+    I grew up ,having a memorable childhood memories in a small village in Vietnam , currently living in taiwan.
+  </p>
+   <p>
+        In my free time, I travel and take photo  everywhere i passed , i'm also a full-time cat person,  if you like my pictures and mew mew, just follow in instagram :)))))))
   </p>
 </div>
 <div class="column" style="float: left;width: 50%;">
-  <img 
-    width="200" 
-    height="200" 
-    src="../assets/images/logo.png"
-    style = "border-radius: 50% ;"
-/>
+    <img 
+        width="200" 
+        height="200" 
+        src="../assets/images/logo.png"
+        style = "border-radius: 50% ;"
+    />
 </div>
- <p>
-  In my free time, I travel and take photo  everywhere i passed , follow my instagram if you like it
-  </p>
-  <p>
-  I spend a lot of time learning about machine learning, data structure and algorithms,i used to work as a software-engineer, Devops-engineer during   Colleages,i will post some material in resource section</p>
+</div>
+<p>
+    I'm computer-science student,I spend a lot of time learning about machine learning, data structure and algorithms.
+</p>
+<p>
+  During Colleauge, I worked as a software-engineer, Devops-engineer, i will post some coding related material in resource section for improving  my coding skill</p>
+
 Consider my repositories if you find my project interesting, at least your star could make someone's day.
 </div>
 <div class="embed-spotify-list">
