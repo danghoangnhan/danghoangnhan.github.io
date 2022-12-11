@@ -1,6 +1,20 @@
+#Site
 title: "Daniel's Blogs"
 author: "Daniel Du "
 description: "My personal blog, Creating for upload personal  research, coding related resource." # This will show up in places like twitter, linkedin, etc, if you share your sites url as a post.
+name: "whyn4"
+meta_description: "Daniel Du's Blog"
+logo: 'assets/images/logo.png'
+favicon: 'assets/images/favicon.png'
+baseurl: /
+# google_analytics: 'UA-131933074-1'
+disqus: 'danghoangnhan-github-io'
+include: ["_pages"]
+permalink: /:title/
+
+# Pagination
+paginate: 6
+paginate_path: /page:num/
 
 # Email / Social media user names used by the minima theme:
 # All of these are optional and can be removed or commented out
@@ -36,7 +50,6 @@ social-links:
   PluralSight:   https://app.pluralsight.com/profile/chadbaldwin
   Website:       https://chadbaldwin.net
 
-# plugin: jekyll-seo-tag
 twitter:
   username: chad_baldwin
   card: summary_large_image
@@ -61,9 +74,16 @@ header_pages:
   - books.md
   - bookmarks.md
 
+# Custom vars
+version:          1.1.0
+
+# Plugins
 plugins:
   - jekyll-feed
   - jekyll-sitemap
+  - jekyll-paginate
+  - jekyll-archives
+  - jekyll-seo-tag
 
 google_analytics:
   - UA-185058308-1 # Old GA Universal Analytics property
@@ -101,3 +121,18 @@ defaults:
 kramdown:
   syntax_highlighter_opts:
     disable: true
+
+# Dependencies
+markdown:         kramdown
+highlighter:      rouge
+
+# Archives
+jekyll-archives:
+  enabled:
+    - categories
+  layout: archive
+  permalinks:
+    category: '/category/:name/'
+
+  
+excerpt_separator: <!--more-->
