@@ -3,7 +3,7 @@ layout: page
 title: About me
 comments: true
 permalink: /about
-spotifyplaylist: 68DXxYTn25JzqqF9Xez4hV
+spotifyplaylist: playlist/68DXxYTn25JzqqF9Xez4hV
 
 ---
 <h1>
