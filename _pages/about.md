@@ -3,6 +3,8 @@ layout: page
 title: About me
 comments: true
 permalink: /about
+spotifyplaylist: 68DXxYTn25JzqqF9Xez4hV
+
 ---
 <h1>
     <img src="https://emojis.slackmojis.com/emojis/images/1531849430/4246/blob-sunglasses.gif?1531849430" width="30"/> Hey, nice to see you.
@@ -38,7 +40,9 @@ permalink: /about
   During College, I worked as a software-engineer, Devops-engineer, i will post some coding related material in resource section for improving  my coding skill</p>
 
 Consider my repositories if you find my project interesting, at least your star could make someone's day.
-[![Spotify](https://spotify-github-readme.vercel.app/api/spotify)](https://open.spotify.com/album/4nfpHvg7KFcAUTg6yajpvN)
+
+{% include spotifyplaylist.html id=page.spotifyplaylist %}
+
 
 ### I’m best reached via email. I’m always open to interesting conversations and collaboration.
 </div>
