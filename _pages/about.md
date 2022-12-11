@@ -39,7 +39,7 @@ permalink: /about
 
 Consider my repositories if you find my project interesting, at least your star could make someone's day.
 <div class="embed-spotify-list">
-    <iframe src="https://open.spotify.com/embed/album/{{ 3KYH8uikIS4V5fhKsXbZS6 }}" 
+    <iframe src="https://open.spotify.com/embed/album/ 3KYH8uikIS4V5fhKsXbZS6" 
         frameborder="0" 
         allowtransparency="true" 
         allow="encrypted-media">
