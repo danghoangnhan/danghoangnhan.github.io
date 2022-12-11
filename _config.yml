@@ -8,7 +8,8 @@ logo: 'assets/images/logo.png'
 favicon: 'assets/images/favicon.png'
 baseurl: /
 # google_analytics: 'UA-131933074-1'
-disqus: 'danghoangnhan-github-io'
+disqus: 'https-danghoangnhan-github-io'
+
 include: ["_pages"]
 permalink: /:title/
 
