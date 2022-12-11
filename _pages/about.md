@@ -24,8 +24,8 @@ permalink: /about
 </div>
 <div class="column" style="float: left;width: 50%;">
     <img 
-        width="200" 
-        height="200" 
+        width="300" 
+        height="300" 
         src="../assets/images/logo.png"
         style = "border-radius: 50% ;"
     />
@@ -35,7 +35,7 @@ permalink: /about
     I'm computer-science student,I spend a lot of time learning about machine learning, data structure and algorithms.
 </p>
 <p>
-  During Colleauge, I worked as a software-engineer, Devops-engineer, i will post some coding related material in resource section for improving  my coding skill</p>
+  During College, I worked as a software-engineer, Devops-engineer, i will post some coding related material in resource section for improving  my coding skill</p>
 
 Consider my repositories if you find my project interesting, at least your star could make someone's day.
 </div>
