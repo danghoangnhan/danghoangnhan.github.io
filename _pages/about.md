@@ -43,15 +43,6 @@ Consider my repositories if you find my project interesting, at least your star 
 
 {% include spotifyplaylist.html id=page.spotifyplaylist %}
 
-<iframe style="border-radius:12px" 
-src="https://open.spotify.com/embed/playlist/68DXxYTn25JzqqF9Xez4hV?utm_source=generator" 
-width="100%" 
-height="380" 
-frameBorder="0" 
-allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-loading="lazy">
-</iframe>
-
 
 ### I’m best reached via email. I’m always open to interesting conversations and collaboration.
 </div>
