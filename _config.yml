@@ -40,7 +40,7 @@ show_excerpts: false
 # Used by simple links page
 social-links:
   Resume:        https://danghoangnhan.github.io/resume
-  LinkedIn:      https://linkedin.com/in/chadbaldwin
+  LinkedIn:      https://linkedin.com/in/https://www.linkedin.com/in/daniel-du-4734081b8/
   # StackOverflow: https://stackoverflow.com/users/3474677
   # HackerRank:    https://hackerrank.com/chadwin
   GitHub:        https://github.com/danghoangnhan
@@ -48,7 +48,7 @@ social-links:
   Reddit:        https://reddit.com/user/chadbaldwin
   Credly:        https://credly.com/users/chadbaldwin
   PluralSight:   https://app.pluralsight.com/profile/chadbaldwin
-  Website:       https://chadbaldwin.net
+  Website:       https://danghoangnhan.github.io
 
 twitter:
   username: chad_baldwin
