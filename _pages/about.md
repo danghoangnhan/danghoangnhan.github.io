@@ -19,7 +19,7 @@ permalink: /about
     I grew up ,having a memorable childhood memories in a small village in Vietnam , currently living in taiwan.
   </p>
    <p>
-        In my free time, I travel and take photo  everywhere i passed , i'm also a full-time cat person,  if you like my pictures and mew mew, just follow in instagram :)))))))
+        In my free time, I travel and take photo  everywhere i passed , i'm also a full-time cat person,  if you like my pictures and mew mew, just follow my instagram :)))))))
   </p>
 </div>
 <div class="column" style="float: left;width: 50%;">
