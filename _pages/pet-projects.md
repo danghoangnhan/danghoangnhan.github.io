@@ -2,6 +2,7 @@
 layout: page
 title: My pet projects
 comments: true
+permalink: /pet-projects
 ---
 
 <p class="message">
