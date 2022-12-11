@@ -38,13 +38,7 @@ permalink: /about
   During College, I worked as a software-engineer, Devops-engineer, i will post some coding related material in resource section for improving  my coding skill</p>
 
 Consider my repositories if you find my project interesting, at least your star could make someone's day.
-<div class="embed-spotify-list">
-    <iframe src="https://open.spotify.com/embed/album/ 3KYH8uikIS4V5fhKsXbZS6" 
-        frameborder="0" 
-        allowtransparency="true" 
-        allow="encrypted-media">
-    </iframe>
-</div>
+[![Spotify](https://spotify-github-readme.vercel.app/api/spotify)](https://open.spotify.com/album/4nfpHvg7KFcAUTg6yajpvN)
 
 ### I’m best reached via email. I’m always open to interesting conversations and collaboration.
 </div>
