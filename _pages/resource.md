@@ -1,6 +1,8 @@
 ---
 layout: page
 title:  Resources
+comments: true
+permalink: /resource
 ---
 
 {% for tag in site.tags %}

@@ -44,20 +44,20 @@ social-links:
   # StackOverflow: https://stackoverflow.com/users/3474677
   # HackerRank:    https://hackerrank.com/chadwin
   GitHub:        https://github.com/danghoangnhan
-  Twitter:       https://twitter.com/chad_baldwin
-  Reddit:        https://reddit.com/user/chadbaldwin
-  Credly:        https://credly.com/users/chadbaldwin
-  PluralSight:   https://app.pluralsight.com/profile/chadbaldwin
+  # Twitter:       https://twitter.com/chad_baldwin
+  # Reddit:        https://reddit.com/user/chadbaldwin
+  # Credly:        https://credly.com/users/chadbaldwin
+  # PluralSight:   https://app.pluralsight.com/profile/chadbaldwin
   Website:       https://danghoangnhan.github.io
 
 twitter:
   username: chad_baldwin
   card: summary_large_image
 social:
-  name: Chad Baldwin
+  name: Daniel Du
   links:
-    - https://twitter.com/chad_baldwin
-    - https://linkedin.com/in/chadbaldwin
+    # - https://twitter.com/chad_baldwin
+    - https://linkedin.com/in/https://www.linkedin.com/in/daniel-du-4734081b8/
     - https://github.com/danghoangnhan
 
 # plugin: jekyll-titles-from-headings
@@ -101,10 +101,6 @@ comments_repo: danghoangnhan/danghoangnhan.github.io
 kramdown:
   syntax_highlighter_opts:
     disable: true
-    
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
 
 titles_from_headings:
   strip_title: true
