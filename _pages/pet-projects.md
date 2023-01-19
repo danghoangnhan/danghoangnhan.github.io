@@ -18,8 +18,6 @@ because I don't have enough time.
 ## Projects
 
 * Android studio:
-  * **Maverapp** - a memory game to predict alzheimer disease
-
-. [Link](https://github.com/danghoangnhan/Computer-Based-Short-Term-Memory)
+  * **CB-STM** - a memory game to predict alzheimer disease. [Link](https://github.com/danghoangnhan/Computer-Based-Short-Term-Memory)
 
 Have questions or suggestions? Feel free to [open an issue on GitHub](https://github.com/danghoangnhan/danghoangnhan.github.io) or [send me an Email](danghoangnhan.1@gmail.com).
