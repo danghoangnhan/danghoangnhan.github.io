@@ -15,6 +15,8 @@ Progress as of Dec 11, 2022.
 4. ✗ Teach English for my child
 5. ✗ Go on a trip overseas.
 6. ✓ Learn to drive a car
-7. ✗ Start an nonprofit project
+7. ✓ Start an nonprofit project
 8. ✗ Publish a over 100 stars package (https://www.npmjs.com/package/flag-css)
 9. ✗ See auroras
+10. ✗ Get a six-pack
+11. ✗ Have  a tatto
