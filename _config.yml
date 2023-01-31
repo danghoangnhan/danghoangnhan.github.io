@@ -14,7 +14,7 @@ include: ["_pages"]
 permalink: /:title/
 
 # Authors
-danghoangnhan:
+authors:
   whyn4:
     name: Daniel Du
     display_name: Daniel Du
