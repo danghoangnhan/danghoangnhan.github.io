@@ -2,11 +2,13 @@
 layout: post
 title: Introduction to Federated Learning
 author: danghoangnhan
-categories: [ AIOT ]
-image: assets/images/fed.jpeg
-featured: true
+categories: [ AIOT,ML ]
+image: assets/images/fed.png
+featured: false
 hidden: false
 ---
+# Introduction to Federated Learning
+
 
 ## Motivation
 Privacy-preserving Machine Learning had always been exciting for me. Since my B.Tech. thesis involving PPML (SMPC + Computer Vision), I didn’t get a chance to work on it after that. So, after about 2 years, I have started to read about it again, and sharing it with the community.
