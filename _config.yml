@@ -1,6 +1,6 @@
 #Site
 title: "Daniel's Blogs"
-author: "Daniel Du "
+author: "Daniel Du"
 description: "My personal blog, Creating for upload personal  research, coding related resource." # This will show up in places like twitter, linkedin, etc, if you share your sites url as a post.
 name: "Daniel's Blogs"
 meta_description: "Daniel Du's Blog"
@@ -13,11 +13,8 @@ disqus: 'https-danghoangnhan-github-io'
 include: ["_pages"]
 permalink: /:title/
 
-# Pagination
-paginate: 6
-paginate_path: /page:num/
 # Authors
-authors:
+danghoangnhan:
   whyn4:
     name: Daniel Du
     display_name: Daniel Du
@@ -85,16 +82,7 @@ header_pages:
   - books.md
   - bookmarks.md
 
-# Custom vars
-version:          1.1.0
 
-# Plugins
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-paginate
-  - jekyll-archives
-  - jekyll-seo-tag
 
 google_analytics:
   - UA-185058308-1 # Old GA Universal Analytics property
@@ -103,11 +91,14 @@ google_analytics:
 gravatar_hash: 2136e716a089f4a3794f4007328c7bfb
 code_block_max_height: 500px
 
-home_post_limit: 5
+home_post_limit: 1000
 
 # The github repo that is to be used for looking up comments
 comments_repo: danghoangnhan/danghoangnhan.github.io
 
+# Pagination
+paginate: 6
+paginate_path: /page:num/
 
 kramdown:
   syntax_highlighter_opts:
@@ -125,13 +116,18 @@ defaults:
       tags: Other
 # Disable highlighting to use highlightJS instead
 # highlighter: none # Not supported by GitHub Pages
-kramdown:
-  syntax_highlighter_opts:
-    disable: true
 
-# Dependencies
-markdown:         kramdown
-highlighter:      rouge
+
+# Custom vars
+version:          1.1.0
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-paginate
+  - jekyll-archives
+  - jekyll-seo-tag
 
 # Archives
 jekyll-archives:
@@ -141,5 +137,8 @@ jekyll-archives:
   permalinks:
     category: '/category/:name/'
 
-  
+# Dependencies
+markdown:         kramdown
+highlighter:      rouge
+
 excerpt_separator: <!--more-->

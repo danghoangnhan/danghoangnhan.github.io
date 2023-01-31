@@ -1,3 +1,12 @@
+---
+layout: post
+title: first blog
+author: danghoangnhan
+categories: [ android ]
+image: assets/images/logo.png
+featured: true
+hidden: false
+---
 
 
 ## Blog Post Title From First Header

@@ -3,7 +3,7 @@ layout: post
 title: Introduction to Federated Learning
 author: danghoangnhan
 categories: [ AIOT ]
-image: aws/aws-iot/AWS%20IoT.png
+image: assets/images/fed.jpeg
 featured: true
 hidden: false
 ---
