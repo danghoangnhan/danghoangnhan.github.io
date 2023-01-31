@@ -1,3 +1,13 @@
+---
+layout: post
+title: Introduction to Federated Learning
+author: danghoangnhan
+categories: [ AIOT ]
+image: aws/aws-iot/AWS%20IoT.png
+featured: true
+hidden: false
+---
+
 ## Motivation
 Privacy-preserving Machine Learning had always been exciting for me. Since my B.Tech. thesis involving PPML (SMPC + Computer Vision), I didn’t get a chance to work on it after that. So, after about 2 years, I have started to read about it again, and sharing it with the community.
 
