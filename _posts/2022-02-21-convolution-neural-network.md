@@ -3,7 +3,7 @@ layout: post
 title: first blog
 author: Convolutional Neural Networks
 categories: [ deeplearning,computervision ]
-image: assets/images/cnn.jpeg
+image: assets/images/cnn1.png
 featured: true
 hidden: false
 ---
