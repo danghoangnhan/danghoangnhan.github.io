@@ -1,7 +1,7 @@
 ---
 layout: post
 title: first blog
-author: Convolutional Neural Networks
+author: Daniel Du
 categories: [ deeplearning,computervision ]
 image: assets/images/cnn1.png
 featured: true
