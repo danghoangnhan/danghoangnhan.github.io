@@ -1,8 +1,8 @@
 ---
 layout: post
-title: Computer-Based Short-Term Memory (CB-STM)
+title: Deep-Q-Learning
 author: danghoangnhan
-categories: [ android ]
+categories: [ DL,reinformencelearning ]
 image: https://raw.githubusercontent.com/danghoangnhan/Computer-Based-Short-Term-Memory/main/app/src/main/res/drawable/barin.jpg
 featured: true
 hidden: true
