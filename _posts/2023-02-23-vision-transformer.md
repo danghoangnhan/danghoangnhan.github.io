@@ -4,8 +4,8 @@ title: Vision Transformer(ViT)
 author: danghoangnhan
 categories: [ DL,vision ]
 image: assets/images/vit.jpeg.png
-featured: true
+featured: false
 hidden: true
 ---
 
-## Deep-Q-Learning(DQN)
+## Transformer Vision
