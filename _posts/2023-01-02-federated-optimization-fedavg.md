@@ -5,7 +5,7 @@ author: danghoangnhan
 categories: [ AIOT,ML ]
 image: assets/images/fed.png
 featured: false
-hidden: false
+hidden: true
 ---
 # Federated Optimization Algorithms - FedSGD and FedAvg
 
