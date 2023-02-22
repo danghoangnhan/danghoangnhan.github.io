@@ -3,7 +3,7 @@ layout: post
 title: Deep-Q-Learning
 author: danghoangnhan
 categories: [ DL,reinformencelearning ]
-image: assets/images/dqn.png
+image: assets/images/dqn.jpeg
 featured: false
 hidden: false
 ---
