@@ -4,7 +4,7 @@ title: Deep-Q-Learning
 author: danghoangnhan
 categories: [ DL,reinformencelearning ]
 image: assets/images/dqn.png
-featured: true
+featured: false
 hidden: false
 ---
 
