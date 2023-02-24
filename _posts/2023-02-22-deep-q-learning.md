@@ -31,3 +31,14 @@ hidden: false
  8. Epsilon value, epsilon decay
  9. Learning rate
  10. Target NN update rate
+
+### Source Code
+
+- https://github.com/danghoangnhan/DQN
+
+
+### References
+
+- https://www.youtube.com/watch?v=97gDXdA7kVc&t=232s
+- https://pytorch.org/tutorials/intermediate/reinforcement_q_learning
+
