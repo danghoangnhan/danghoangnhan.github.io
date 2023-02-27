@@ -5,7 +5,7 @@ author: danghoangnhan
 categories: [ deeplearning,computervision ]
 image: assets/images/cnn1.png
 featured: true
-hidden: false
+hidden: true
 ---
 
 
