@@ -1,6 +1,6 @@
 ---
 layout: post
-title: MobileNet Architecture
+title: EfficientNet
 
 
 author: danghoangnhan
@@ -10,7 +10,7 @@ featured: false
 hidden: true
 ---
 
-## MobileNet Architecture
+## EfficientNet
 
 Welcome back, in
 the last video you learned about the depth-wise
