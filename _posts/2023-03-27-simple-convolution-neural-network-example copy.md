@@ -8,69 +8,30 @@ featured: false
 hidden: true
 ---
 
-## Simple Convolutional Network Example
+# Convolutional Neural Networks: A Simple Example
 
-Let's say you have an image, and you want to do image classification,
-or image recognition. Where you want to take as input an image,
-x, and decide is this a cat or not, 0 or 1, so it's a classification problem. Let's build an example of a ConvNet you could use for this task. For the sake of this example,
-I'm going to use a fairly small image. Let's say this image is 39 x 39 x 3.. And so, nH in layer 0 will
-be equal to nW height and width are equal to 39 and the number of channels and
-layer 0 is equal to 3. Let's say the first layer uses a set of 3 by 3 filters to detect features, so
-f = 3 or really f1 = 3, because we're using a 3 by 3 process. And let's say we're using a stride of 1,
-and no padding. So using a same convolution, and
-let's say you have 10 filters. Then the activations in this next layer of the neutral network will be 37 x 37 x 10,
-and this 10 comes from the fact
-that you use 10 filters. And 37 comes from this formula n + 2p- f over s + 1. Right, then I guess you have 39 + 0- 3 over 1 + 1 that's = to 37. So that's why the output is 37 by 37,
-it's a valid convolution and that's the output size. So in our notation you would
-have nh[1] = nw[1] = 37 and nc[1] = 10, so nc[1] is also equal to the number of filters
-from the first layer. And so this becomes the dimension of
-the activation at the first layer. Let's say you now have another
-convolutional layer and let's say this time you
-use 5 by 5 filters. So, in our notation f[2] at
-the next neural network = 5, and let's say use a stride of 2 this time. And maybe you have no padding and say, 20 filters. So then the output of this
-will be another volume, this time it will be 17 x 17 x 20. Notice that,
-because you're now using a stride of 2, the dimension has shrunk much faster. 37 x 37 has gone down in size by slightly
-more than a factor of 2, to 17 x 17. And because you're using 20 filters,
-the number of channels now is 20. So it's this activation a2 would be that dimension and so nh[2] = nw[2] = 17 and nc[2] = 20. All right,
-let's apply one last convolutional layer. So let's say that you use
-a 5 by 5 filter again, and again, a stride of 2. So if you do that, I'll skip the math,
-but you end up with a 7 x 7, and let's say you use 40 filters,
-no padding, 40 filters. You end up with 7 x 7 x 40. So now what you've done is
-taken your 39 x 39 x 3 input image and computed your 7 x 7
-x 40 features for this image. And then finally, what's commonly
-done is if you take this 7 x 7 x 40, 7 times 7 times 40 is actually 1,960. And so what we can do is take
-this volume and flatten it or unroll it into just 1,960 units, right? Just flatten it out into a vector, and then feed this to a logistic
-regression unit, or a softmax unit. Depending on whether you're
-trying to recognize cat or no cat or trying to recognize any one
-of key different objects and then just have this give the final
-predicted output for the neural networBut in the next video, let's quickly go
-over how to implement a pooling layer for your ConvNet.k. So just be clear, this last step is
-just taking all of these numbers, all 1,960 numbers, and
-unrolling them into a very long vector. So then you just have one long vector that
-you can feed into softmax until it's just a regression in order to make
-prediction for the final output.
- So this would be a pretty typical example of a ConvNet. A lot of the work in designing
-convolutional neural net is selecting hyperparameters like these,
-deciding what's the total size? What's the stride? What's the padding and
-how many filters are used? And both later this week as well as next
-week, we'll give some suggestions and some guidelines on how
-to make these choices. But for now, maybe one thing to take
-away from this is that as you go deeper in a neural network, typically you
-start off with larger images, 39 by 39. And then the height and
-width will stay the same for a while and gradually trend down as
-you go deeper in the neural network. IBut in the next video, let's quickly go
-over how to implement a pooling layer for your ConvNet.t's gone from 39 to 37 to 17 to 14. Excuse me,
-it's gone from 39 to 37 to 17 to 7. Whereas the number of channels
-will generally increase. It's gone from 3 to 10 to 20 to 40,
-and you see this general trend in a lot of other convolutional
-neural networks as well. So we'll get more guidelines about how to
-design these parameters in later videos. But you've now seen your first example
-of a convolutional neural network, or a ConvNet for short.
- So congratulations on that. And it turns out that
-in a typical ConvNet, there are usually three types of layers.
-    1. the convolutional layer.
-    2. the pooling layer,
-    3. the  fully connected layer. And although it's possible to design
-a pretty good neural network using just convolutional layers, most neural network
-architectures will also have a few pooling layers and a few fully connected layers. Fortunately pooling layers and fully connected layers are a bit simpler
-than convolutional layers to define.
+Convolutional Neural Networks (ConvNets) are widely used for image classification and recognition tasks. In this blog post, we'll walk through a simple example of a ConvNet to understand its architecture and how it works.
+
+Let's consider the task of classifying images as either cats or not cats. We'll work with a relatively small image size of 39 x 39 pixels with three color channels (RGB). In ConvNets, we process images through multiple layers, each designed to extract and learn different features.
+
+The first layer of our ConvNet uses 3 x 3 filters to detect features in the image. With a stride of 1 and no padding, we apply 10 filters in this layer. The resulting activations form the input for the next layer, which will have dimensions of 37 x 37 x 10.
+
+To compute the output size of a convolutional layer, we use the formula `n + 2p - f / s + 1`, where `n` is the input size, `p` is the padding, `f` is the filter size, and `s` is the stride. In our case, the image dimensions shrink to 37 x 37 due to the 3 x 3 filters.
+
+Moving to the next layer, we apply 5 x 5 filters with a stride of 2 and no padding. Let's assume we use 20 filters in this layer. As a result, the output dimensions become 17 x 17 x 20, showing a faster reduction in size due to the larger stride.
+
+Continuing further, we apply another layer with 5 x 5 filters and a stride of 2. Assuming no padding and using 40 filters, the output size becomes 7 x 7 x 40. At this point, we have transformed our initial image into a compact representation of 7 x 7 x 40 features.
+
+To make predictions, we flatten this 7 x 7 x 40 volume into a vector of 1,960 units. This vector is then fed into a logistic regression or softmax unit, which produces the final classification output, determining whether the image contains a cat or not.
+
+In designing ConvNets, careful selection of hyperparameters such as filter size, stride, padding, and the number of filters is crucial. These choices significantly impact the network's performance, and guidelines and recommendations are available to help make informed decisions.
+
+It's important to note that as we go deeper into the ConvNet, the spatial dimensions (height and width) tend to decrease while the number of channels typically increases. This trend is observed in many convolutional neural network architectures.
+
+ConvNets often include pooling layers and fully connected layers in addition to convolutional layers. Pooling layers reduce spatial dimensions, while fully connected layers provide the final classification output based on the extracted features.
+
+In conclusion, Convolutional Neural Networks have revolutionized image classification and recognition tasks. Understanding their architecture and the role of different layers helps in designing effective models for various computer vision applications.
+
+---
+
+I hope you find this blog post summary helpful! Let me know if you have any further questions.
