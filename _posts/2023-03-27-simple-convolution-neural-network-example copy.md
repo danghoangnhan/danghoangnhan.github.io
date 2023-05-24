@@ -5,7 +5,7 @@ author: danghoangnhan
 categories: [ DL,Convolutional Neural Networks,vision ]
 image: assets/images/cnn1.png
 featured: false
-hidden: true
+hidden: false
 ---
 
 # Convolutional Neural Networks: A Simple Example
