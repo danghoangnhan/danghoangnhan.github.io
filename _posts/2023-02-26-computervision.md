@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Computer Vision
+title: Deep Learning Computer Vision Advancements and Exciting Applications
 
 author: danghoangnhan
 categories: [ DL,Convolutional Neural Networks,vision ]
@@ -9,9 +9,36 @@ featured: false
 hidden: true
 ---
 
-## Computer Vision
+## Deep Learning Computer Vision: Advancements and Exciting Applications
 
-Computer vision is one of the areas that's been advancing rapidly thanks to deep learning. Deep learning computer vision is now helping self-driving cars figure out where the other cars and pedestrians around so as to avoid them. Is making face recognition work much better than ever before, so that perhaps some of you will soon, or perhaps already, be able to unlock a phone, unlock even a door using just your face. And if you look on your cell phone, I bet you have many apps that show you pictures of food, or pictures of a hotel, or just fun pictures of scenery. And some of the companies that build those apps are using deep learning to help show you the most attractive, the most beautiful, or the most relevant pictures. And I think deep learning is even enabling new types of art to be created. So, I think the two reasons I'm excited about deep learning for computer vision and why I think you might be too.
-    First, rapid advances in computer vision are enabling brand new applications to view, though they just were impossible a few years ago. And by learning these tools, perhaps you will be able to invent some of these new products and applications.
-    Second, even if you don't end up building computer vision systems per se, I found that because the computer vision research community has been so creative and so inventive in coming up with new neural network architectures and algorithms, is actually inspire that creates a lot cross-fertilization into other areas as well.
- For example,  on speech recognition, I sometimes actually took inspiration from ideas from computer vision and borrowed them into the speech literature. So, even if you don't end up working on computer vision, I hope that you find some of the ideas you learn about in this course hopeful for some of your algorithms and your architectures. So with that, let's get started. Here are some examples of computer vision problems we'll study in this course. You've already seen image classifications, sometimes also called image recognition, where you might take as input say a 64 by 64 image and try to figure out, is that a cat? Another example of the computer vision problem is object detection. So, if you're building a self-driving car, maybe you don't just need to figure out that there are other cars in this image. But instead, you need to figure out the position of the other cars in this picture, so that your car can avoid them. In object detection, usually, we have to not just figure out that these other objects say cars and picture, but also draw boxes around them. We have some other way of recognizing where in the picture are these objects. And notice also, in this example, that they can be multiple cars in the same picture, or at least every one of them within a certain distance of your car. Here's another example, maybe a more fun one is neural style transfer. Let's say you have a picture, and you want this picture repainted in a different style. So neural style transfer, you have a content image, and you have a style image. The image on the right is actually a Picasso. And you can have a neural network put them together to repaint the content image (that is the image on the left), but in the style of the image on the right, and you end up with the image at the bottom. So, algorithms like these are enabling new types of artwork to be created. And in this course, you'll learn how to do this yourself as well. One of the challenges of computer vision problems is that the inputs can get really big. For example, in previous courses, you've worked with 64 by 64 images. And so that's 64 by 64 by 3 because there are three color channels. And if you multiply that out, that's 12288. So x the input features has dimension 12288. And that's not too bad. But 64 by 64 is actually a very small image. If you work with larger images, maybe this is a 1000 pixel by 1000 pixel image, and that's actually just one megapixel. But the dimension of the input features will be 1000 by 1000 by 3, because you have three RGB channels, and that's three million. If you are viewing this on a smaller screen, this might not be apparent, but this is actually a low res 64 by 64 image, and this is a higher res 1000 by 1000 image. But if you have three million input features, then this means that X here will be three million dimensional. And so, if in the first hidden layer maybe you have just a 1000 hidden units, then the total number of weights that is the matrix W1, if you use a standard or fully connected network like we have in courses one or two. This matrix will be a 1000 by 3 million dimensional matrix. Because X is now R by three million. 3m. I'm using to denote three million. And this means that this matrix here will have three billion parameters which is just very, very large. And with that many parameters, it's difficult to get enough data to prevent a neural network from overfitting. And also, the computational requirements and the memory requirements to train a neural network with three billion parameters is just a bit infeasible. But for computer vision applications, you don't want to be stuck using only tiny little images. You want to use large images. To do that, you need to better implement the convolution operation, which is one of the fundamental building blocks of convolutional neural networks. Let's see what this means, and how you can implement this, in the next video. And we'll illustrate convolutions, using the example of Edge Detection.
+### Introduction:
+
+Deep learning has propelled significant advancements in computer vision, revolutionizing various applications such as self-driving cars, face recognition, image recommendation, and even art generation. In this blog article, we will explore the impact of deep learning in computer vision and highlight some exciting applications that have emerged as a result.
+
+### Advancements in Computer Vision:
+
+Deep learning has played a vital role in enhancing computer vision capabilities. Self-driving cars, for instance, utilize deep learning computer vision algorithms to detect and identify other vehicles and pedestrians, enabling them to navigate safely and avoid potential collisions. Face recognition systems have also seen remarkable improvements, allowing users to unlock devices or access secure areas using facial recognition technology.
+
+Furthermore, deep learning has facilitated the development of image recommendation systems. By leveraging convolutional neural networks (CNNs), companies can employ deep learning algorithms to analyze images and display the most appealing and relevant content to users. This has proven particularly useful in applications related to food, travel, and entertainment.
+
+### The Intersection of Computer Vision and Art:
+
+Deep learning has even extended its reach into the realm of art. Neural style transfer is a captivating example where deep learning algorithms blend the content of one image with the artistic style of another, resulting in a new image that combines both elements. This fusion of content and style has led to the creation of unique and visually captivating artwork, showcasing the creative potential of deep learning in computer vision.
+
+### Cross-Fertilization of Ideas:
+
+One of the significant benefits of studying computer vision is the cross-fertilization of ideas it brings. The computer vision research community has been instrumental in inventing new neural network architectures and algorithms. These innovations have not only advanced computer vision but have also inspired progress in other domains. For instance, ideas from computer vision have influenced advancements in speech recognition algorithms, leading to improvements in voice-based applications.
+
+### Key Computer Vision Problems:
+
+Throughout the course, we will delve into various computer vision problems. Image classification, also known as image recognition, involves determining the content of an image, such as identifying whether it contains a cat or not. Object detection takes this a step further by not only recognizing objects but also determining their positions and drawing bounding boxes around them. Another fascinating application is neural style transfer, where images can be transformed to adopt the artistic style of another image.
+
+### Challenges and Solutions:
+
+Computer vision presents challenges due to the large sizes of input images, which can contain millions of features. Handling such high-dimensional data becomes impractical when using traditional neural network architectures. However, convolutional neural networks (CNNs) offer an efficient solution. By implementing the convolution operation, CNNs effectively process and analyze large images, reducing the number of parameters and improving computational efficiency.
+
+### Conclusion:
+
+Deep learning has revolutionized computer vision, leading to significant advancements and enabling a wide range of applications. From self-driving cars to facial recognition systems, deep learning algorithms have made remarkable strides in image analysis and understanding. Moreover, the fusion of computer vision and art has opened up new avenues for creative expression.
+
+By understanding the principles of deep learning in computer vision, you can tap into its potential, whether by developing innovative applications or leveraging its ideas to enhance algorithms in other domains. Join us on this exciting journey as we explore the world of deep learning computer vision and unlock its endless possibilities.
