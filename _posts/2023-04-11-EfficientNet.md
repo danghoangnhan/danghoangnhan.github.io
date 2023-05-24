@@ -7,7 +7,7 @@ author: danghoangnhan
 categories: [ DL,Convolutional-Neural-Networks,vision ]
 image: assets/images/cnn1.png
 featured: false
-hidden: true
+hidden: false
 ---
 
 ## EfficientNet: Scaling Neural Networks for Optimal Performance
