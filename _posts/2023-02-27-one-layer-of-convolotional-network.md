@@ -6,7 +6,7 @@ author: danghoangnhan
 categories: [ DL,Convolutional Neural Networks,vision ]
 image: assets/images/cnn1.png
 featured: false
-hidden: true
+hidden: false
 ---
 
 # Summary: Understanding a Layer in Convolutional Neural Networks
