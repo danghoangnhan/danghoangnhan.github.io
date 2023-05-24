@@ -6,22 +6,22 @@ author: danghoangnhan
 categories: [ DL,Convolutional Neural Networks,vision ]
 image: assets/images/cnn1.png
 featured: false
-hidden: true
+hidden: false
 ---
 
 ## Deep Learning Computer Vision: Advancements and Exciting Applications
 
-### Introduction:
+### Introduction
 
 Deep learning has propelled significant advancements in computer vision, revolutionizing various applications such as self-driving cars, face recognition, image recommendation, and even art generation. In this blog article, we will explore the impact of deep learning in computer vision and highlight some exciting applications that have emerged as a result.
 
-### Advancements in Computer Vision:
+### Advancements in Computer Vision
 
 Deep learning has played a vital role in enhancing computer vision capabilities. Self-driving cars, for instance, utilize deep learning computer vision algorithms to detect and identify other vehicles and pedestrians, enabling them to navigate safely and avoid potential collisions. Face recognition systems have also seen remarkable improvements, allowing users to unlock devices or access secure areas using facial recognition technology.
 
 Furthermore, deep learning has facilitated the development of image recommendation systems. By leveraging convolutional neural networks (CNNs), companies can employ deep learning algorithms to analyze images and display the most appealing and relevant content to users. This has proven particularly useful in applications related to food, travel, and entertainment.
 
-### The Intersection of Computer Vision and Art:
+### The Intersection of Computer Vision and Art
 
 Deep learning has even extended its reach into the realm of art. Neural style transfer is a captivating example where deep learning algorithms blend the content of one image with the artistic style of another, resulting in a new image that combines both elements. This fusion of content and style has led to the creation of unique and visually captivating artwork, showcasing the creative potential of deep learning in computer vision.
 
