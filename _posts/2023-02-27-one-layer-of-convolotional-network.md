@@ -3,7 +3,7 @@ layout: post
 title: One Layer of a Convolutional Network
 
 author: danghoangnhan
-categories: [ DL,Convolutional Neural Networks,vision ]
+categories: [ DL,Convolutional-Neural-Networks,vision ]
 image: assets/images/cnn1.png
 featured: false
 hidden: false
@@ -18,6 +18,7 @@ In this blog post, we will dive into the details of one layer in Convolutional N
 - Each layer in a CNN has a unique purpose and contributes to the overall feature extraction process.
 
 ## Convolutional Layer
+
 - The convolutional layer is a fundamental component of a CNN.
 - It applies a set of filters or kernels to the input image, scanning it across all possible positions.
 - Each filter detects different features or patterns in the image, such as edges or textures.

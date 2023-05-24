@@ -2,7 +2,7 @@
 layout: post
 title: Strided Convolutions
 author: danghoangnhan
-categories: [ DL,Convolutional Neural Networks,vision ]
+categories: [ DL,Convolutional-Neural-Networks,vision ]
 image: assets/images/cnn1.png
 featured: false
 hidden: false

@@ -3,7 +3,7 @@ layout: post
 title: Deep Learning Computer Vision Advancements and Exciting Applications
 
 author: danghoangnhan
-categories: [ DL,Convolutional Neural Networks,vision ]
+categories: [ DL,Convolutional-Neural-Networks,vision ]
 image: assets/images/cnn1.png
 featured: false
 hidden: false
