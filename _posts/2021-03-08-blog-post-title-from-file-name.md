@@ -5,7 +5,7 @@ author: danghoangnhan
 categories: [ android ]
 image: assets/images/logo.png
 featured: true
-hidden: false
+hidden: true
 ---
 
 
