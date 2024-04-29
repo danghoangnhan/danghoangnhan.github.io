@@ -1,6 +1,6 @@
 ---
 layout: page
-title: My pet projects
+title: Pet projects
 comments: true
 permalink: /pet-projects
 keywords:
@@ -15,6 +15,7 @@ It's a full list of my pet projects. If interested
 in helping any of them, don't hesitate to [email](mailto:danghoangnhan.1@gmail.com).
 Also, there are a number of projects, which I haven't fully started yet,
 because I don't have enough time.
+
 ## Projects
 
 * Android studio:
