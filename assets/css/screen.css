@@ -706,6 +706,8 @@ iframe {
 }
 
 .site-footer {
+  width: 100%;
+  height: 500px;
   background-image: url('../images/footer.jpg'); /* Replace with your image path */
   background-size: cover; /* Cover the entire space */
   background-position: center; /* Center the background image */
