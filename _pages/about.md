@@ -9,8 +9,8 @@ spotifyplaylist: playlist/playlist/68DXxYTn25JzqqF9Xez4hV?utm_source=generator
 <h1>
     <img src="https://emojis.slackmojis.com/emojis/images/1531849430/4246/blob-sunglasses.gif?1531849430" width="30"/> Hey, nice to see you.
 </h1>
-<div 
-    class="row" 
+<div
+    class="row"
     style= "content: ;display: table;clear: both;margin: 20px;"
 >
   <div class="column" style="float: left;width: 50%;">
@@ -24,9 +24,9 @@ spotifyplaylist: playlist/playlist/68DXxYTn25JzqqF9Xez4hV?utm_source=generator
   </p>
 </div>
 <div class="column" style="float: left;width: 50%;">
-    <img 
-        width="300" 
-        height="300" 
+    <img
+        width="300"
+        height="300"
         src="../assets/images/logo.png"
         style = "border-radius: 50% ;"
     />
@@ -41,6 +41,4 @@ Consider my repositories if you find my project interesting, at least your star 
 
 {% include spotifyplaylist.html id=page.spotifyplaylist %}
 
-
-### I’m best reached via email. I’m always open to interesting conversations and collaboration.
-</div>
+### I’m best reached via email. I’m always open to interesting conversations and collaboration
