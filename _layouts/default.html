@@ -246,7 +246,7 @@
 
       <!-- Begin Footer
 ================================================== -->
-      <footer class="footer">
+      <!-- <footer class="footer">
         <div class="container">
           <div class="row">
             <div class="col-md-6 col-sm-6 text-center text-lg-left">
@@ -254,7 +254,55 @@
             </div>
           </div>
         </div>
+      </footer> -->
+
+
+      <footer class="site-footer">
+        <div class="wrapper">
+          <div class="footer-col-wrapper">
+            <div class="footer-col footer-col-1">
+              <ul class="contact-list">
+                <li>
+                  <a href="https://github.com/yourusername"><span class="icon icon--github"><!-- SVG for GitHub icon here --></span><span class="username">yourusername</span></a>
+                </li>
+                <li>
+                  <a href="https://twitter.com/yourusername"><span class="icon icon--twitter"><!-- SVG for Twitter icon here --></span><span class="username">yourusername</span></a>
+                </li>
+                <li>
+                  <a href="https://facebook.com/yourusername"><span class="icon icon--facebook"><!-- SVG for Facebook icon here --></span><span class="username">yourusername</span></a>
+                </li>
+                <li>
+                  <a href="https://instagram.com/yourusername"><span class="icon icon--instagram"><!-- SVG for Instagram icon here --></span><span class="username">yourusername</span></a>
+                </li>
+                <li>
+                  <a href="https://www.linkedin.com/in/yourusername"><span class="icon icon--linkedin"><!-- SVG for LinkedIn icon here --></span><span class="username">yourusername</span></a>
+                </li>
+              </ul>
+            </div>
+            <div class="footer-col footer-col-2">
+              <p>Copyright © {{ site.time | date: "%Y" }} {{ site.name }}</p>
+              <form action="https://app.convertkit.com/forms/your-form-id/subscriptions" class="seva-form formkit-form" method="post" data-sv-form="your-form-id" data-uid="unique-uid-for-the-form" data-format="inline" data-version="5" min-width="400 500 600 700 800">
+                <div data-style="clean">
+                  <ul class="formkit-alert formkit-alert-error" data-element="errors" data-group="alert"></ul>
+                  <div data-element="fields" data-stacked="false" class="seva-fields formkit-fields">
+                    <div class="formkit-field">
+                      <input type="text" class="formkit-input" name="email_address" aria-label="Email Address" placeholder="Email Address" required="">
+                    </div>
+                    <button data-element="submit" class="formkit-submit">
+                      <div class="formkit-spinner">
+                        <div></div><div></div><div></div>
+                      </div>
+                      <span>Subscribe</span>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </footer>
+      
+
       <!-- End Footer
 ================================================== -->
     </div>
