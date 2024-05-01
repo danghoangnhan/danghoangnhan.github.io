@@ -649,13 +649,13 @@ iframe {
   margin-top: 3rem;
   padding: 0;
   border-radius: 0;
+
+
+  width: 100%;
+  height: 600px;
   background-image: url(../images/footer.jpg);
   background-size: cover;
-
-  height: 100%;
-  height: 600px;
-  background-size: cover;
-  background-position:center ;  
+  background-position: center;
 }
 .jumbotron.fortags a {
   padding: 5px 10px 7px;
