@@ -710,9 +710,11 @@ iframe {
   height: 500px;
   background-image: url('../images/footer.jpg'); /* Replace with your image path */
   background-size: cover; /* Cover the entire space */
-  background-position: center; /* Center the background image */
+  background-position: center -50%; /* Center the background image */
   color: white; /* Set text color to white for better readability */
   padding: 20px 0; /* Add padding to give some space inside the footer */
+  width: 100%;
+  height: 350px;
 }
 
 .site-footer a {
