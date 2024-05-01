@@ -704,6 +704,15 @@ iframe {
 .card .img-fluid {
   width: 100%;
 }
+
+.site-footer {
+  background-image: url('../images/footer.jpg'); /* Replace with your image path */
+  background-size: cover; /* Cover the entire space */
+  background-position: center; /* Center the background image */
+  color: white; /* Set text color to white for better readability */
+  padding: 20px 0; /* Add padding to give some space inside the footer */
+}
+
 .site-footer a {
   color: white; /* Ensures all links are white */
 }
