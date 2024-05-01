@@ -627,7 +627,8 @@ iframe {
     margin-bottom: -50px;
     margin-top: 3rem;
     padding: 0;
-    height: 550px;
+    height: 100%;
+    width: 100%;
     border-radius: 0;
     background-image: url(../images/footer.jpg);
     background-size: cover;
