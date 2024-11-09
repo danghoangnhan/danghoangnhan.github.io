@@ -14,12 +14,12 @@ hidden: false
 Large language models (LLMs) have revolutionized various applications due to their remarkable capabilities. Advancements in techniques like chain-of-thought prompting and in-context learning have significantly enhanced the ability of LLMs to perform complex reasoning tasks and adapt to specific domains. However, these powerful techniques often result in increasingly long prompts, comprising tens of thousands of tokens.
 This trend toward lengthy prompts presents a significant challenge. It leads to substantial computational demands and increased costs for LLM inference, hindering the broader adoption and scalability of LLMs in real-world applications. This situation has created an urgent need to balance the need for comprehensive prompts with the computational efficiency of LLMs.
 
-![Motivation](assets/images/llmlingua/LLMLingua_motivation.png "Challenges with LLM")
+![Illustration showing the challenge of long prompts in LLMs](../assets/images/llmlingua/LLMLingua_motivation.png "Challenges with LLM Processing")
 
 In addition to the challenges posed by lengthy prompts, several inherent limitations of LLMs further underscore the need for innovative solutions:
-● Token Limits: LLMs are inherently constrained by token limits, which restrict their ability to handle very long texts [Image]. This limitation can be particularly problematic when dealing with tasks that require summarizing lengthy documents or processing extensive conversational histories, as exceeding the token limit can result in information loss [Image].
-● Context Loss During Fine-tuning: The process of fine-tuning LLMs for specific tasks, especially when extended over time, can lead to a phenomenon known as "catastrophic forgetting" [Image]. This occurs when the model forgets or loses context from previous instructions, negatively impacting its performance on previously learned tasks.
-● High API Costs: LLMs like GPT-3.5 and GPT-4, while demonstrating impressive performance, come with substantial API costs [Image]. These costs can become prohibitive for large-scale experiments, research endeavors, or applications that require frequent interaction with the LLM.
+● Token Limits: LLMs are inherently constrained by token limits, which restrict their ability to handle very long texts . This limitation can be particularly problematic when dealing with tasks that require summarizing lengthy documents or processing extensive conversational histories, as exceeding the token limit can result in information loss .
+● Context Loss During Fine-tuning: The process of fine-tuning LLMs for specific tasks, especially when extended over time, can lead to a phenomenon known as "catastrophic forgetting" . This occurs when the model forgets or loses context from previous instructions, negatively impacting its performance on previously learned tasks.
+● High API Costs: LLMs like GPT-3.5 and GPT-4, while demonstrating impressive performance, come with substantial API costs . These costs can become prohibitive for large-scale experiments, research endeavors, or applications that require frequent interaction with the LLM.
 
 ### How LLMLingua Works
 
