@@ -20,5 +20,5 @@ Progress as of April 30, 2024.
 9. ✗ See auroras
 10. ✗ Get a six-pack
 11. ✗ Have  a tatto
-12. ✗ Learn how to live with My partner.
+12. ✗ Learn how to live with someone.
 
