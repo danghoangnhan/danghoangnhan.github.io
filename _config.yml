@@ -81,9 +81,9 @@ comments_repo: danghoangnhan/danghoangnhan.github.io
 paginate: 6
 paginate_path: /page:num/
 
-kramdown:
-  syntax_highlighter_opts:
-    disable: true
+# kramdown:
+#   syntax_highlighter_opts:
+#     disable: true
 
 titles_from_headings:
   strip_title: true
@@ -119,7 +119,9 @@ jekyll-archives:
     category: '/category/:name/'
 
 # Dependencies
-markdown:         kramdown
+markdown: kramdown
+kramdown:
+    math_engine: katex
 highlighter:      rouge
 
 excerpt_separator: <!--more-->
