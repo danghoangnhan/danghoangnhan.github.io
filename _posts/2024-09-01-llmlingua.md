@@ -55,7 +55,7 @@ The Budget Controller  manages compression across different prompt components. T
 
 Compression ratio for demonstrations(Equation 2):
 
-- $\tau_{\text{dems}} = \frac{\tau L - (\tau_{\text{ins}}L_{\text{ins}} + \tau_{\text{que}}L_{\text{que}})}{L_{\text{dems}}}$ (2)
+- $$\tau_{\text{dems}} = \frac{\tau L - (\tau_{\text{ins}}L_{\text{ins}} + \tau_{\text{que}}L_{\text{que}})}{L_{\text{dems}}}$$ (2)
 - Where:
     $\tau$, $L$: the compression ratio and length for prompt
     $\tau_{\text{dems}}$, $L_{\text{dems}}$: the compression ratio and length for demonstrations
