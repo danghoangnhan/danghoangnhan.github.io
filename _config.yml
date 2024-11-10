@@ -121,7 +121,7 @@ jekyll-archives:
 # Dependencies
 markdown: kramdown
 kramdown:
-    math_engine: katex
+  math_engine: katex
 highlighter:      rouge
 
 excerpt_separator: <!--more-->
