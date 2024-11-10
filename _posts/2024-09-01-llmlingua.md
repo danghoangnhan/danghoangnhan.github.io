@@ -3,7 +3,7 @@ layout: post
 title: LLMlingua
 author: danghoangnhan
 categories: [ LLM,LLMLingua ]
-image: assets/images/llmlingua/LLMLingua_logo.png
+image: assets/images/llmlingua/LLMLingua.png
 featured: true
 hidden: false
 katex: True
