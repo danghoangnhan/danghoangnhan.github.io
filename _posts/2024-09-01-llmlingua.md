@@ -40,7 +40,7 @@ The Budget Controller  manages compression across different prompt components. T
 **Input:**
 
 - A small language model $$\mathcal{M}_s$$
-- The original prompt $x = (x^{\text{ins}}, x^{\text{dems}}, x^{\text{que}})$
+- The original prompt $$x = (x^{\text{ins}}, x^{\text{dems}}, x^{\text{que}})$$
 
 **Equation:**
 
@@ -48,41 +48,41 @@ Compression ratio for demonstrations(Equation 2):
 
 - $$\tau_{\text{dems}} = \frac{\tau L - (\tau_{\text{ins}}L_{\text{ins}} + \tau_{\text{que}}L_{\text{que}})}{L_{\text{dems}}}$$ (2)
 - Where:
-    $\tau$, $L$: the compression ratio and length for prompt
-    $\tau_{\text{dems}}$, $L_{\text{dems}}$: the compression ratio and length for demonstrations
-    $\tau_{\text{ins}}$, $L_{\text{ins}}$: the compression ratio and length for instructions
-    $\tau_{\text{que}}$, $L_{\text{que}}$: the compression ratio and length for questions
+    $$\tau$$, $$L$$: the compression ratio and length for prompt
+    $$\tau_{\text{dems}}$$, $$L_{\text{dems}}$$: the compression ratio and length for demonstrations
+    $$\tau_{\text{ins}}$$, $$L_{\text{ins}}$$: the compression ratio and length for instructions
+    $$\tau_{\text{que}}$$, $$L_{\text{que}}$$: the compression ratio and length for questions
 
 Compression Ratio Adjustment (Equation 3):
 
-- $\Delta \tau = \frac{k \tau_{\text{dems}}L_{\text{dems}} - \tilde{L}_D}{L_{\text{ins}} + L_{\text{que}}}$
+- $$\Delta \tau = \frac{k \tau_{\text{dems}}L_{\text{dems}} - \tilde{L}_D}{L_{\text{ins}} + L_{\text{que}}}$$
 - Where:
-    $\Delta \tau$ is the adjustment to the compression ratio
-    $k$ is a scaling factor
-    $\tau_{\text{dems}}$: the compression ratio and length for demonstrations
-    $L_{\text{dems}}$: the length processed by the lens model
-    $\tilde{L}_D$:  the desired compressed length
-    $L_{\text{ins}}$ , $L_{\text{que}}$ : lengths of instructions and questions respectively
+    $$\Delta \tau$$ is the adjustment to the compression ratio
+    $$k$$ is a scaling factor
+    $$\tau_{\text{dems}}$$: the compression ratio and length for demonstrations
+    $$L_{\text{dems}}$$: the length processed by the lens model
+    $$\tilde{L}_D$$:  the desired compressed length
+    $$L_{\text{ins}}$$ , $$L_{\text{que}}$$ : lengths of instructions and questions respectively
 
 **Algorithm:**
 
-1. Set the selected demonstration set $\mathcal{D} = \phi$
-2. Get demonstration compression rate $\tau_{\text{dem}}$ by Eq.(2)
-3. Calculate the perplexity of each demonstration via $\mathcal{M}_s$
-4. Rank all demonstrations in descending order of their perplexity as a list $(x_{(1)}^{\text{dem}}, ..., x_{(N)}^{\text{dem}})$, where $N$ is the number of demonstrations, $x_{(i)}^{\text{dem}}$ is the $i$-th demonstration
-5. **for** $i = 1$ **do**
-6. &nbsp;&nbsp;&nbsp;&nbsp;**if** $L_\mathcal{D} > k \cdot \tau_{\text{dems}}L_{\text{dems}}$ **then**
+1. Set the selected demonstration set $$\mathcal{D} = \phi$$
+2. Get demonstration compression rate $$\tau_{\text{dem}}$$ by Eq.(2)
+3. Calculate the perplexity of each demonstration via $$\mathcal{M}_s$$
+4. Rank all demonstrations in descending order of their perplexity as a list $$(x_{(1)}^{\text{dem}}, ..., x_{(N)}^{\text{dem}})$$, where $$N$$ is the number of demonstrations, $$x_{(i)}^{\text{dem}}$$ is the $$i$$-th demonstration
+5. **for** $$i = 1$$ **do**
+6. &nbsp;&nbsp;&nbsp;&nbsp;**if** $$L_\mathcal{D} > k \cdot \tau_{\text{dems}}L_{\text{dems}}$$ **then**
 7. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Break
 8. &nbsp;&nbsp;&nbsp;&nbsp;**end if**
-9. &nbsp;&nbsp;&nbsp;&nbsp;Append $x_{(i)}^{\text{dem}}$ to $\mathcal{D}$
-10. &nbsp;&nbsp;&nbsp;&nbsp;$i = i + 1$
+9. &nbsp;&nbsp;&nbsp;&nbsp;Append $$x_{(i)}^{\text{dem}}$$ to $$\mathcal{D}$$
+10. &nbsp;&nbsp;&nbsp;&nbsp;$$i = i + 1$$
 11. **end for**
-12. Allocate remaining budget to $x^{\text{ins}}$ and $x^{\text{que}}$ via Eq. (3)
+12. Allocate remaining budget to $$x^{\text{ins}}$$ and $$x^{\text{que}}$$ via Eq. (3)
 
 **Output:**
 
-- The subset of demonstrations $\mathcal{D}$ obtained from coarse-grained compression
-- Additional budget $\Delta\tau_{\text{ins,que}}$ for the instruction and the question
+- The subset of demonstrations $$\mathcal{D}$$ obtained from coarse-grained compression
+- Additional budget $$\Delta\tau_{\text{ins,que}}$$ for the instruction and the question
 
 ### Iterative Token-Level Prompt Compression
 
@@ -95,35 +95,35 @@ ITPC implementing a sophisticated, context-aware approach:
 
 **Input:**
 
-- A small language model $\mathcal{M}_s$
-- The prompt from budget controller $x' = (x^{\text{ins}}, x^{\mathcal{D}}, x^{\text{que}})$
-- Target compression rate $\tau$
-- Adjusted compression rate $\Delta\tau_{\text{ins,que}}$
+- A small language model $$\mathcal{M}_s$$
+- The prompt from budget controller $$x' = (x^{\text{ins}}, x^{\mathcal{D}}, x^{\text{que}})$$
+- Target compression rate $$\tau$$
+- Adjusted compression rate $$\Delta\tau_{\text{ins,que}}$$
 
 **Algorithm:**
 
-1. Set the selected token set $\mathcal{T} = \phi$
-2. Get segment set $\mathcal{S}$
-3. **for** $i = 1,2,\ldots,m$ **do**
-4. &nbsp;&nbsp;&nbsp;&nbsp;Get the conditional probabilities $p(s_i)$ via Eq.(5)
-5. &nbsp;&nbsp;&nbsp;&nbsp;Get the compression threshold $\gamma_i$ with Eq. (6)
-6. &nbsp;&nbsp;&nbsp;&nbsp;Append the compressed token to $\mathcal{T}$ via Eq.(7)
+1. Set the selected token set $$\mathcal{T} = \phi$$
+2. Get segment set $$\mathcal{S}$$
+3. **for** $$i = 1,2,\ldots,m$$ **do**
+4. &nbsp;&nbsp;&nbsp;&nbsp;Get the conditional probabilities $$p(s_i)$$ via Eq.(5)
+5. &nbsp;&nbsp;&nbsp;&nbsp;Get the compression threshold $$\gamma_i$$ with Eq. (6)
+6. &nbsp;&nbsp;&nbsp;&nbsp;Append the compressed token to $$\mathcal{T}$$ via Eq.(7)
 7. **end for**
-8. Concatenate all tokens in $\mathcal{T}$ as $\tilde{x}$
+8. Concatenate all tokens in $$\mathcal{T}$$ as $$\tilde{x}$$
 
-**Output:** The compressed prompt $\tilde{x}$
+**Output:** The compressed prompt $$\tilde{x}$$
 
 ### Distribution Alignment
 
- A pre-trained small language model $\mathcal{M}_s$ and use the data generated by the LLM to perform instruction tuning on $\mathcal{M}_s$. The optimization of $\mathcal{M}_s$ can be formulated as:
+ A pre-trained small language model $$\mathcal{M}_s$$ and use the data generated by the LLM to perform instruction tuning on $$\mathcal{M}_s$$. The optimization of $$\mathcal{M}_s$$ can be formulated as:
 
-$\min_{\theta_s} \mathbb{E}\left[\frac{1}{N}\sum_{i=1}^N \mathcal{L}(x_i, y_{i,\text{LLM}}; \theta_{\mathcal{M}_s})\right]$, &nbsp;&nbsp;&nbsp;&nbsp; (8)
+$$\min_{\theta_s} \mathbb{E}\left[\frac{1}{N}\sum_{i=1}^N \mathcal{L}(x_i, y_{i,\text{LLM}}; \theta_{\mathcal{M}_s})\right]$$, &nbsp;&nbsp;&nbsp;&nbsp; (8)
 
 where :
 
-- $\theta_{\mathcal{M}_s}$: the parameters of $\mathcal{M}_s$
-- $(x_i, y_i^{\text{LLM}})$: the pair of instruction $x_i$ and the LLM generated texts $y_i^{\text{LLM}}$
-- $N$ is the number of all examples used for instruction tuning.
+- $$\theta_{\mathcal{M}_s}$$: the parameters of $$\mathcal{M}_s$$
+- $$(x_i, y_i^{\text{LLM}})$$: the pair of instruction $$x_i$$ and the LLM generated texts $$y_i^{\text{LLM}}$$
+- $$N$$ is the number of all examples used for instruction tuning.
 
 ### Key Features and Advantages
 
