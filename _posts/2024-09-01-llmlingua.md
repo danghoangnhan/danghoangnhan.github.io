@@ -6,15 +6,6 @@ categories: [ LLM,LLMLingua ]
 image: assets/images/llmlingua/LLMLingua_logo.png
 featured: true
 hidden: false
-papersize: a4
-documentclass: article
-header-includes:
-    - \usepackage{multicol}
-    - \newcommand{\hideFromPandoc}[1]{#1}
-    - \hideFromPandoc {
-        \let\Begin\begin
-        \let\End\end
-      }
 ---
 # LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models
 
@@ -45,10 +36,9 @@ The Budget Controller  manages compression across different prompt components. T
 - Operates at sentence level to maintain linguistic coherence
 - Adapts compression rates based on content criticality and available token budget
 
-
 **Input:**
 
-- A small language model $\mathcal{M}_s$
+- A small language model $$\mathcal{M}_s$$
 - The original prompt $x = (x^{\text{ins}}, x^{\text{dems}}, x^{\text{que}})$
 
 **Equation:**
