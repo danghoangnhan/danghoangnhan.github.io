@@ -6,6 +6,8 @@ categories: [ LLM,LLMLingua ]
 image: assets/images/llmlingua/LLMLingua_logo.png
 featured: true
 hidden: false
+katex: True
+
 ---
 # LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models
 
