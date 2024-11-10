@@ -40,7 +40,7 @@ The Budget Controller  manages compression across different prompt components. T
 
 **Input:**
 
-- A small language model $$ \mathcal{M}_s $$
+- A small language model $$\mathcal{M}_s$$
 - The original prompt $x = (x^{\text{ins}}, x^{\text{dems}}, x^{\text{que}})$
 
 **Equation:**
