@@ -48,21 +48,21 @@ Compression ratio for demonstrations(Equation 2):
 
 - $$\tau_{\text{dems}} = \frac{\tau L - (\tau_{\text{ins}}L_{\text{ins}} + \tau_{\text{que}}L_{\text{que}})}{L_{\text{dems}}}$$ (2)
 - Where:
-    $$\tau$$, $$L$$: the compression ratio and length for prompt
-    $$\tau_{\text{dems}}$$, $$L_{\text{dems}}$$: the compression ratio and length for demonstrations
-    $$\tau_{\text{ins}}$$, $$L_{\text{ins}}$$: the compression ratio and length for instructions
-    $$\tau_{\text{que}}$$, $$L_{\text{que}}$$: the compression ratio and length for questions
+  - $$\tau$$, $$L$$: the compression ratio and length for prompt
+  - $$\tau_{\text{dems}}$$, $$L_{\text{dems}}$$: the compression ratio and length for demonstrations
+  - $$\tau_{\text{ins}}$$, $$L_{\text{ins}}$$: the compression ratio and length for instructions
+  - $$\tau_{\text{que}}$$, $$L_{\text{que}}$$: the compression ratio and length for questions
 
 Compression Ratio Adjustment (Equation 3):
 
 - $$\Delta \tau = \frac{k \tau_{\text{dems}}L_{\text{dems}} - \tilde{L}_D}{L_{\text{ins}} + L_{\text{que}}}$$
 - Where:
-    $$\Delta \tau$$ is the adjustment to the compression ratio
-    $$k$$ is a scaling factor
-    $$\tau_{\text{dems}}$$: the compression ratio and length for demonstrations
-    $$L_{\text{dems}}$$: the length processed by the lens model
-    $$\tilde{L}_D$$:  the desired compressed length
-    $$L_{\text{ins}}$$ , $$L_{\text{que}}$$ : lengths of instructions and questions respectively
+  - $$\Delta \tau$$: the adjustment to the compression ratio
+  - $$k$$: a scaling factor
+  - $$\tau_{\text{dems}}$$: the compression ratio and length for demonstrations
+  - $$L_{\text{dems}}$$: the length processed by the lens model
+  - $$\tilde{L}_D$$:  the desired compressed length
+  - $$L_{\text{ins}}$$ , $$L_{\text{que}}$$: lengths of instructions and questions respectively
 
 **Algorithm:**
 
