@@ -1,6 +1,6 @@
 ---
 layout: post
-title: LLMlingua
+title: LongLLMLingua
 author: danghoangnhan
 categories: [ LLM,LLMLingua ]
 image: assets/images/llmlingua/LongLLMLingua.png
