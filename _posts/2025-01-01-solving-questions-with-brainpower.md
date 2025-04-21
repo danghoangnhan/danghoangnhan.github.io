@@ -1,6 +1,6 @@
 ---
 layout: post
-title: [Leetcode]: 2140. Solving Questions With Brainpower
+title: Leetcode-2140:Solving Questions With Brainpower
 author: danghoangnhan
 categories: [ leetcode ]
 image: assets/images/leetcode/leetcode.png
