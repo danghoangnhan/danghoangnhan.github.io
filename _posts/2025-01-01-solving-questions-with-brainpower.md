@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Leetcode-2140:Solving Questions With Brainpower
+title: Leetcode-2140. Solving Questions With Brainpower
 author: danghoangnhan
 categories: [ leetcode ]
 image: assets/images/leetcode/leetcode.png
@@ -8,7 +8,7 @@ featured: true
 hidden: false
 katex: True
 ---
-# [Leetcode]: 2140. Solving Questions With Brainpower
+# Leetcode-2140. Solving Questions With Brainpower
 
 ## Intuition
 
