@@ -1,19 +1,19 @@
+# Every entry here except LinkedIn used to point at chadbaldwin -- the author of
+# the upstream template -- while being labelled DanielDu, so this site published
+# a stranger's GitHub, Credly, StackOverflow and PluralSight profiles as mine.
+#
+# GitHub is corrected below and ORCID added. Credly, StackOverflow and
+# PluralSight are removed rather than guessed at: a missing row is better than
+# one that sends a reader to the wrong person. Add them back if there are real
+# profiles to point to.
+- name: GitHub
+  url: https://github.com/danghoangnhan
+  label: Hung-Jen (Daniel) Tu
+
 - name: LinkedIn
   url: https://www.linkedin.com/in/danieldu2812/
-  label: DanielDu
+  label: Hung-Jen (Daniel) Tu
 
-- name: Credly/Acclaim
-  url: https://credly.com/users/chadbaldwin
-  label: DanielDu
-
-- name: GitHub
-  url: https://github.com/chadbaldwin
-  label: DanielDu
-
-- name: StackOverflow
-  url: https://stackoverflow.com/users/3474677
-  label: DanielDu
-
-- name: PluralSight
-  url: https://app.pluralsight.com/profile/chadbaldwin
-  label: DanielDu
+- name: ORCID
+  url: https://orcid.org/0009-0005-8703-9956
+  label: Hung-Jen Tu
