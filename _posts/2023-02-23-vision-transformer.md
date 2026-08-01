@@ -2,8 +2,8 @@
 layout: post
 title: Vision Transformer(ViT)
 author: danghoangnhan
-categories: [ DL,vision ]
-image: assets/images/vit.jpeg.png
+categories: [ deep-learning, computer-vision ]
+image: assets/images/vit.jpeg
 featured: false
 hidden: true
 ---
