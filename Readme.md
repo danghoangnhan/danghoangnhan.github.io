@@ -1,7 +1,126 @@
-Just some nerd's personal blog, developer, motorcycle enthusiast, cat person.
+# danghoangnhan.github.io
 
-The business side of this blog is mostly about  programming tips, some research Resource.
+[![CI](https://github.com/danghoangnhan/danghoangnhan.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/danghoangnhan/danghoangnhan.github.io/actions/workflows/ci.yml)
+[![Deploy](https://github.com/danghoangnhan/danghoangnhan.github.io/actions/workflows/pages.yml/badge.svg)](https://github.com/danghoangnhan/danghoangnhan.github.io/actions/workflows/pages.yml)
 
-I also like to post about my hobbies…pet, nerdy home projects and whenever I have time.
+Just some nerd's personal blog — developer, motorcycle enthusiast, cat person.
 
-Hope you enjoy what you’re reading here!
+Mostly programming notes and research write-ups: computer vision and CNNs,
+federated learning, LLM papers, and the occasional data-engineering deep dive.
+Some hobby posts too, whenever I have time.
+
+Live at **<https://danghoangnhan.github.io>**.
+
+## Running locally
+
+Requires **Ruby 3.4.10** (pinned in [`.ruby-version`](.ruby-version)).
+
+On Windows, install the *Ruby+Devkit* variant — the plain one cannot build
+native gems:
+
+```powershell
+winget install RubyInstallerTeam.RubyWithDevKit.3.4
+```
+
+Then, in a new terminal:
+
+```powershell
+gem install bundler
+bundle install
+bundle exec jekyll serve --livereload
+```
+
+The site is served at <http://127.0.0.1:4000>.
+
+If `bundle install` fails building `wdm`, drop it from the `Gemfile` and use
+`bundle exec jekyll serve --force-polling` instead.
+
+### Building the way CI does
+
+```powershell
+$env:JEKYLL_ENV = "production"
+bundle exec jekyll build
+```
+
+`JEKYLL_ENV=production` matters — the analytics snippet is gated on it.
+
+### After changing the Gemfile
+
+The lockfile must stay cross-platform or CI cannot resolve the
+platform-specific `sass-embedded` gem:
+
+```powershell
+bundle lock --add-platform x86_64-linux
+bundle lock --add-platform x64-mingw-ucrt
+```
+
+## How it is built and deployed
+
+Jekyll 4.4, deployed to GitHub Pages by
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+
+This deliberately does **not** use GitHub's classic Pages build or
+`actions/jekyll-build-pages` — both pin `github-pages` v232, which means Jekyll
+3.10 and a fixed plugin allowlist that silently ignores `jekyll-archives`.
+Building from this repository's own `Gemfile` is what makes the category
+archives work and keeps the toolchain reproducible.
+
+Pull requests are built by [`ci.yml`](.github/workflows/ci.yml), which also runs
+an HTML link check.
+
+> `htmlproofer` cannot run on Windows — it binds libcurl through `ethon`, and
+> there is no `libcurl.dll`. It works on the Linux CI runner, so let the PR
+> build do that check.
+
+## Enabling giscus comments
+
+Comments currently fall back to Disqus. To switch to
+[giscus](https://giscus.app) (GitHub Discussions-backed, no ads or trackers):
+
+1. Enable **Discussions** on the repository.
+2. Add a category named **Comments** of type **Announcement** — giscus requires
+   Announcement so that only you can open threads.
+3. Install the [giscus app](https://github.com/apps/giscus) for this repository.
+4. Get `repo_id` and `category_id` from <https://giscus.app> and uncomment them
+   under `giscus:` in `_config.yml`.
+5. Remove the `disqus:` key.
+
+There is no import path from Disqus to giscus, so check the Disqus admin for
+anything worth keeping first.
+
+## Writing a post
+
+Add a file to `_posts/` named `YYYY-MM-DD-slug.md`:
+
+```yaml
+---
+layout: post
+title: Your title
+author: danghoangnhan
+categories: [ deep-learning, computer-vision ]
+image: assets/images/something.png
+featured: false
+hidden: false
+---
+```
+
+Categories are lowercase-hyphenated and drive the `/category/<name>/` archive
+pages. Existing ones: `android`, `cnn`, `computer-vision`, `data-engineering`,
+`deep-learning`, `devops`, `federated-learning`, `leetcode`, `llm`,
+`reinforcement-learning`.
+
+Post URLs come from the title slug (`permalink: /:title/`), so **renaming a post
+file or its title changes its URL**.
+
+Use `<!--more-->` to mark where the homepage excerpt should stop. Math is
+rendered client-side by KaTeX; `$$…$$` works in Markdown.
+
+## License
+
+Dual-licensed — see [LICENSE](LICENSE):
+
+- **Code** (layouts, includes, styles, scripts, workflows): MIT
+- **Content** (posts, page copy, original images): CC BY 4.0
+
+Figures reproduced from third-party papers or courses belong to their owners and
+are not covered by the CC BY grant.

@@ -1,0 +1,22 @@
+# Keep line endings stable across Windows and the Linux CI runner. Without this,
+# core.autocrlf rewrites the lockfile and workflow files on checkout and they
+# show up as spurious diffs.
+* text=auto eol=lf
+
+Gemfile      text eol=lf
+Gemfile.lock text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+*.rb         text eol=lf
+*.sh         text eol=lf
+
+# Binary assets — never touch these.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.pdf  binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary

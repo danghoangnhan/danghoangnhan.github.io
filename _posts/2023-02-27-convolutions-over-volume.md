@@ -3,7 +3,8 @@ layout: post
 title: Convolutions Over Volume
 
 author: danghoangnhan
-categories: [ DL,Convolutional-Neural-Networks,vision ]
+categories: [ deep-learning, cnn, computer-vision ]
+series: cnn-course
 image: assets/images/cnn1.png
 featured: false
 hidden: false

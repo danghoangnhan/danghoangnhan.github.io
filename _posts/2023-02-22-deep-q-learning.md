@@ -2,7 +2,7 @@
 layout: post
 title: Deep-Q-Learning
 author: danghoangnhan
-categories: [ DL,reinformencelearning ]
+categories: [ deep-learning, reinforcement-learning ]
 image: assets/images/dqn.jpeg
 featured: false
 hidden: false

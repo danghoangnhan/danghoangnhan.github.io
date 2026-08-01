@@ -1,10 +1,36 @@
+{%- comment -%}
+  Comments.
+
+  Replaces the utterances widget that used to live here. utterances stores
+  threads as Issues, which pollutes the issue tracker and supports neither
+  threading nor reactions; giscus uses Discussions instead. (Same author —
+  giscus is the successor.)
+
+  giscus needs a repo_id and category_id that can only be obtained after
+  enabling Discussions and installing the giscus app, so until `giscus:` is
+  filled in in _config.yml this falls back to the existing Disqus embed and
+  comments never simply vanish. Setup steps are in the README.
+{%- endcomment -%}
+{%- if site.giscus and site.giscus.repo_id and site.giscus.category_id -%}
 <div class="no-print">
-    <script src="https://utteranc.es/client.js"
-            repo="{{ site.comments_repo }}"
-            issue-term="og:title"
-            label="Comments"
-            theme="preferred-color-scheme"
-            crossorigin="anonymous"
-            async>
-    </script>
+  <script src="https://giscus.app/client.js"
+          data-repo="{{ site.giscus.repo | default: site.comments_repo }}"
+          data-repo-id="{{ site.giscus.repo_id }}"
+          data-category="{{ site.giscus.category | default: 'Comments' }}"
+          data-category-id="{{ site.giscus.category_id }}"
+          data-mapping="pathname"
+          data-strict="1"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="preferred_color_scheme"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+  <noscript>Comments require JavaScript.</noscript>
 </div>
+{%- elsif site.disqus -%}
+  {%- include disqus.html -%}
+{%- endif -%}

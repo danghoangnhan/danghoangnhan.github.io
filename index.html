@@ -3,33 +3,47 @@ layout: default
 title: Home
 ---
 
+{%- comment -%}
+  `hidden: true` and `featured: true` front matter existed on 12 posts but was
+  read by nothing, so stubs and drafts sat on the front page. Both are honoured
+  here.
+
+  Pagination is gone deliberately: jekyll-paginate v1 populates paginator.posts
+  from site.posts unconditionally and offers no filter hook, so filtering inside
+  the loop produced ragged pages of 6, 4, 6, 5. With 23 visible posts, one page
+  is the right answer anyway.
+{%- endcomment -%}
+
+{%- assign visible  = site.posts | where_exp: "p", "p.hidden != true" -%}
+{%- assign featured = visible | where_exp: "p", "p.featured == true" | slice: 0, 2 -%}
+{%- assign featured_urls = featured | map: "url" | join: "," -%}
+
+{%- if featured.size > 0 %}
+<section class="featured-posts">
+  <div class="section-title">
+    <h2><span>Featured</span></h2>
+  </div>
+  <div class="row listfeaturedtag">
+    {%- for post in featured %}
+      {%- include featuredbox.html %}
+    {%- endfor %}
+  </div>
+</section>
+{%- endif %}
+
 <!-- Posts Index
 ================================================== -->
 <section class="recent-posts">
+  <div class="section-title">
+    <h2><span>All Stories</span></h2>
+  </div>
 
-    <div class="section-title">
-
-        <h2><span>All Stories</span></h2>
-
-    </div>
-
-    <div class="row listrecent">
-
-        {% for post in paginator.posts %}
-
-               {% include postbox.html %}
-
-        {% endfor %}
-
-    </div>
-
+  <div class="row listrecent">
+    {%- comment -%}Featured posts are skipped so nothing renders twice.{%- endcomment -%}
+    {%- for post in visible -%}
+      {%- unless featured_urls contains post.url -%}
+        {%- include postbox.html -%}
+      {%- endunless -%}
+    {%- endfor %}
+  </div>
 </section>
-
-<!-- Pagination
-================================================== -->
-<div class="bottompagination">
-<div class="pointerup"><i class="fa fa-caret-up"></i></div>
-<span class="navigation" role="navigation">
-    {% include pagination.html %}
-</span>
-</div>

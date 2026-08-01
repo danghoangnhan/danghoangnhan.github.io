@@ -2,7 +2,7 @@
 layout: post
 title: Federated Optimization Algorithms - FedSGD and FedAvg
 author: danghoangnhan
-categories: [ AIOT,ML ]
+categories: [ federated-learning ]
 image: assets/images/fed.png
 featured: false
 hidden: true

@@ -1,0 +1,41 @@
+{%- comment -%}
+  Series navigation.
+
+  18 of these posts are one sequential run of notes sharing identical
+  categories and, in three cases, identical titles. Landing on "Pooling Layers"
+  gave no signal that it was part of a course or where the next part was, and
+  generic related-posts scoring would have tied 17 candidates with nothing to
+  rank them by. Ordering is by date.
+{%- endcomment -%}
+{%- if page.series -%}
+  {%- assign meta = site.data.series[page.series] -%}
+  {%- assign parts = site.posts | where: "series", page.series | sort: "date" -%}
+  {%- if parts.size > 1 -%}
+<aside class="series-nav" aria-label="Post series">
+  <details{% if page.series_open %} open{% endif %}>
+    <summary>
+      <span class="series-name">{{ meta.name | default: page.series }}</span>
+      <span class="series-position">
+        {%- for p in parts -%}
+          {%- if p.url == page.url -%}Part {{ forloop.index }} of {{ parts.size }}{%- endif -%}
+        {%- endfor -%}
+      </span>
+    </summary>
+    {%- if meta.description %}
+    <p class="series-description">{{ meta.description }}</p>
+    {%- endif %}
+    <ol class="series-parts">
+      {%- for p in parts %}
+      <li{% if p.url == page.url %} class="is-current" aria-current="true"{% endif %}>
+        {%- if p.url == page.url -%}
+          <span>{{ p.title }}</span>
+        {%- else -%}
+          <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+        {%- endif -%}
+      </li>
+      {%- endfor %}
+    </ol>
+  </details>
+</aside>
+  {%- endif -%}
+{%- endif -%}

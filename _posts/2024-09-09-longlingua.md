@@ -2,7 +2,7 @@
 layout: post
 title: LongLLMLingua
 author: danghoangnhan
-categories: [ LLM,LLMLingua ]
+categories: [ llm ]
 image: assets/images/llmlingua/LongLLMLingua.png
 featured: true
 hidden: false

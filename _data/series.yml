@@ -1,0 +1,7 @@
+# Post series. Key matches the `series:` value in post front matter.
+cnn-course:
+  name: "Convolutional Neural Networks"
+  description: >-
+    Working notes on convolutional networks — from padding and strided
+    convolutions through to Inception, MobileNet, EfficientNet and object
+    detection.

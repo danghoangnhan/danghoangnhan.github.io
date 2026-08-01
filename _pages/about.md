@@ -3,7 +3,7 @@ layout: page
 title: About me
 comments: true
 permalink: /about
-spotifyplaylist: playlist/playlist/68DXxYTn25JzqqF9Xez4hV?utm_source=generator
+spotifyplaylist: 68DXxYTn25JzqqF9Xez4hV
 
 ---
 <h1>

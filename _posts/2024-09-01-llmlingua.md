@@ -2,7 +2,7 @@
 layout: post
 title: LLMlingua
 author: danghoangnhan
-categories: [ LLM,LLMLingua ]
+categories: [ llm ]
 image: assets/images/llmlingua/LLMLingua.png
 featured: true
 hidden: false

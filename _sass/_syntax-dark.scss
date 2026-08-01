@@ -1,0 +1,58 @@
+// Dark Rouge palette. Required, not optional: _syntax.scss hardcodes
+// `background: #ffffff` on .highlight, which would leave a glaring white slab
+// in the middle of a dark page.
+//
+// Roughly the GitHub Dark token colours, chosen so contrast against #0d1117
+// stays above WCAG AA for body-size text.
+
+[data-theme="dark"] {
+  .highlight,
+  pre.highlight {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    border-color: #30363d;
+  }
+
+  .highlight {
+    .hll { background-color: #23272e; }
+    .c, .cm, .c1, .cs, .cd, .cp, .cpf { color: #8b949e; font-style: italic; }
+    .err { color: #ff7b72; background-color: transparent; }
+    .k, .kc, .kd, .kn, .kp, .kr, .kt, .kv { color: #ff7b72; }
+    .o, .ow { color: #ff7b72; }
+    .p, .pi { color: #c9d1d9; }
+    .gd { color: #ffdcd7; background-color: #67060c; }
+    .gi { color: #aff5b4; background-color: #033a16; }
+    .gh { color: #79c0ff; font-weight: bold; }
+    .gu { color: #79c0ff; }
+    .ge { font-style: italic; }
+    .gs { font-weight: bold; }
+    .gr { color: #ff7b72; }
+    .gt { color: #ff7b72; }
+    .gl { color: #8b949e; }
+    .go { color: #8b949e; }
+    .gp { color: #8b949e; }
+
+    .n, .nn, .nx { color: #c9d1d9; }
+    .na { color: #79c0ff; }
+    .nb, .bp { color: #79c0ff; }
+    .nc, .nd { color: #ffa657; }
+    .no { color: #79c0ff; }
+    .ne, .ni { color: #ffa657; }
+    .nf, .nl { color: #d2a8ff; }
+    .py { color: #79c0ff; }
+    .nt { color: #7ee787; }
+    .nv, .vc, .vg, .vi { color: #79c0ff; }
+
+    .s, .sa, .sb, .sc, .sd, .s1, .s2, .se, .sh, .si, .sx, .sr, .ss, .dl {
+      color: #a5d6ff;
+    }
+    .m, .mb, .mf, .mh, .mi, .mo, .il { color: #79c0ff; }
+
+    .w { color: #6e7681; }
+  }
+
+  // KaTeX inherits colour, but the display background must follow the page.
+  .katex-display > .katex {
+    color: inherit;
+  }
+}

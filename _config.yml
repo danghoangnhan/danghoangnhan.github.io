@@ -3,11 +3,18 @@ title: "Daniel's Blogs"
 author: "Daniel Du"
 description: "My personal blog, Creating for upload personal  research, coding related resource." # This will show up in places like twitter, linkedin, etc, if you share your sites url as a post.
 name: "Daniel's Blogs"
-meta_description: "Daniel Du's Blog"
 logo: 'assets/images/logo.png'
 favicon: 'assets/images/favicon.png'
-baseurl: /
-# google_analytics: 'UA-131933074-1'
+
+# Absolute site URL. GitHub Pages' legacy builder injected this automatically; a
+# plain `jekyll build` (i.e. GitHub Actions) does not. jekyll-seo-tag,
+# jekyll-sitemap and feed.xml all consume it.
+url: "https://danghoangnhan.github.io"
+# Empty (not "/") for a user page. "/" makes {{ site.baseurl }}/assets/... render
+# as //assets/... — a protocol-relative URL pointing at a host named "assets".
+baseurl: ""
+lang: en
+
 disqus: 'https-danghoangnhan-github-io'
 
 include: ["_pages"]
@@ -24,90 +31,80 @@ authors:
     twitter: https://twitter.com/CallMeMrFern
     description: ""
 
-# Email / Social media user names used by the minima theme:
-# All of these are optional and can be removed or commented out
+# Email / Social media user names
 email: "danghoangnhan.1@gmail.com"
 twitter_username: "CallMeMrFern"
 github_username: "danghoangnhan"
 linkedin_username: "daniel-du-4734081b8"
 facebook_username: teddddy.bearrrrr
-#flickr_username: username
 instagram_username: teddddy.bearrrrr
-#pinterest_username: username
-#youtube_username: username
-#googleplus_username: +username
+
+# Consumed by jekyll-seo-tag. It does NOT read minima's flat `twitter_username`,
+# so the nested form below is required for Twitter cards to be emitted.
+twitter:
+  username: CallMeMrFern
+  card: summary_large_image
+
+social:
+  name: "Daniel Du"
+  links:
+    - https://twitter.com/CallMeMrFern
+    - https://github.com/danghoangnhan
+    - https://www.linkedin.com/in/danieldu2812
+    - https://facebook.com/teddddy.bearrrrr
+
+# og:image fallback for pages that have no `image:` in front matter.
+image: assets/images/logo.png
 
 #########################################################################################
 ######### Nothing below needs to be changed (unless you know what you're doing) #########
 #########################################################################################
-theme: "minima"
 
 rss: rss
-show_excerpts: false
 
-
-# plugin: jekyll-titles-from-headings
-titles_from_headings:
-  strip_title: true
-
-collections:
-  personal: # collection for personal blog posts
-    output: true
-
-header_pages:
-  - resume.html
-  - archive.html
-  - books.md
-  - bookmarks.md
-
-
-
+# Google Analytics 4. `_includes/google-analytics.html` iterates this, so it must
+# be a list. Universal Analytics (UA-*) was shut down by Google in 2023 — do not
+# re-add a UA property here.
+#
+# Left empty on purpose: with no entries this key is nil, the gate in
+# _layouts/default.html is falsy, and no analytics script is emitted at all.
+# Uncomment and set your G- measurement ID to switch tracking on.
 google_analytics:
-#  - UA-185058308-1 # Old GA Universal Analytics property
-#  - G-RY6FRPMXHZ # New GA4 property
+#  - G-XXXXXXXXXX
 
-gravatar_hash: 2136e716a089f4a3794f4007328c7bfb
-code_block_max_height: 500px
-
-home_post_limit: 1000
-
-# The github repo that is to be used for looking up comments
+# The github repo used for looking up comments
 comments_repo: danghoangnhan/danghoangnhan.github.io
 
-# Pagination
-paginate: 6
-paginate_path: /page:num/
-
-# kramdown:
-#   syntax_highlighter_opts:
-#     disable: true
+# giscus (GitHub Discussions-backed comments).
+# Until repo_id and category_id are filled in, _includes/comments.html falls
+# back to the Disqus embed above, so comments keep working either way.
+# To switch over:
+#   1. Enable Discussions on the repo and add a category named "Comments"
+#      of type Announcement (giscus requires Announcement).
+#   2. Install the giscus app: https://github.com/apps/giscus
+#   3. Get the two ids from https://giscus.app and paste them below.
+#   4. Remove the `disqus:` key above.
+giscus:
+  repo: danghoangnhan/danghoangnhan.github.io
+  category: Comments
+#  repo_id: R_xxxxxxxxxx
+#  category_id: DIC_xxxxxxxxxx
 
 titles_from_headings:
   strip_title: true
   collections: true
 
-defaults:
-  - scope:
-      path: ""
-      type: post
-    values:
-      tags: Other
-# Disable highlighting to use highlightJS instead
-# highlighter: none # Not supported by GitHub Pages
-
-
-# Custom vars
-version:          1.1.0
-
 # Plugins
 plugins:
   - jekyll-feed
   - jekyll-sitemap
-  - jekyll-paginate
   - jekyll-archives
   - jekyll-seo-tag
 
-# Archives
+# Archives.
+# NOTE: jekyll-archives is not on GitHub Pages' plugin allowlist, so this block is
+# inert on the legacy builder and every /category/:name/ link 404s. It starts
+# working once the build moves to GitHub Actions with this repo's own Gemfile.
 jekyll-archives:
   enabled:
     - categories
@@ -117,8 +114,6 @@ jekyll-archives:
 
 # Dependencies
 markdown: kramdown
-kramdown:
-  math_engine: katex
 highlighter:      rouge
 
 excerpt_separator: <!--more-->

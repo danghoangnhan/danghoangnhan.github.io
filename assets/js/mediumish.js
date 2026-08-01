@@ -1,116 +1,57 @@
-jQuery(document).ready(function($){
+/*
+ * Hide the fixed navbar on scroll-down, reveal it on scroll-up.
+ *
+ * This is all that survives of the original jQuery version. The rest of that
+ * file drove elements that do not exist in any layout (.back-to-top), or that
+ * only render behind an unset config key (.alertbar), or set a margin from a
+ * missing <header> element (which produced an invalid declaration the browser
+ * discarded anyway). Bootstrap 5 has no jQuery dependency, so dropping those
+ * let jquery.min.js go with them.
+ *
+ * The visual movement comes from the inline `top` below plus the
+ * `transition: top .2s ease-in-out` on .mediumnavigation in screen.css.
+ */
+(function () {
+  "use strict";
 
-    var offset = 1250; 
-    var duration = 800; 
-    jQuery(window).scroll(function() { 
-        if (jQuery(this).scrollTop() > offset) { 
-        jQuery('.back-to-top').fadeIn(duration); 
-        } else { 
-        jQuery('.back-to-top').fadeOut(duration); 
-        }
-    });
-    jQuery('.back-to-top').click(function(event) { 
-    event.preventDefault(); 
-    jQuery('html, body').animate({scrollTop: 0}, duration); 
-    return false; 
-    })
+  var nav = document.querySelector("nav.mediumnavigation");
+  if (!nav) return;
 
+  var DELTA = 5; // ignore scroll jitter smaller than this
+  var lastScrollTop = 0;
+  var ticking = false;
 
-    // alertbar later
-    $(document).scroll(function () {
-        var y = $(this).scrollTop();
-        if (y > 280) {
-            $('.alertbar').fadeIn();
-        } else {
-            $('.alertbar').fadeOut();
-        }
-    });
+  function update() {
+    ticking = false;
 
+    var st = window.pageYOffset || document.documentElement.scrollTop;
+    var navHeight = nav.offsetHeight;
 
-        // Smooth scroll to an anchor
-        $('a.smoothscroll[href*="#"]')
-          // Remove links that don't actually link to anything
-          .not('[href="#"]')
-          .not('[href="#0"]')
-          .click(function(event) {
-            // On-page links
-            if (
-              location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '')
-              &&
-              location.hostname == this.hostname
-            ) {
-              // Figure out element to scroll to
-              var target = $(this.hash);
-              target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-              // Does a scroll target exist?
-              if (target.length) {
-                // Only prevent default if animation is actually gonna happen
-                event.preventDefault();
-                $('html, body').animate({
-                  scrollTop: target.offset().top
-                }, 1000, function() {
-                  // Callback after animation
-                  // Must change focus!
-                  var $target = $(target);
-                  $target.focus();
-                  if ($target.is(":focus")) { // Checking if the target was focused
-                    return false;
-                  } else {
-                    $target.attr('tabindex','-1'); // Adding tabindex for elements not focusable
-                    $target.focus(); // Set focus again
-                  };
-                });
-              }
-            }
-          });
-    
-    
-    // Hide Header on on scroll down
-    var didScroll;
-    var lastScrollTop = 0;
-    var delta = 5;
-    var navbarHeight = $('nav').outerHeight();
+    if (Math.abs(lastScrollTop - st) <= DELTA) return;
 
-    $(window).scroll(function(event){
-        didScroll = true;
-    });
-
-    setInterval(function() {
-        if (didScroll) {
-            hasScrolled();
-            didScroll = false;
-        }
-    }, 250);
-
-    function hasScrolled() {
-        var st = $(this).scrollTop();
-        var brandrow = $('.brandrow').css("height");
-        
-        // Make sure they scroll more than delta
-        if(Math.abs(lastScrollTop - st) <= delta)
-            return;
-
-        // If they scrolled down and are past the navbar, add class .nav-up.
-        // This is necessary so you never see what is "behind" the navbar.
-        if (st > lastScrollTop && st > navbarHeight){
-            // Scroll Down            
-            $('nav').removeClass('nav-down').addClass('nav-up'); 
-            $('.nav-up').css('top', - $('nav').outerHeight() + 'px');
-           
-        } else {
-            // Scroll Up
-            if(st + $(window).height() < $(document).height()) {               
-                $('nav').removeClass('nav-up').addClass('nav-down');
-                $('.nav-up, .nav-down').css('top', '0px');             
-            }
-        }
-
-        lastScrollTop = st;
+    if (st > lastScrollTop && st > navHeight) {
+      // Scrolling down and clear of the navbar: tuck it away.
+      nav.classList.remove("nav-down");
+      nav.classList.add("nav-up");
+      nav.style.top = -navHeight + "px";
+    } else if (st + window.innerHeight < document.documentElement.scrollHeight) {
+      // Scrolling up, and not just rubber-banding at the bottom.
+      nav.classList.remove("nav-up");
+      nav.classList.add("nav-down");
+      nav.style.top = "0px";
     }
-    
-    
-    $('.site-content').css('margin-top', $('header').outerHeight() + 'px');
 
+    lastScrollTop = st;
+  }
 
-
-});
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    },
+    { passive: true }
+  );
+})();
