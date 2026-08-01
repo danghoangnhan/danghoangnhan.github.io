@@ -68,6 +68,26 @@ archives work and keeps the toolchain reproducible.
 Pull requests are built by [`ci.yml`](.github/workflows/ci.yml), which also runs
 an HTML link check.
 
+> `htmlproofer` cannot run on Windows — it binds libcurl through `ethon`, and
+> there is no `libcurl.dll`. It works on the Linux CI runner, so let the PR
+> build do that check.
+
+## Enabling giscus comments
+
+Comments currently fall back to Disqus. To switch to
+[giscus](https://giscus.app) (GitHub Discussions-backed, no ads or trackers):
+
+1. Enable **Discussions** on the repository.
+2. Add a category named **Comments** of type **Announcement** — giscus requires
+   Announcement so that only you can open threads.
+3. Install the [giscus app](https://github.com/apps/giscus) for this repository.
+4. Get `repo_id` and `category_id` from <https://giscus.app> and uncomment them
+   under `giscus:` in `_config.yml`.
+5. Remove the `disqus:` key.
+
+There is no import path from Disqus to giscus, so check the Disqus admin for
+anything worth keeping first.
+
 ## Writing a post
 
 Add a file to `_posts/` named `YYYY-MM-DD-slug.md`:
