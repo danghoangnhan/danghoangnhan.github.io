@@ -1,46 +1,47 @@
 /*
  * Theme toggle: light / dark / follow-system.
  *
- * The initial read is inlined in <head> (see _includes/theme-head.html) so the
- * correct theme is applied before first paint. This file only handles the
- * toggle button and broadcasting changes.
- *
- * Consumers subscribing to the `themechange` event: mermaid (it bakes colours
- * into generated SVG) and giscus (via postMessage).
+ * The theme contract itself — reading the preference, writing the attributes —
+ * lives in _includes/theme-head.html, which has to run inline before first paint.
+ * This file consumes it through window.siteTheme and owns the toggle button plus
+ * the two consumers that CSS cannot reach: mermaid (it bakes colours into the
+ * generated SVG) and giscus (it renders in a cross-origin iframe).
  */
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "theme";
-  var root = document.documentElement;
+  var T = window.siteTheme;
+  // theme-head.html missing: degrade to "no toggle" rather than throwing and
+  // taking the rest of the page's scripts down with us.
+  if (!T) return;
 
-  function systemPrefersDark() {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var GISCUS_ORIGIN = "https://giscus.app";
+
+  // theme-head.html already wrote this before first paint, so it is the theme the
+  // page actually rendered with — the baseline for "did anything change".
+  var current = document.documentElement.dataset.theme;
+
+  // Last theme we told giscus about, so we can tell stale from in-sync below.
+  var giscusTheme = null;
+
+  function sendGiscusTheme(theme) {
+    var frame = document.querySelector("iframe.giscus-frame");
+    if (!frame || !frame.contentWindow) return;
+    frame.contentWindow.postMessage(
+      { giscus: { setConfig: { theme: theme } } },
+      GISCUS_ORIGIN
+    );
+    giscusTheme = theme;
   }
 
-  function stored() {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function resolved() {
-    var pref = stored();
-    if (pref === "dark" || pref === "light") return pref;
-    return systemPrefersDark() ? "dark" : "light";
-  }
-
-  function apply(theme) {
-    root.dataset.theme = theme;
-    // Bootstrap 5.3 recolours its own utilities from this attribute, which is
-    // most of why dark mode here is 60 lines instead of 250.
-    root.setAttribute("data-bs-theme", theme);
+  // Everything that has to happen alongside the attribute write. isDark is
+  // computed once at the top: it used to be declared inside `if (button)` and
+  // read further down, so it was undefined whenever the toggle was absent.
+  function syncDependents(theme) {
+    var isDark = theme === "dark";
 
     var button = document.getElementById("theme-toggle");
     if (button) {
-      var isDark = theme === "dark";
       button.setAttribute("aria-pressed", String(isDark));
       button.setAttribute(
         "aria-label",
@@ -48,32 +49,35 @@
       );
     }
 
-    document.dispatchEvent(
-      new CustomEvent("themechange", { detail: { theme: theme } })
-    );
-
-    // giscus renders in an iframe and cannot read our CSS.
-    var frame = document.querySelector("iframe.giscus-frame");
-    if (frame && frame.contentWindow) {
-      frame.contentWindow.postMessage(
-        { giscus: { setConfig: { theme: isDark ? "dark" : "light" } } },
-        "https://giscus.app"
+    // Only on an actual change. The DOMContentLoaded call below re-applies the
+    // theme the page already painted with, and firing themechange for that made
+    // _includes/mermaid.html throw away and re-render every diagram, identically,
+    // on every load of a diagram post.
+    if (theme !== current) {
+      current = theme;
+      document.dispatchEvent(
+        new CustomEvent("themechange", { detail: { theme: theme } })
       );
     }
+
+    sendGiscusTheme(theme);
+  }
+
+  function apply(theme) {
+    T.set(theme);
+    syncDependents(theme);
   }
 
   function toggle() {
-    var next = resolved() === "dark" ? "light" : "dark";
-    try {
-      localStorage.setItem(STORAGE_KEY, next);
-    } catch (e) {
-      /* private mode: theme just won't persist */
-    }
+    var next = T.resolve() === "dark" ? "light" : "dark";
+    T.store(next);
     apply(next);
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    apply(resolved());
+    // The attribute write is redundant here (theme-head.html already did it) but
+    // idempotent, and it is the one path that self-heals if that write was lost.
+    apply(T.resolve());
     var button = document.getElementById("theme-toggle");
     if (button) button.addEventListener("click", toggle);
   });
@@ -82,6 +86,20 @@
   window
     .matchMedia("(prefers-color-scheme: dark)")
     .addEventListener("change", function () {
-      if (!stored()) apply(resolved());
+      if (!T.stored()) apply(T.resolve());
     });
+
+  // The giscus iframe is data-loading="lazy", so its document does not load until
+  // it scrolls into view, and setConfig sent before that is dropped. Any message
+  // from the frame proves it is live, so reconcile then.
+  //
+  // The staleness guard is load-bearing: setConfig triggers a re-render, which
+  // emits resizeHeight, which would otherwise trigger another setConfig. It also
+  // covers toggling the theme while the frame is still unloaded.
+  window.addEventListener("message", function (event) {
+    if (event.origin !== GISCUS_ORIGIN) return;
+    if (!event.data || typeof event.data !== "object" || !event.data.giscus) return;
+    var theme = T.resolve();
+    if (giscusTheme !== theme) sendGiscusTheme(theme);
+  });
 })();

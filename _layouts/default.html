@@ -69,9 +69,13 @@
   <body class="{{ layout }}">
     <!-- Begin Menu Navigation
 ================================================== -->
+    <!-- No data-bs-theme here. Bootstrap 5.3 resolves it at the nearest ancestor,
+         so pinning the nav to "light" reset every --bs-* variable back to the light
+         palette for this whole subtree while _dark.scss forced the bar dark anyway —
+         most visibly a black toggler border and focus ring on a #161b22 bar. The nav
+         inherits the correct theme from <html>. -->
     <nav
       class="navbar navbar-expand-lg bg-white fixed-top mediumnavigation nav-down"
-      data-bs-theme="light"
     >
       <div class="container pe-0">
         <!-- Begin Logo -->
@@ -255,10 +259,17 @@
     <script defer src="{{ '/assets/js/copy-code.js' | relative_url }}"></script>
     {%- endif %}
 
+    {%- comment -%}
+      Disqus comment-count script, only emitted on the Disqus fallback path.
+      Unguarded this resolved to https://.disqus.com/count.js — a request to a
+      nonexistent host on every page — as soon as `disqus:` left _config.yml.
+    {%- endcomment -%}
+    {%- if site.disqus %}
     <script
       id="dsq-count-scr"
       src="https://{{ site.disqus }}.disqus.com/count.js"
     ></script>
+    {%- endif %}
 
     <!-- KaTeX -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

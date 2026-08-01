@@ -1,0 +1,36 @@
+// Emits a block of dark-theme rules under every selector that should get them.
+//
+// Two branches, because there are two ways a reader ends up in dark mode:
+//
+//   1. html[data-theme="dark"]         — JS ran and resolved to dark.
+//   2. the prefers-color-scheme branch — JS never ran (disabled, blocked, or it
+//                                        failed to load) and the OS is dark.
+//
+// Branch 2 is reachable ONLY when JS did not run: _includes/theme-head.html
+// writes data-theme unconditionally, outside any try/catch, precisely so that a
+// present-but-"light" attribute can veto a dark OS. Do not "simplify" either
+// half of that invariant — dropping it makes an explicit light choice on a dark
+// machine silently flip to dark.
+//
+// The `html` qualifier is not cosmetic. _includes/comments.html puts a real
+// data-theme on the giscus <script> tag, which a bare [data-theme="dark"] would
+// match. It also turns a source-order tie against screen.css's
+// `a.text-dark { color: #0a2b46 !important }` into an outright specificity win.
+//
+// KNOWN LIMIT (branch 2 only): Bootstrap's own dark palette lives under
+// [data-bs-theme=dark] and cannot be reached from a media query without
+// duplicating all ~200 of its custom properties. Today that is invisible here
+// because the site uses almost no Bootstrap components, and _dark.scss re-styles
+// the few it does use. Add a Bootstrap dropdown, modal or alert and it will
+// render light-on-dark for readers without JS.
+@mixin when-dark {
+  html[data-theme="dark"] {
+    @content;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) {
+      @content;
+    }
+  }
+}

@@ -1,21 +1,68 @@
 {%- comment -%}
-  Applies the stored theme before first paint.
+  Applies the stored theme before first paint, and owns the theme contract.
 
   This has to be inline and synchronous in <head>. A deferred script would run
   after the browser has already painted a light page, giving a visible white
   flash to anyone reading in dark mode.
+
+  It also publishes `window.siteTheme`, which assets/js/theme.js consumes. That
+  keeps the attribute write, the storage key and the resolution rule defined in
+  exactly one place — an inline pre-paint script and a deferred external file
+  cannot share code any other way without a module loader.
 {%- endcomment -%}
 <script>
   (function () {
-    try {
-      var pref = localStorage.getItem("theme");
-      var dark =
-        pref === "dark" ||
-        (pref !== "light" &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches);
-      var theme = dark ? "dark" : "light";
-      document.documentElement.dataset.theme = theme;
-      document.documentElement.setAttribute("data-bs-theme", theme);
-    } catch (e) {}
+    var STORAGE_KEY = "theme";
+
+    function stored() {
+      // Access can throw outright in some privacy configurations, not just
+      // return null, so this needs a guard rather than a falsy check.
+      try {
+        return localStorage.getItem(STORAGE_KEY);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function store(theme) {
+      try {
+        localStorage.setItem(STORAGE_KEY, theme);
+      } catch (e) {
+        /* private mode: the choice just won't persist across loads */
+      }
+    }
+
+    function systemPrefersDark() {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+
+    function resolve() {
+      var pref = stored();
+      if (pref === "dark" || pref === "light") return pref;
+      return systemPrefersDark() ? "dark" : "light";
+    }
+
+    // The only place in the codebase that writes the theme attributes.
+    function set(theme) {
+      var el = document.documentElement;
+      el.dataset.theme = theme;
+      // Bootstrap 5.3 recolours its own utilities from this attribute, which is
+      // most of why dark mode here is short instead of a full palette rewrite.
+      el.setAttribute("data-bs-theme", theme);
+    }
+
+    window.siteTheme = {
+      set: set,
+      store: store,
+      stored: stored,
+      resolve: resolve,
+    };
+
+    // Deliberately NOT inside a try/catch. The reads above already fail safe, and
+    // _sass/_theme-scope.scss reads a *missing* data-theme as "JS never ran" and
+    // hands the decision to prefers-color-scheme. Leaving the attribute unset
+    // after JS has run would silently override an explicit light choice whenever
+    // the OS is dark.
+    set(resolve());
   })();
 </script>

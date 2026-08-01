@@ -2,6 +2,8 @@
 // screen.css is the original vendored theme stylesheet and is left untouched;
 // everything new lives here so the two never fight over ownership.
 
+@use "theme-scope" as *;
+
 $rule: #eaeaea;
 $muted: rgba(0, 0, 0, 0.55);
 $accent: #0a2b46;
@@ -233,9 +235,11 @@ $accent: #0a2b46;
   }
 }
 
-[data-theme="dark"] .theme-toggle {
-  .theme-icon-dark { display: inline-block; }
-  .theme-icon-light { display: none; }
+@include when-dark {
+  .theme-toggle {
+    .theme-icon-dark { display: inline-block; }
+    .theme-icon-light { display: none; }
+  }
 }
 
 // ---------------------------------------------------------- post left rail
