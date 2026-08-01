@@ -74,15 +74,84 @@ $link-hover: #a5d6ff;
     border-color: $rule;
   }
 
+  // --- post cards ---------------------------------------------------------
+  //
+  // .card above is a Bootstrap utility, so data-bs-theme covers most of it. The
+  // rules below are all Mediumish's own, which Bootstrap knows nothing about.
+
+  // The featured card's outer wrapper. Its rgba(10,43,70,.3) border composites
+  // to roughly #0b1420 over #0d1117, so the outline vanishes, and it carries no
+  // background of its own — it stayed page-coloured while the .card nested
+  // inside it was forced to $surface.
+  .listfeaturedtag {
+    background-color: $surface;
+    border-color: $rule;
+  }
+
+  // Ties .card-text above on specificity (0,2,1) and currently only wins
+  // because main.css is linked after screen.css. Naming the same selectors
+  // makes the excerpt colour independent of link order.
+  .listfeaturedtag h4.card-text,
+  .listrecent h4.card-text {
+    color: $text-muted;
+  }
+
+  // Card footer meta. The "Read Story" bookmark is not listed here on purpose:
+  // .svgIcon-use now fills with currentColor, and the blanket `a` rule above
+  // already paints it $link with !important, which is how every other link in a
+  // card footer renders.
+  span.post-date,
+  span.post-read,
+  .post-top-meta span {
+    color: $text-muted;
+  }
+
+  // The rule above each card grid — "Featured", "All Stories", "Posts tagged X".
+  .section-title h2 {
+    border-bottom-color: $rule;
+  }
+
+  .section-title span {
+    border-bottom-color: $text-muted;
+  }
+
+  // rgba(0,0,0,.05) on #0d1117 is no pill at all, and the .6 black label on top
+  // of it is unreadable. Covers .after-post-tags too — same ul.tags markup.
+  ul.tags li a {
+    background: #21262d;
+    color: $text-muted;
+
+    &:hover {
+      background: #30363d;
+      color: $text;
+    }
+  }
+
+  // Dormant — post.html renders no related-posts block today — but a near-white
+  // slab the moment one comes back.
+  .graybg {
+    background-color: $surface;
+  }
+
+  .listrelated .card {
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
+  }
+
   .site-footer.bg-dark {
     background-color: #010409 !important;
     border-top: 1px solid $rule;
   }
 
-  hr,
-  .sep,
-  .after-post-tags .tags li a {
+  hr {
     border-color: $rule;
+  }
+
+  // .sep draws its rule with `background: #999`, not a border, so the
+  // border-color it used to share with `hr` never applied to it. The tag pills
+  // that shared that rule have no border either — they are handled by the
+  // `ul.tags li a` background above.
+  .sep {
+    background-color: $rule;
   }
 
   blockquote {
@@ -174,7 +243,16 @@ $link-hover: #a5d6ff;
 
   // The rail and the active marker take $rule (#eaeaea) and $accent (#0a2b46)
   // from _components.scss. Unoverridden that is a near-white 2px line and an
-  // almost-invisible navy marker against #0d1117.
+  // almost-invisible navy marker against #0d1117. Same for the divider that
+  // separates the TOC from the share block above it, and the share icon rings.
+  .toc {
+    border-top-color: $rule;
+  }
+
+  .share ul li i.fab {
+    border-color: $rule;
+  }
+
   .toc-list {
     border-left-color: $rule;
   }

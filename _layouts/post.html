@@ -13,7 +13,11 @@ post_class: post-template
 		<!-- Left rail: share buttons and, on long posts, the table of contents.
 		     screen.css pins .share with position:fixed above 1024px, which would
 		     overlap anything placed beneath it — so the rail is a single sticky
-		     container instead, and _components.scss unsets that fixed rule. -->
+		     container instead, and _components.scss unsets that fixed rule.
+		     The rail itself never scrolls: it is a flex column that gives .share
+		     its natural height and hands the rest to the TOC, whose link list
+		     owns the only scrollbar. Keep that order — .share first — or the
+		     share block scrolls away with the headings on a long post. -->
 		<div class="col-md-2 ps-0">
 			<div class="post-rail">
 				{% include share.html %}
