@@ -1,0 +1,28 @@
+name: Content correction
+description: A factual error, a typo, or an out-of-date claim in a post.
+labels: ["area:content"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Post URL
+      placeholder: https://danghoangnhan.github.io/some-post/
+    validations:
+      required: true
+
+  - type: textarea
+    id: quote
+    attributes:
+      label: The passage in question
+      description: Paste the sentence or paragraph.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: correction
+    attributes:
+      label: What should it say?
+      description: A source or reference is very welcome.
+    validations:
+      required: true

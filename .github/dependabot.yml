@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  # Ruby gems (Jekyll + plugins). This is what stops the site drifting back to a
+  # years-old stack the way it did before.
+  - package-ecosystem: bundler
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Collapse routine bumps into one PR instead of one per gem.
+      jekyll-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "deps"
+
+  # Workflow actions. Without this, pinned major tags quietly go stale.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "ci"

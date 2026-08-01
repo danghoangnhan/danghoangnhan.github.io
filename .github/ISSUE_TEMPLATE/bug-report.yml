@@ -1,0 +1,40 @@
+name: Bug report
+description: Something on the site is broken — a dead link, a page that renders wrong, a missing image.
+labels: ["type:bug"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      description: Where did you see it?
+      placeholder: https://danghoangnhan.github.io/some-post/
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What is wrong?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Layout or styling
+        - Broken link or 404
+        - Image not loading
+        - Code block or syntax highlighting
+        - Math rendering (KaTeX)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: Firefox 141 on Android

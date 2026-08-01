@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest something the site should do.
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the need rather than the implementation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What do you have in mind?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Reading experience
+        - Navigation or search
+        - Build or deployment
+        - Accessibility
+        - Performance
+        - Other
+    validations:
+      required: true
