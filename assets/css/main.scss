@@ -3,12 +3,23 @@
 # Change this file for any custom CSS.
 ---
 
+// Partials from `sass_dir` (defaults to `_sass`).
+// @use rather than @import: Dart Sass deprecated @import and removes it in 3.0.
+@use "syntax";
+@use "spotify-embed";
+
+/* Replaces the jQuery `a.smoothscroll` animation that mediumish.js used to run. */
+html {
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
 /* We need to add display:inline in order to align the '>>' of the 'read more' link */
 .post-excerpt p {
 	display:inline;
 }
-
-// Import partials from `sass_dir` (defaults to `_sass`)
-@import
-	"syntax"
-;
