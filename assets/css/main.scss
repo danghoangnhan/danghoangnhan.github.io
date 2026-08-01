@@ -7,6 +7,7 @@
 // @use rather than @import: Dart Sass deprecated @import and removes it in 3.0.
 @use "syntax";
 @use "spotify-embed";
+@use "components";
 
 /* Replaces the jQuery `a.smoothscroll` animation that mediumish.js used to run. */
 html {

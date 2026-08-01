@@ -1,0 +1,16 @@
+<div class="site-search">
+  <label class="visually-hidden" for="site-search">Search posts</label>
+  <input
+    type="search"
+    id="site-search"
+    class="form-control form-control-sm"
+    placeholder="Search posts&hellip;"
+    autocomplete="off"
+    role="combobox"
+    aria-expanded="false"
+    aria-controls="site-search-results"
+    aria-autocomplete="list"
+    data-index="{{ '/search.json' | relative_url }}"
+  />
+  <ul id="site-search-results" class="site-search-results" role="listbox" aria-label="Search results" hidden></ul>
+</div>

@@ -104,6 +104,24 @@
 
             <li class="nav-item">
               <a
+                class="nav-link{% if page.url == '/topics/' %} active{% endif %}"
+                {% if page.url == '/topics/' %}aria-current="page"{% endif %}
+                href="{{ '/topics/' | relative_url }}"
+                >Topics</a
+              >
+            </li>
+
+            <li class="nav-item">
+              <a
+                class="nav-link{% if page.url == '/archive/' %} active{% endif %}"
+                {% if page.url == '/archive/' %}aria-current="page"{% endif %}
+                href="{{ '/archive/' | relative_url }}"
+                >Archive</a
+              >
+            </li>
+
+            <li class="nav-item">
+              <a
                 class="nav-link{% if page.url == '/list-100' %} active{% endif %}"
                 {% if page.url == '/list-100' %}aria-current="page"{% endif %}
                 href="{{ '/list-100' | relative_url }}"
@@ -121,6 +139,8 @@
             </li>
           </ul>
           <!-- End Menu -->
+
+          {% include search.html %}
         </div>
       </div>
     </nav>
@@ -225,6 +245,7 @@
     ></script>
 
     <script defer src="{{ '/assets/js/mediumish.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/search.js' | relative_url }}"></script>
 
     <script
       id="dsq-count-scr"

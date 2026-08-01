@@ -1,0 +1,12 @@
+{%- comment -%}
+Estimated reading time in whole minutes.
+
+Usage: {% include reading-time.html content=post.content %}
+
+220 wpm rather than the usual 250-265: this blog is code- and equation-heavy,
+which reads slower. Posts with a lot of TeX or Mermaid source will over-report
+somewhat, since the word counter sees the source text.
+{%- endcomment -%}
+{%- assign words = include.content | strip_html | number_of_words -%}
+{%- assign minutes = words | divided_by: 220 | plus: 1 -%}
+{{ minutes }} min read

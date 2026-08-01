@@ -1,0 +1,27 @@
+---
+layout: null
+sitemap: false
+---
+{%- comment -%}
+  Search index, fetched lazily on first use by assets/js/search.js.
+
+  Full post bodies are included on purpose: people arrive looking for terms like
+  "keepalived VIP" or "depthwise separable convolution", which appear only in
+  post text. The whole corpus is ~18k words, so this is roughly 40 KB gzipped —
+  cheap enough to ship wholesale, and it costs nothing until someone searches.
+
+  The `hidden` filter must match index.html, or unlisted posts become findable.
+{%- endcomment -%}
+{%- assign posts = site.posts | where_exp: "p", "p.hidden != true" -%}
+[
+{%- for post in posts -%}
+{
+"t": {{ post.title | jsonify }},
+"u": {{ post.url | relative_url | jsonify }},
+"d": {{ post.date | date: "%b %Y" | jsonify }},
+"c": {{ post.categories | join: " " | jsonify }},
+"e": {{ post.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }},
+"b": {{ post.content | strip_html | strip_newlines | jsonify }}
+}{%- unless forloop.last -%},{%- endunless -%}
+{%- endfor -%}
+]

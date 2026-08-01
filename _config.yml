@@ -75,10 +75,6 @@ google_analytics:
 # The github repo used for looking up comments
 comments_repo: danghoangnhan/danghoangnhan.github.io
 
-# Pagination
-paginate: 6
-paginate_path: /page:num/
-
 titles_from_headings:
   strip_title: true
   collections: true
@@ -87,7 +83,6 @@ titles_from_headings:
 plugins:
   - jekyll-feed
   - jekyll-sitemap
-  - jekyll-paginate
   - jekyll-archives
   - jekyll-seo-tag
 

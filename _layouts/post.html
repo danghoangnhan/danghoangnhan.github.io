@@ -37,6 +37,10 @@ post_class: post-template
 
                 <!-- Post Title -->
 				<h1 class="posttitle">{{ page.title }}</h1>
+				<p class="post-meta">
+					<time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%b %-d, %Y" }}</time>
+					&middot; {% include reading-time.html content=page.content %}
+				</p>
 
 			</div>
 

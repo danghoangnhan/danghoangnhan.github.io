@@ -1,18 +1,33 @@
 ---
 layout: default
-title: Archive
 ---
+{%- comment -%}
+  Used by jekyll-archives for the /category/<name>/ pages.
+
+  page.posts is filtered on `hidden` so these pages agree with the homepage,
+  /topics/ and /archive/. jekyll-archives itself offers no filter hook, so it
+  has to happen here.
+
+  `title` is deliberately not set in front matter: jekyll-archives supplies the
+  category name as page.title, and hardcoding it would override every archive
+  page with the same heading and feed jekyll-seo-tag the wrong <title>.
+{%- endcomment -%}
+{%- assign posts = page.posts | where_exp: "p", "p.hidden != true" -%}
+
 <!-- Begin List Posts
 ================================================== -->
 <section class="recent-posts">
-<div class="section-title">
-    <h2>Archive of posts with <span>{{ page.type }} '{{ page.title }}'</span></h2>
-</div>
-<div class="row listrecent">
-{% for post in page.posts %}
+  <div class="section-title">
+    <h2>Posts tagged <span>{{ page.title }}</span></h2>
+  </div>
 
-    {% include postbox.html %}
-
-{% endfor %}
-</div>
+  {%- if posts.size > 0 %}
+  <div class="row listrecent">
+    {%- for post in posts %}
+      {%- include postbox.html %}
+    {%- endfor %}
+  </div>
+  {%- else %}
+  <p>Nothing published under this topic yet. <a href="{{ '/topics/' | relative_url }}">Browse all topics</a>.</p>
+  {%- endif %}
 </section>

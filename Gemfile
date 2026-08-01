@@ -12,7 +12,6 @@ group :jekyll_plugins do
   gem "jekyll-feed",     "~> 0.17.0"
   gem "jekyll-sitemap",  "~> 1.4.0"
   gem "jekyll-seo-tag",  "~> 2.9.0"
-  gem "jekyll-paginate", "~> 1.1.0"
   # Ignored by GitHub's legacy builder; starts working once we control the build.
   gem "jekyll-archives", "~> 2.3.0"
 end
