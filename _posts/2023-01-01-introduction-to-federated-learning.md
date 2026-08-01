@@ -2,7 +2,7 @@
 layout: post
 title: Introduction to Federated Learning
 author: danghoangnhan
-categories: [ AIOT,ML ]
+categories: [ federated-learning ]
 image: assets/images/fed.png
 featured: false
 hidden: false

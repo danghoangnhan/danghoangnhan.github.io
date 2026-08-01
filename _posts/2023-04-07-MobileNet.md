@@ -1,9 +1,9 @@
 ---
 layout: post
-title: MobileNe
+title: MobileNet
 
 author: danghoangnhan
-categories: [ DL,Convolutional-Neural-Networks,vision ]
+categories: [ deep-learning, cnn, computer-vision ]
 image: assets/images/cnn1.png
 featured: false
 hidden: false

@@ -3,7 +3,7 @@ layout: post
 title: Inception Network Motivation
 
 author: danghoangnhan
-categories: [ DL,Convolutional-Neural-Networks,vision ]
+categories: [ deep-learning, cnn, computer-vision ]
 image: assets/images/cnn1.png
 featured: false
 hidden: true

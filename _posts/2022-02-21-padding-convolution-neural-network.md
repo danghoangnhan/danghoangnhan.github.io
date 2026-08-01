@@ -2,7 +2,7 @@
 layout: post
 title: Understanding Padding in Convolutional Neural Networks
 author: danghoangnhan
-categories: [ deeplearning,computervision ]
+categories: [ deep-learning, computer-vision ]
 image: assets/images/cnn1.png
 featured: true
 hidden: false

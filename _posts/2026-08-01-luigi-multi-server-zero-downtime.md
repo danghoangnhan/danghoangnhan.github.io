@@ -2,7 +2,7 @@
 layout: post
 title: "One Scheduler, Many Workers: Running Luigi Across Multiple Servers with Zero Downtime"
 author: danghoangnhan
-categories: [ DataEngineering, Luigi, DevOps ]
+categories: [ data-engineering, devops ]
 image: assets/images/luigi-ha/architecture.svg
 featured: true
 hidden: false
