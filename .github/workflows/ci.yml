@@ -22,7 +22,8 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version-file: .ruby-version
+          # ruby-version is omitted on purpose: setup-ruby defaults to reading
+          # .ruby-version, and there is no ruby-version-file input.
           bundler-cache: true
 
       - name: Build
@@ -30,13 +31,16 @@ jobs:
           JEKYLL_ENV: production
         run: bundle exec jekyll build --trace
 
-      - name: Link check (advisory)
-        # Advisory for now: this legitimately fails today on the /category/*
-        # links, which stay broken until the archives work lands. Promote to
-        # blocking (drop continue-on-error) once those resolve.
-        continue-on-error: true
+      - name: Link check
+        # Blocking. It is worth keeping strict: enforce-https is what caught the
+        # http://disqus.com links, and the empty-href check caught a 404.html
+        # anchor that broke when baseurl changed from "/" to "".
+        #
+        # Note this cannot be run on Windows — html-proofer binds libcurl via
+        # ethon and there is no libcurl.dll, so this job is the only place the
+        # check actually runs.
         run: |
-          gem install html-proofer
+          gem install html-proofer --no-document
           htmlproofer ./_site \
             --disable-external \
             --allow-hash-href \
