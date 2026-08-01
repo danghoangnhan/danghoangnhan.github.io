@@ -15,7 +15,9 @@ url: "https://danghoangnhan.github.io"
 baseurl: ""
 lang: en
 
-disqus: 'https-danghoangnhan-github-io'
+# `disqus:` removed — comments moved to giscus (see below). The old shortname was
+# 'https-danghoangnhan-github-io'; restoring that key is all it takes to roll back,
+# since _includes/comments.html still falls through to Disqus when giscus is unset.
 
 include: ["_pages"]
 permalink: /:title/
@@ -75,20 +77,23 @@ google_analytics:
 # The github repo used for looking up comments
 comments_repo: danghoangnhan/danghoangnhan.github.io
 
-# giscus (GitHub Discussions-backed comments).
-# Until repo_id and category_id are filled in, _includes/comments.html falls
-# back to the Disqus embed above, so comments keep working either way.
-# To switch over:
-#   1. Enable Discussions on the repo and add a category named "Comments"
-#      of type Announcement (giscus requires Announcement).
-#   2. Install the giscus app: https://github.com/apps/giscus
-#   3. Get the two ids from https://giscus.app and paste them below.
-#   4. Remove the `disqus:` key above.
+# giscus (GitHub Discussions-backed comments). Active: _includes/comments.html
+# switches to giscus once both ids are present, and falls back to the Disqus embed
+# otherwise — so deleting either id below is a complete rollback.
+#
+# "Announcements" is GitHub's default announcement-format category, which is what
+# giscus wants: only maintainers can open threads there, so readers cannot create
+# discussions by visiting a post. Blog threads therefore share the category with
+# any real announcements; move them to a dedicated Announcement-format category if
+# that ever gets noisy.
+#
+# Both ids read from the GitHub API — repo_id from `GET /repos/{owner}/{repo}`,
+# category_id from the GraphQL discussionCategories query.
 giscus:
   repo: danghoangnhan/danghoangnhan.github.io
-  category: Comments
-#  repo_id: R_xxxxxxxxxx
-#  category_id: DIC_xxxxxxxxxx
+  category: Announcements
+  repo_id: R_kgDOGfn8Uw
+  category_id: DIC_kwDOGfn8U84DCdF8
 
 titles_from_headings:
   strip_title: true

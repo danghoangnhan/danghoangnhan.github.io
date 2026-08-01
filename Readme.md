@@ -72,21 +72,25 @@ an HTML link check.
 > there is no `libcurl.dll`. It works on the Linux CI runner, so let the PR
 > build do that check.
 
-## Enabling giscus comments
+## Comments
 
-Comments currently fall back to Disqus. To switch to
-[giscus](https://giscus.app) (GitHub Discussions-backed, no ads or trackers):
+Comments are [giscus](https://giscus.app), backed by GitHub Discussions — no ads
+or trackers. Threads live in the repository's **Announcements** category, which is
+announcement-format, so only maintainers can open a thread and readers cannot
+create discussions just by visiting a post.
 
-1. Enable **Discussions** on the repository.
-2. Add a category named **Comments** of type **Announcement** — giscus requires
-   Announcement so that only you can open threads.
-3. Install the [giscus app](https://github.com/apps/giscus) for this repository.
-4. Get `repo_id` and `category_id` from <https://giscus.app> and uncomment them
-   under `giscus:` in `_config.yml`.
-5. Remove the `disqus:` key.
+`_includes/comments.html` switches on `giscus.repo_id` **and** `giscus.category_id`
+both being set, and otherwise falls back to a Disqus embed. Deleting either id from
+`_config.yml` and restoring `disqus: 'https-danghoangnhan-github-io'` is therefore a
+complete rollback.
 
-There is no import path from Disqus to giscus, so check the Disqus admin for
-anything worth keeping first.
+The theme is not left to giscus. `data-theme="preferred_color_scheme"` would make
+the comment iframe follow the OS while the page follows the reader's stored choice,
+so `_includes/comments.html` builds the giscus `<script>` in JS and sets the
+resolved theme on it, and `assets/js/theme.js` re-syncs it over `postMessage`.
+
+There is no import path from Disqus to giscus, so anything worth keeping from the
+old threads has to come out of the Disqus admin by hand.
 
 ## Writing a post
 
