@@ -26,7 +26,8 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version-file: .ruby-version
+          # ruby-version is omitted on purpose: setup-ruby defaults to reading
+          # .ruby-version, and there is no ruby-version-file input.
           bundler-cache: true
 
       # Retained for its Pages-enablement side effect only. Its `base_path`
