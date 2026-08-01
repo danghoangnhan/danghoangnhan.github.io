@@ -1,0 +1,43 @@
+name: CI
+
+# Build-only check for pull requests. Deliberately separate from pages.yml: fork
+# PRs get a read-only token and cannot do `pages: write`, so keeping deployment
+# out of this workflow means external contributions never fail on permissions.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version-file: .ruby-version
+          bundler-cache: true
+
+      - name: Build
+        env:
+          JEKYLL_ENV: production
+        run: bundle exec jekyll build --trace
+
+      - name: Link check (advisory)
+        # Advisory for now: this legitimately fails today on the /category/*
+        # links, which stay broken until the archives work lands. Promote to
+        # blocking (drop continue-on-error) once those resolve.
+        continue-on-error: true
+        run: |
+          gem install html-proofer
+          htmlproofer ./_site \
+            --disable-external \
+            --allow-hash-href \
+            --ignore-missing-alt
