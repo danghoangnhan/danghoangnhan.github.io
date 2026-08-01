@@ -10,9 +10,15 @@ post_class: post-template
 <div class="container">
 	<div class="row">
 
-		<!-- Post Share -->
+		<!-- Left rail: share buttons and, on long posts, the table of contents.
+		     screen.css pins .share with position:fixed above 1024px, which would
+		     overlap anything placed beneath it — so the rail is a single sticky
+		     container instead, and _components.scss unsets that fixed rule. -->
 		<div class="col-md-2 ps-0">
-           {% include share.html %}
+			<div class="post-rail">
+				{% include share.html %}
+				<nav id="toc" class="toc" aria-label="Table of contents" hidden></nav>
+			</div>
 		</div>
 
 
@@ -47,6 +53,8 @@ post_class: post-template
 			<!-- Post Featured Image -->
 			{% if page.image %}<img class="featured-image img-fluid" src="{% if page.image contains "://" %}{{ page.image }}{% else %}{{ page.image | absolute_url }}{% endif %}" alt="{{ page.title }}">{% endif %}
 			<!-- End Featured Image -->
+
+			{% include series-nav.html %}
 
 			<!-- Post Content -->
 			<div class="article-post">
@@ -104,10 +112,12 @@ post_class: post-template
     <div class="container">
         <div id="comments" class="row justify-content-center mb-5">
             <div class="col-md-8">
-                {% include disqus.html %}
+                {% include comments.html %}
             </div>
         </div>
     </div>
 {% endif %}
+
+{% if page.mermaid %}{% include mermaid.html %}{% endif %}
 <!--End Comments
 ================================================== -->

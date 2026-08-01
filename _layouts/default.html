@@ -9,6 +9,8 @@
 
     <link rel="icon" href="{{ '/assets/images/favicon.png' | relative_url }}" />
 
+    {% include theme-head.html %}
+
     <!-- jekyll-seo-tag emits the page title, meta description, canonical link,
          Open Graph, Twitter cards and BlogPosting JSON-LD. Do not hand-write any
          of those alongside it or they will be duplicated. -->
@@ -141,6 +143,7 @@
           <!-- End Menu -->
 
           {% include search.html %}
+          {% include theme-toggle.html %}
         </div>
       </div>
     </nav>
@@ -246,6 +249,11 @@
 
     <script defer src="{{ '/assets/js/mediumish.js' | relative_url }}"></script>
     <script defer src="{{ '/assets/js/search.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/theme.js' | relative_url }}"></script>
+    {%- if page.layout == 'post' %}
+    <script defer src="{{ '/assets/js/toc.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/copy-code.js' | relative_url }}"></script>
+    {%- endif %}
 
     <script
       id="dsq-count-scr"

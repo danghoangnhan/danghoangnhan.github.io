@@ -6,8 +6,11 @@
 // Partials from `sass_dir` (defaults to `_sass`).
 // @use rather than @import: Dart Sass deprecated @import and removes it in 3.0.
 @use "syntax";
+@use "syntax-dark";
 @use "spotify-embed";
 @use "components";
+// Last, so its overrides win over the vendored theme and the components above.
+@use "dark";
 
 /* Replaces the jQuery `a.smoothscroll` animation that mediumish.js used to run. */
 html {

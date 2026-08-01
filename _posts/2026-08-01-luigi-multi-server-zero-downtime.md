@@ -3,6 +3,7 @@ layout: post
 title: "One Scheduler, Many Workers: Running Luigi Across Multiple Servers with Zero Downtime"
 author: danghoangnhan
 categories: [ data-engineering, devops ]
+mermaid: true
 image: assets/images/luigi-ha/architecture.svg
 featured: true
 hidden: false
@@ -269,19 +270,3 @@ One `luigi.cfg`, deployed identically to every VM.
 - [GitLab CI/CD reference](https://docs.gitlab.com/ee/ci/yaml/) — `.gitlab-ci.yml` keywords
 - [GitLab Runner — shell executor](https://docs.gitlab.com/runner/executors/shell.html) — the deploy runner used here
 
-<script type="module">
-  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-  const hosts = new Set();
-  document.querySelectorAll("div.language-mermaid, pre > code.language-mermaid").forEach((el) => {
-    hosts.add(el.closest("div.language-mermaid") || el.closest("pre"));
-  });
-  hosts.forEach((host) => {
-    const div = document.createElement("div");
-    div.className = "mermaid";
-    div.style.textAlign = "center";
-    div.textContent = host.textContent;
-    host.replaceWith(div);
-  });
-  mermaid.initialize({ startOnLoad: false, theme: "neutral" });
-  mermaid.run({ querySelector: ".mermaid" });
-</script>

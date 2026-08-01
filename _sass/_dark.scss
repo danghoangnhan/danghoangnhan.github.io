@@ -1,0 +1,201 @@
+// Dark theme overrides.
+//
+// screen.css is the vendored Mediumish stylesheet and hardcodes colours as
+// rgba(0,0,0,x) / #fff across ~35 rules, including `!important` on the link
+// colour. Rather than rewrite that file, this layer overrides it under the
+// [data-theme="dark"] attribute set by theme.js.
+//
+// Bootstrap 5.3 does the heavy lifting for its own utilities (.bg-white,
+// .text-dark, .bg-dark, .card, .navbar) via data-bs-theme, which is set on the
+// same element. That is why this file is short.
+//
+// DarkReader, which the repo previously attempted, is deliberately not used:
+// runtime CSS inversion mangles SVG diagrams, Mermaid output and KaTeX.
+
+$bg: #0d1117;
+$surface: #161b22;
+$text: #c9d1d9;
+$text-muted: #8b949e;
+$rule: #30363d;
+$link: #79c0ff;
+$link-hover: #a5d6ff;
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  body {
+    background-color: $bg;
+    color: $text;
+  }
+
+  // --- theme stylesheet overrides -----------------------------------------
+
+  a,
+  a.text-dark,
+  .card-title a.text-dark {
+    color: $link !important;
+  }
+
+  a:hover,
+  a.text-dark:hover {
+    color: $link-hover !important;
+  }
+
+  .mainheading,
+  .sitetitle,
+  .posttitle,
+  h1, h2, h3, h4, h5, h6 {
+    color: $text;
+  }
+
+  .lead,
+  .author-description,
+  .post-date,
+  .post-meta,
+  .card-text {
+    color: $text-muted;
+  }
+
+  // Bootstrap utilities baked into the markup.
+  .bg-white,
+  .card,
+  .card-footer.bg-white,
+  nav.mediumnavigation.bg-white {
+    background-color: $surface !important;
+    border-color: $rule;
+  }
+
+  .card {
+    border-color: $rule;
+  }
+
+  .site-footer.bg-dark {
+    background-color: #010409 !important;
+    border-top: 1px solid $rule;
+  }
+
+  hr,
+  .sep,
+  .after-post-tags .tags li a {
+    border-color: $rule;
+  }
+
+  blockquote {
+    border-left-color: $rule;
+    color: $text-muted;
+  }
+
+  table th,
+  table td {
+    border-color: $rule;
+  }
+
+  table thead th {
+    background-color: $surface;
+  }
+
+  code {
+    background-color: rgba(110, 118, 129, 0.25);
+    color: #e6edf3;
+  }
+
+  // --- components added by this repo --------------------------------------
+
+  .site-search input[type="search"] {
+    background: $surface;
+    border-color: $rule;
+    color: $text;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+
+  .site-search-results {
+    background: $surface;
+    border-color: $rule;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+
+    li a:hover,
+    li a:focus,
+    li a.is-active {
+      background: #21262d;
+    }
+
+    .search-meta,
+    .search-empty {
+      color: $text-muted;
+    }
+  }
+
+  .topic-cloud a {
+    border-color: $rule;
+    color: $link;
+
+    &:hover {
+      background: #21262d;
+    }
+  }
+
+  .topic-count,
+  .topic-meta,
+  .archive-meta,
+  .archive-list time {
+    color: $text-muted;
+  }
+
+  .topic-section h2,
+  .archive-year h2 {
+    border-bottom-color: $rule;
+  }
+
+  .topic-posts li,
+  .archive-list li {
+    border-bottom-color: #1c2128;
+  }
+
+  .series-nav {
+    background: $surface;
+    border-color: $rule;
+  }
+
+  .series-description {
+    color: $text-muted;
+  }
+
+  .toc-heading {
+    color: $text-muted;
+  }
+
+  .toc-list a {
+    color: $text-muted;
+
+    &:hover,
+    &.is-active {
+      color: $link;
+    }
+  }
+
+  .copy-code {
+    background: #21262d;
+    border-color: $rule;
+    color: $text-muted;
+
+    &:hover {
+      background: #30363d;
+      color: $text;
+    }
+  }
+
+  .theme-toggle {
+    border-color: $rule;
+    color: $text;
+  }
+
+  // Mermaid renders its own SVG palette via the theme passed to
+  // mermaid.initialize, so nothing to override here — but give the wrapper a
+  // surface so transparent diagram backgrounds do not float on pure black.
+  .mermaid svg {
+    background: transparent;
+  }
+}

@@ -4,6 +4,7 @@ title: MobileNet
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
+series: cnn-course
 image: assets/images/cnn1.png
 featured: false
 hidden: false

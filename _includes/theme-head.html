@@ -1,0 +1,21 @@
+{%- comment -%}
+  Applies the stored theme before first paint.
+
+  This has to be inline and synchronous in <head>. A deferred script would run
+  after the browser has already painted a light page, giving a visible white
+  flash to anyone reading in dark mode.
+{%- endcomment -%}
+<script>
+  (function () {
+    try {
+      var pref = localStorage.getItem("theme");
+      var dark =
+        pref === "dark" ||
+        (pref !== "light" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
+      var theme = dark ? "dark" : "light";
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.setAttribute("data-bs-theme", theme);
+    } catch (e) {}
+  })();
+</script>

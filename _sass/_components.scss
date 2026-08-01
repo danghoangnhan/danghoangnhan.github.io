@@ -207,6 +207,190 @@ $accent: #0a2b46;
   }
 }
 
+// --------------------------------------------------------------- theme toggle
+
+.theme-toggle {
+  background: none;
+  border: 1px solid $rule;
+  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  line-height: 1;
+  margin-left: 0.6rem;
+  color: $accent;
+  cursor: pointer;
+  flex: 0 0 auto;
+
+  &:hover {
+    background: #f6f8fa;
+  }
+
+  .theme-icon-dark { display: none; }
+  .theme-icon-light { display: inline-block; }
+
+  @media (max-width: 991px) {
+    margin: 0.5rem 0 0.25rem;
+  }
+}
+
+[data-theme="dark"] .theme-toggle {
+  .theme-icon-dark { display: inline-block; }
+  .theme-icon-light { display: none; }
+}
+
+// ---------------------------------------------------------- post left rail
+
+// screen.css pins .share with `position: fixed` above 1024px. That was fine
+// when the rail held nothing else, but the TOC has to sit beneath it — so the
+// rail becomes one sticky column and the fixed rule is unset.
+.post-rail {
+  @media (min-width: 1024px) {
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+
+    .share {
+      position: static;
+    }
+  }
+}
+
+// ------------------------------------------------------------- table of contents
+
+.toc {
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  text-align: left;
+
+  &[hidden] { display: none; }
+
+  // Below the sticky breakpoint the rail stacks above the article, where a long
+  // TOC would push the post itself off-screen.
+  @media (max-width: 1023px) {
+    display: none;
+  }
+}
+
+.toc-heading {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+  color: $muted;
+  margin-bottom: 0.4rem;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 2px solid $rule;
+
+  li { margin: 0; }
+
+  .toc-h3 { padding-left: 0.7rem; }
+
+  a {
+    display: block;
+    padding: 0.2rem 0 0.2rem 0.6rem;
+    color: $muted;
+    text-decoration: none;
+    line-height: 1.35;
+    border-left: 2px solid transparent;
+    margin-left: -2px;
+
+    &:hover { color: $accent; }
+
+    &.is-active {
+      color: $accent;
+      border-left-color: $accent;
+      font-weight: 600;
+    }
+  }
+}
+
+// ------------------------------------------------------------------ series
+
+.series-nav {
+  margin: 0 0 1.75rem;
+  border: 1px solid $rule;
+  border-radius: 8px;
+  background: #fafbfc;
+  font-size: 0.9rem;
+
+  summary {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .series-name { font-weight: 600; }
+
+  .series-position {
+    color: $muted;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .series-description {
+    margin: 0 1rem 0.5rem;
+    color: $muted;
+    font-size: 0.83rem;
+  }
+}
+
+.series-parts {
+  margin: 0;
+  padding: 0 1rem 0.9rem 2.2rem;
+
+  li { padding: 0.15rem 0; }
+
+  .is-current > span {
+    font-weight: 600;
+  }
+}
+
+// -------------------------------------------------------------- copy button
+
+.highlighter-rouge.has-copy-button {
+  position: relative;
+
+  .copy-code {
+    position: absolute;
+    top: 0.45rem;
+    right: 0.45rem;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    border: 1px solid $rule;
+    border-radius: 5px;
+    background: #fff;
+    color: $muted;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+  }
+
+  &:hover .copy-code,
+  .copy-code:focus-visible {
+    opacity: 1;
+  }
+
+  // Always visible on touch, where there is no hover.
+  @media (hover: none) {
+    .copy-code { opacity: 1; }
+  }
+
+  .copy-code.is-copied {
+    color: #1a7f37;
+    border-color: #1a7f37;
+  }
+}
+
 // ------------------------------------------------------ card image stability
 
 // Fixes cumulative layout shift without needing per-post width/height, which
