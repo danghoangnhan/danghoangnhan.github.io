@@ -12,6 +12,8 @@
 // DarkReader, which the repo previously attempted, is deliberately not used:
 // runtime CSS inversion mangles SVG diagrams, Mermaid output and KaTeX.
 
+@use "theme-scope" as *;
+
 $bg: #0d1117;
 $surface: #161b22;
 $text: #c9d1d9;
@@ -20,7 +22,10 @@ $rule: #30363d;
 $link: #79c0ff;
 $link-hover: #a5d6ff;
 
-[data-theme="dark"] {
+@include when-dark {
+  // Hands scrollbars, form-control internals and default UA widget chrome to
+  // the browser. Worth noting this works in the no-JS branch too, where
+  // Bootstrap's own variables are out of reach.
   color-scheme: dark;
 
   body {
@@ -167,12 +172,23 @@ $link-hover: #a5d6ff;
     color: $text-muted;
   }
 
+  // The rail and the active marker take $rule (#eaeaea) and $accent (#0a2b46)
+  // from _components.scss. Unoverridden that is a near-white 2px line and an
+  // almost-invisible navy marker against #0d1117.
+  .toc-list {
+    border-left-color: $rule;
+  }
+
   .toc-list a {
     color: $text-muted;
 
-    &:hover,
+    &:hover {
+      color: $link;
+    }
+
     &.is-active {
       color: $link;
+      border-left-color: $link;
     }
   }
 
@@ -190,6 +206,12 @@ $link-hover: #a5d6ff;
   .theme-toggle {
     border-color: $rule;
     color: $text;
+
+    // _components.scss hovers this to #f6f8fa: a near-white pill carrying
+    // light-grey icons, i.e. the button vanishes exactly when you point at it.
+    &:hover {
+      background: #21262d;
+    }
   }
 
   // Mermaid renders its own SVG palette via the theme passed to
@@ -197,5 +219,34 @@ $link-hover: #a5d6ff;
   // surface so transparent diagram backgrounds do not float on pure black.
   .mermaid svg {
     background: transparent;
+  }
+}
+
+// --- Bootstrap fallback, JS-off only --------------------------------------
+//
+// With JS off nothing writes data-bs-theme, so Bootstrap stays on the light
+// variable set from `:root,[data-bs-theme=light]` even on a dark OS. The double
+// :not() targets exactly that case — with JS on, Bootstrap's own
+// [data-bs-theme=dark] block already handles all of this.
+//
+// Only the properties this site actually consumes are re-declared; duplicating
+// Bootstrap's full ~200-property dark palette would just rot on the next upgrade.
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]):not([data-bs-theme]) {
+    --bs-emphasis-color: #fff;
+    --bs-emphasis-color-rgb: 255, 255, 255;
+    --bs-body-color: #dee2e6;
+    --bs-body-color-rgb: 222, 226, 230;
+    --bs-border-color: #495057;
+    --bs-secondary-color: rgba(222, 226, 230, 0.75);
+
+    // .navbar derives its toggler border and colour from --bs-emphasis-color-rgb
+    // above, so those follow. The icon cannot: it is a data-URI with the stroke
+    // baked in, swapped by `[data-bs-theme=dark] .navbar-toggler-icon`, which has
+    // no attribute to match here. Left alone it is a near-black hamburger on a
+    // #161b22 bar. Copied verbatim from Bootstrap 5.3.8 so it cannot drift.
+    .navbar-toggler-icon {
+      --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
   }
 }

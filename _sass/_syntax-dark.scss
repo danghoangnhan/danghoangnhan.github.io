@@ -5,7 +5,9 @@
 // Roughly the GitHub Dark token colours, chosen so contrast against #0d1117
 // stays above WCAG AA for body-size text.
 
-[data-theme="dark"] {
+@use "theme-scope" as *;
+
+@include when-dark {
   .highlight,
   pre.highlight {
     background-color: #0d1117;

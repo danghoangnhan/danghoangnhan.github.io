@@ -6,28 +6,58 @@
   threading nor reactions; giscus uses Discussions instead. (Same author —
   giscus is the successor.)
 
-  giscus needs a repo_id and category_id that can only be obtained after
-  enabling Discussions and installing the giscus app, so until `giscus:` is
-  filled in in _config.yml this falls back to the existing Disqus embed and
-  comments never simply vanish. Setup steps are in the README.
+  The gate below needs BOTH ids, so deleting either from _config.yml (and
+  restoring the `disqus:` key) falls straight back to the Disqus embed rather
+  than leaving posts with no comments at all.
 {%- endcomment -%}
 {%- if site.giscus and site.giscus.repo_id and site.giscus.category_id -%}
-<div class="no-print">
-  <script src="https://giscus.app/client.js"
-          data-repo="{{ site.giscus.repo | default: site.comments_repo }}"
-          data-repo-id="{{ site.giscus.repo_id }}"
-          data-category="{{ site.giscus.category | default: 'Comments' }}"
-          data-category-id="{{ site.giscus.category_id }}"
-          data-mapping="pathname"
-          data-strict="1"
-          data-reactions-enabled="1"
-          data-emit-metadata="0"
-          data-input-position="top"
-          data-theme="preferred_color_scheme"
-          data-lang="en"
-          data-loading="lazy"
-          crossorigin="anonymous"
-          async>
+<div class="no-print" id="giscus-container">
+  {%- comment -%}
+    Built programmatically rather than as a static <script> tag, following the
+    same pattern as _includes/disqus.html.
+
+    The reason is data-theme. It used to be "preferred_color_scheme", which makes
+    the comment iframe follow the OS rather than the site — so a reader who picks
+    light on a dark machine gets a light page with dark comments. It cannot be
+    emitted by Liquid either, since the choice lives in localStorage.
+
+    Creating the element here lets us read the already-resolved theme off <html>
+    synchronously (theme-head.html ran in <head>, so the attribute is always
+    present) and set it before giscus ever loads. Patching the attribute on a
+    static async tag from a following inline script would instead be a race:
+    async scripts execute whenever their fetch completes, and winning by a
+    microsecond is an implementation detail, not a guarantee.
+
+    assets/js/theme.js keeps it in sync afterwards, via postMessage on toggle
+    plus a one-shot re-send once giscus signals it has booted.
+  {%- endcomment -%}
+  <script>
+    (function () {
+      var config = {
+        "data-repo": {{ site.giscus.repo | default: site.comments_repo | jsonify }},
+        "data-repo-id": {{ site.giscus.repo_id | jsonify }},
+        "data-category": {{ site.giscus.category | default: 'Comments' | jsonify }},
+        "data-category-id": {{ site.giscus.category_id | jsonify }},
+        "data-mapping": "pathname",
+        "data-strict": "1",
+        "data-reactions-enabled": "1",
+        "data-emit-metadata": "0",
+        "data-input-position": "top",
+        "data-lang": "en",
+        "data-loading": "lazy",
+        "data-theme":
+          document.documentElement.dataset.theme === "dark" ? "dark" : "light"
+      };
+
+      var s = document.createElement("script");
+      s.src = "https://giscus.app/client.js";
+      s.async = true;
+      s.crossOrigin = "anonymous";
+      Object.keys(config).forEach(function (key) {
+        s.setAttribute(key, config[key]);
+      });
+      document.getElementById("giscus-container").appendChild(s);
+    })();
   </script>
   <noscript>Comments require JavaScript.</noscript>
 </div>
