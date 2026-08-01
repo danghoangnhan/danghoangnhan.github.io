@@ -8,6 +8,14 @@ $rule: #eaeaea;
 $muted: rgba(0, 0, 0, 0.55);
 $accent: #0a2b46;
 
+// The post rail turns into a sticky column at the same width screen.css:306
+// uses to pin .share. Both bounds are declared here so the "rail" and "no rail"
+// rules can never disagree: `max-width: 1023px` against `min-width: 1024px`
+// leaves the open interval between them matching neither, which browser zoom
+// and 125%/150% display scaling land in routinely.
+$rail-bp: 1024px;
+$rail-bp-max: 1023.98px;
+
 // ---------------------------------------------------------------- utilities
 
 .visually-hidden {
@@ -247,15 +255,25 @@ $accent: #0a2b46;
 // screen.css pins .share with `position: fixed` above 1024px. That was fine
 // when the rail held nothing else, but the TOC has to sit beneath it — so the
 // rail becomes one sticky column and the fixed rule is unset.
+//
+// The rail deliberately does NOT scroll. It caps at the viewport and hands the
+// leftover height to the TOC, which owns the only scrollbar (see .toc-list).
+// When the rail scrolled instead, a long TOC dragged the whole share block out
+// of view — the two contended for one 148px box. `overflow-y: auto` here also
+// computed overflow-x to `auto` per CSS Overflow 3 §3.1, clipping horizontally.
 .post-rail {
-  @media (min-width: 1024px) {
+  @media (min-width: $rail-bp) {
     position: sticky;
     top: 90px;
     max-height: calc(100vh - 110px);
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 
+    // Unsets screen.css:308. Scoped to the rail so the vendored rule still
+    // applies if .share is ever used somewhere else.
     .share {
       position: static;
+      flex: 0 0 auto;
     }
   }
 }
@@ -267,11 +285,27 @@ $accent: #0a2b46;
   font-size: 0.8rem;
   text-align: left;
 
+  // (0,2,0), so it still beats the `display: flex` below whatever the order.
   &[hidden] { display: none; }
+
+  @media (min-width: $rail-bp) {
+    // Take the height the share block leaves behind, then split it again
+    // between a fixed heading and a scrolling list.
+    flex: 1 1 auto;
+    min-height: 0; // a flex item will not shrink below its content without this
+    display: flex;
+    flex-direction: column;
+
+    // .share is centred, the TOC is left-aligned, and 1.5rem of margin was the
+    // only thing between them — in a 148px column the two read as one blob.
+    border-top: 1px solid $rule;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+  }
 
   // Below the sticky breakpoint the rail stacks above the article, where a long
   // TOC would push the post itself off-screen.
-  @media (max-width: 1023px) {
+  @media (max-width: $rail-bp-max) {
     display: none;
   }
 }
@@ -282,6 +316,11 @@ $accent: #0a2b46;
   font-size: 0.68rem;
   color: $muted;
   margin-bottom: 0.4rem;
+
+  // Stays put while the list below it scrolls.
+  @media (min-width: $rail-bp) {
+    flex: 0 0 auto;
+  }
 }
 
 .toc-list {
@@ -289,6 +328,16 @@ $accent: #0a2b46;
   padding: 0;
   margin: 0;
   border-left: 2px solid $rule;
+
+  // The rail's only scrollbar. A 27-heading post runs to roughly 1100px of
+  // links against 350-700px of usable rail, so this has to scroll somewhere —
+  // here it does so without taking the share block or the heading with it.
+  @media (min-width: $rail-bp) {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain; // don't hand the scroll to the page at the ends
+  }
 
   li { margin: 0; }
 
@@ -311,6 +360,40 @@ $accent: #0a2b46;
       font-weight: 600;
     }
   }
+}
+
+// The navbar is fixed-top and ~57px tall, so a TOC link would otherwise scroll
+// its heading to y=0 and straight underneath it. Same offset the topic and
+// archive headings already use above.
+.article-post {
+  h2,
+  h3,
+  h4 {
+    scroll-margin-top: 80px;
+  }
+}
+
+// ------------------------------------------------------------------- share
+
+// screen.css:295 styles the share icons as 30px bordered circles via
+// `.share ul li i.fa`, but the markup emits `i.fab` — in Font Awesome 6+ `fab`
+// is its own class rather than a modifier on `fa`, so that rule stopped
+// matching at the v4 -> v7 upgrade and the circles silently disappeared.
+.share ul li i.fab {
+  border: 1px solid $rule;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 50%;
+}
+
+// The "Read Story" bookmark in every post card footer is an inline <svg> with
+// no `fill` attribute and no rule setting one, so it painted UA-default black —
+// invisible against a dark card. Inheriting the link colour fixes dark mode and
+// matches what screen.css:386 already does for the share icons in light.
+.svgIcon-use {
+  fill: currentColor;
 }
 
 // ------------------------------------------------------------------ series

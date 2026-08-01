@@ -55,10 +55,14 @@
       referrerpolicy="no-referrer"
     />
 
-    <link href="{{ '/assets/css/screen.css' | relative_url }}" rel="stylesheet" />
+    <!-- The ?v= is not cosmetic: main.css overrides rules in screen.css, so a
+         visitor holding one from cache and one fresh gets a broken page — most
+         visibly .share reverting to screen.css's position:fixed on top of the
+         table of contents. site.time changes on every build. -->
+    <link href="{{ '/assets/css/screen.css' | relative_url }}?v={{ site.time | date: '%s' }}" rel="stylesheet" />
     <!-- main.css, NOT main.scss: Jekyll compiles the .scss source to .css, so
          linking the source extension 404s and the Rouge syntax theme never loads. -->
-    <link href="{{ '/assets/css/main.css' | relative_url }}" rel="stylesheet" />
+    <link href="{{ '/assets/css/main.css' | relative_url }}?v={{ site.time | date: '%s' }}" rel="stylesheet" />
 
     {% if jekyll.environment == 'production' and site.google_analytics %}
       {% include google-analytics.html %}
