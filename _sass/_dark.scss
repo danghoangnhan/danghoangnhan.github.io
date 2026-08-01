@@ -53,12 +53,32 @@ $link-hover: #a5d6ff;
     color: $text;
   }
 
+  // Every paragraph, list item, table cell and <strong> in every post and every
+  // page. screen.css:264 declares this colour directly on .article-post, so the
+  // `body` rule above cannot reach it — an inherited value always loses to a
+  // direct declaration, whatever the specificity. Headings, links and code are
+  // covered separately above, which is why the symptom looks like "the prose is
+  // black but the rest is fine".
+  .article-post {
+    color: $text;
+  }
+
   .lead,
   .author-description,
   .post-date,
   .post-meta,
   .card-text {
     color: $text-muted;
+  }
+
+  // screen.css:20 gives a bare <pre> a #f7fafb background. _syntax-dark.scss
+  // only reaches .highlight / pre.highlight, so an unhighlighted block was
+  // readable purely because .article-post above used to make its text black.
+  // The mermaid sources in _posts are the ones that hit this, in the window
+  // before mermaid.html swaps them for SVG.
+  pre {
+    background: $bg;
+    border-color: $rule;
   }
 
   // Bootstrap utilities baked into the markup.
@@ -115,15 +135,15 @@ $link-hover: #a5d6ff;
     border-bottom-color: $text-muted;
   }
 
-  // rgba(0,0,0,.05) on #0d1117 is no pill at all, and the .6 black label on top
-  // of it is unreadable. Covers .after-post-tags too — same ul.tags markup.
+  // rgba(0,0,0,.05) on #0d1117 is no pill at all. Only the background is set:
+  // the label colour comes from the blanket `a` rule above, which is
+  // !important and would beat anything declared here — exactly as
+  // screen.css:10 already beats screen.css:411 in light mode.
   ul.tags li a {
     background: #21262d;
-    color: $text-muted;
 
     &:hover {
       background: #30363d;
-      color: $text;
     }
   }
 
@@ -173,6 +193,17 @@ $link-hover: #a5d6ff;
     color: #e6edf3;
   }
 
+  // The chip above is meant for inline code, but Rouge wraps a fence as
+  // <pre class="highlight"><code>, and this rule at (0,1,2) outranks Bootstrap's
+  // `pre code { color: inherit }` at (0,0,2). <code> is inline, so that
+  // translucent background paints per line box — a ragged grey slab over the
+  // whole block, worst on plaintext fences where no token spans cover it.
+  pre code,
+  .highlight code {
+    background: transparent;
+    color: inherit;
+  }
+
   // --- components added by this repo --------------------------------------
 
   .site-search input[type="search"] {
@@ -204,14 +235,15 @@ $link-hover: #a5d6ff;
 
   .topic-cloud a {
     border-color: $rule;
-    color: $link;
 
     &:hover {
       background: #21262d;
     }
   }
 
-  .topic-count,
+  // .topic-count is nested under .topic-cloud in _components.scss, so matching
+  // that nesting keeps this ahead of it rather than one element-token ahead.
+  .topic-cloud .topic-count,
   .topic-meta,
   .archive-meta,
   .archive-list time {
@@ -233,7 +265,12 @@ $link-hover: #a5d6ff;
     border-color: $rule;
   }
 
-  .series-description {
+  // Both are nested under .series-nav in _components.scss; matching that keeps
+  // them ahead on class count rather than on a single element token.
+  // .series-position had no override at all — "Part 3 of 18" was rgba(0,0,0,.55)
+  // on #161b22.
+  .series-nav .series-description,
+  .series-nav .series-position {
     color: $text-muted;
   }
 
@@ -249,6 +286,15 @@ $link-hover: #a5d6ff;
     border-top-color: $rule;
   }
 
+  // screen.css:386 sets `.share { color: rgba(0,0,0,.44) }` with no dark
+  // counterpart. The icons are <a>s and survive on the !important link rule,
+  // but the <p>Share</p> label inherits from .share itself — near-black on
+  // #0d1117, on every post.
+  .share {
+    color: $text-muted;
+    fill: $text-muted;
+  }
+
   .share ul li i.fab {
     border-color: $rule;
   }
@@ -257,27 +303,36 @@ $link-hover: #a5d6ff;
     border-left-color: $rule;
   }
 
-  .toc-list a {
-    color: $text-muted;
-
-    &:hover {
-      color: $link;
-    }
-
-    &.is-active {
-      color: $link;
-      border-left-color: $link;
-    }
+  // Only the marker. The link colours belong to the blanket `a` rule above —
+  // _components.scss's own `color: $muted` here is equally dead in light mode.
+  .toc-list a.is-active {
+    border-left-color: $link;
   }
 
-  .copy-code {
-    background: #21262d;
-    border-color: $rule;
-    color: $text-muted;
+  // Nested to match _components.scss, which declares this as
+  // `.highlighter-rouge.has-copy-button .copy-code` at (0,3,0). A bare
+  // `.copy-code` here compiles to (0,2,1) and loses, so the button rendered a
+  // white pill with rgba(0,0,0,.55) text on a dark code block. It looked
+  // intermittent because :hover did win — the broken state is hovering the
+  // block without the button, keyboard focus, and always on touch.
+  .highlighter-rouge.has-copy-button {
+    .copy-code {
+      background: #21262d;
+      border-color: $rule;
+      color: $text-muted;
 
-    &:hover {
-      background: #30363d;
-      color: $text;
+      &:hover {
+        background: #30363d;
+        color: $text;
+      }
+    }
+
+    // Required, not optional: the rule above is (0,4,1) and would otherwise
+    // swallow the green "Copied!" state at (0,4,0). #1a7f37 is only ~2.3:1 on
+    // #21262d anyway, so it takes the GitHub-dark success green.
+    .copy-code.is-copied {
+      color: #3fb950;
+      border-color: #3fb950;
     }
   }
 
