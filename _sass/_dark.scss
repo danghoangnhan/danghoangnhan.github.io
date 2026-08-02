@@ -160,6 +160,35 @@ $link-hover: #a5d6ff;
     color: $text-muted;
   }
 
+  // The pagination pills, same split for the same reason: the numbered links and
+  // the prev/next arrows are <a>s and take $link from the blanket rule above,
+  // which nothing here can outrank, so only the box needs restating. The current
+  // page and an exhausted direction are <span>s and need explicit colours.
+  //
+  // These live here rather than beside the light rules in _components.scss
+  // because that !important `a` is the whole constraint — a dark link colour
+  // written into an earlier module simply would not apply.
+  .post-pagination__link {
+    border-color: $rule;
+  }
+
+  a.post-pagination__link:hover {
+    background: #21262d;
+  }
+
+  // $text on #21262d is 9.9:1; the $link border is what marks it as current for a
+  // sighted reader, matching the filled pill in light mode.
+  .post-pagination__link--current {
+    background: #21262d;
+    border-color: $link;
+    color: $text;
+  }
+
+  // $text-muted on $bg is 6.2:1.
+  .post-pagination__link--disabled {
+    color: $text-muted;
+  }
+
   // Same split for the translation switcher: the label is a <span> and needs a
   // colour, the link is an <a> and already has one it cannot lose.
   .post-translations__label {

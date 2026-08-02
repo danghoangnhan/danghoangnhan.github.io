@@ -92,10 +92,28 @@ jobs:
             *) echo "::error::Expected a Jekyll 4.x build. Production is not serving this workflow's artifact — check Settings > Pages > Source is 'GitHub Actions'."; exit 1 ;;
           esac
 
-          echo "--- category archives (jekyll-archives runs only on our own build)"
+          echo "--- category archives (jekyll-paginate-v2 autopages run only on our own build)"
           code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/category/cnn/")
           echo "/category/cnn/ -> $code"
-          [ "$code" = "200" ] || { echo "::error::/category/cnn/ returned $code; jekyll-archives did not run."; exit 1; }
+          [ "$code" = "200" ] || { echo "::error::/category/cnn/ returned $code; the autopages generator did not run."; exit 1; }
+
+          # A 200 alone is not enough here. _layouts/archive.html reads the posts from
+          # paginator.posts, and if that ever goes back to the page.posts key that
+          # jekyll-archives used to set, every category still returns a valid 200 page
+          # — reading "Nothing published under this topic yet." So assert cards.
+          #
+          # Herestring rather than a pipe into grep, matching the stylesheet checks
+          # below: `grep -c` exits 1 on zero matches, and under `set -o pipefail` a
+          # pipe would fail the step before the assertion could report the count.
+          html=$(curl -fsSL "$BASE/category/cnn/")
+          cards=$(grep -c 'begin post' <<<"$html" || true)
+          echo "/category/cnn/ -> ${cards} cards"
+          [ "$cards" -ge 1 ] || { echo "::error::/category/cnn/ rendered ${cards} post cards; the archive layout is not seeing the paginator."; exit 1; }
+
+          echo "--- home pagination"
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/page2/")
+          echo "/page2/ -> $code"
+          [ "$code" = "200" ] || { echo "::error::/page2/ returned $code; pagination did not run."; exit 1; }
 
           echo "--- stylesheet compiled (Dart Sass @use resolved)"
           css=$(curl -fsSL "$BASE/assets/css/main.css")

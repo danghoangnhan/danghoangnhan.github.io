@@ -66,6 +66,14 @@ jobs:
         # standalone page and a listing — because a template defect appears on
         # every page using it, and four is enough to see all four templates.
         #
+        # Two additions for pagination. /page2/ is not a fifth template but a second
+        # render state of the home one: paginator.page == 1 gates the Featured block
+        # and the de-duplication, so page 2 takes Liquid branches page 1 never runs,
+        # and it is the only page whose <h1> and active nav item depend on the
+        # is_home assign in _layouts/default.html holding. /category/cnn/ is here
+        # because _layouts/archive.html changed generator underneath it, from
+        # jekyll-archives to jekyll-paginate-v2's autopages.
+        #
         # This is the check that would have caught the missing landmarks, the
         # unnamed share buttons, the iframe with no title and the 3.23:1 body
         # text, none of which html-proofer can see.
@@ -74,9 +82,11 @@ jobs:
           npx http-server ./_site -p 4000 --silent &
           npx wait-on http://127.0.0.1:4000 --timeout 30000 || sleep 5
           URLS="http://127.0.0.1:4000/ \
+                http://127.0.0.1:4000/page2/ \
                 http://127.0.0.1:4000/poolinglayers/ \
                 http://127.0.0.1:4000/about \
-                http://127.0.0.1:4000/topics/"
+                http://127.0.0.1:4000/topics/ \
+                http://127.0.0.1:4000/category/cnn/"
 
           # The default reporter names the rule and the element but not the
           # measured value, so a contrast failure tells you which link is wrong and
