@@ -1,16 +1,16 @@
 ---
 layout: post
-title: MobileNet
+title: "MobileNet"
+description: "Depthwise separable convolution explained: the building block that makes a CNN cheap enough to run on a phone."
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 11
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-
-# Understanding MobileNets: A Blog on Efficient Convolutional Neural Network Architecture
 
 In the field of computer vision, convolutional neural networks (CNNs) play a vital role in various applications. However, many CNN architectures can be computationally expensive, making it challenging to deploy them on low-power devices like mobile phones. To address this issue, researchers have developed a specialized CNN architecture called MobileNets, which offers high performance even in low compute environments.
 

@@ -2,34 +2,54 @@
 layout: null
 ---
 <?xml version="1.0" encoding="UTF-8"?>
+{%- comment -%}
+  Hand-written RSS 2.0. jekyll-feed is not installed: its generator skips when the
+  source already contains a feed.xml, so it never ran, and it emits Atom rather
+  than the RSS 2.0 existing subscribers are on.
+
+  <description> carries the post's summary, not its full rendered HTML. It used to
+  be `post.content | xml_escape` for ten posts, which made this document hundreds
+  of kilobytes of escaped markup — and useless markup at that, because the image
+  paths inside it are page-relative (`../assets/images/...`). A feed reader
+  resolves those against its own base, not the post's, so every image in the feed
+  was broken. Summaries sidestep the whole problem and readers click through for
+  the article, which is what the <link> is for.
+{%- endcomment -%}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ site.title | xml_escape }}</title>
     <description>{{ site.description | xml_escape }}</description>
-    <link>{{ site.url }}{{ site.baseurl }}/</link>
-    <atom:link href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}" rel="self" type="application/rss+xml"/>
+    <link>{{ '/' | absolute_url }}</link>
+    <language>{{ site.lang | default: 'en' }}</language>
+    <atom:link href="{{ '/feed.xml' | absolute_url }}" rel="self" type="application/rss+xml"/>
     <pubDate>{{ site.time | date_to_rfc822 }}</pubDate>
     <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
     <generator>Jekyll v{{ jekyll.version }}</generator>
     {%- comment -%}
-      The same `hidden` filter index.html, search.json, topics, archive and the
-      category pages all apply. Without it the feed was the one public surface
-      that still published unlisted drafts — 6 of the 30 posts are hidden.
+      The same `hidden` filter index.html, search.json, /topics/, /archive/, the
+      category pages, post-nav.html and series-nav.html all apply. Without it the
+      feed was the one public surface still publishing unlisted drafts.
     {%- endcomment -%}
     {%- assign feed_posts = site.posts | where_exp: "p", "p.hidden != true" -%}
-    {% for post in feed_posts limit:10 %}
+    {% for post in feed_posts limit: 10 %}
       <item>
         <title>{{ post.title | xml_escape }}</title>
-        <description>{{ post.content | xml_escape }}</description>
+        {%- comment -%}
+          `description` first — every post has one, written for exactly this job.
+          The excerpt fallback is stripped of HTML because it would otherwise carry
+          the same relative image paths described above.
+        {%- endcomment -%}
+        <description>{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 400 | xml_escape }}</description>
         <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
-        <link>{{ post.url | prepend: site.baseurl | prepend: site.url }}</link>
-        <guid isPermaLink="true">{{ post.url | prepend: site.baseurl | prepend: site.url }}</guid>
-        {% for tag in post.tags %}
-        <category>{{ tag | xml_escape }}</category>
-        {% endfor %}
-        {% for cat in post.categories %}
+        <link>{{ post.url | absolute_url }}</link>
+        <guid isPermaLink="true">{{ post.url | absolute_url }}</guid>
+        {%- comment -%}
+          Categories only. A second loop over post.tags lived here too and emitted
+          nothing for years: no post on this site has ever set `tags:`.
+        {%- endcomment -%}
+        {%- for cat in post.categories %}
         <category>{{ cat | xml_escape }}</category>
-        {% endfor %}
+        {%- endfor %}
       </item>
     {% endfor %}
   </channel>

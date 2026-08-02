@@ -1,15 +1,22 @@
 {%- comment -%}
   Series navigation.
 
-  18 of these posts are one sequential run of notes sharing identical
-  categories and, in three cases, identical titles. Landing on "Pooling Layers"
-  gave no signal that it was part of a course or where the next part was, and
-  generic related-posts scoring would have tied 17 candidates with nothing to
-  rank them by. Ordering is by date.
+  These posts are one sequential run of notes sharing identical categories.
+  Landing on "Pooling Layers" gave no signal that it was part of a course or
+  where the next part was, and generic related-posts scoring would have tied the
+  other candidates with nothing to rank them by.
+
+  `hidden` is filtered for the same reason _includes/post-nav.html filters it: a
+  hidden post is still a built, reachable URL, and this list was the one surface
+  that still offered them. It linked readers at a post with an empty body.
+
+  Ordering is by date, then by an optional `series_order` — four parts share
+  2023-02-27, and date alone left their order down to file-read order.
 {%- endcomment -%}
 {%- if page.series -%}
   {%- assign meta = site.data.series[page.series] -%}
-  {%- assign parts = site.posts | where: "series", page.series | sort: "date" -%}
+  {%- assign in_series = site.posts | where: "series", page.series | where_exp: "p", "p.hidden != true" -%}
+  {%- assign parts = in_series | sort: "series_order" -%}
   {%- if parts.size > 1 -%}
 <aside class="series-nav" aria-label="Post series">
   <details{% if page.series_open %} open{% endif %}>

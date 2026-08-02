@@ -27,7 +27,7 @@ post_class: post-template
 
 
 		<!-- Post -->
-        {% assign author = site.authors[page.author] %}
+        {% assign author = site.data.authors[page.author] %}
 
 		<div class="col-md-9 flex-first flex-md-unordered">
 			<div class="mainheading">
@@ -36,10 +36,19 @@ post_class: post-template
                 {% if page.author %}
 				<div class="row post-top-meta">
 					<div class="col-md-2">
-						<img class="author-thumb" src="https://www.gravatar.com/avatar/{{ author.gravatar }}?s=250&d=mm&r=x" alt="{{ author.display_name }}">
+						{%- comment -%}
+						  Decorative: the author's name sits beside it as text, so
+						  alt="{{ display_name }}" made a screen reader say it twice.
+						{%- endcomment -%}
+						<img class="author-thumb" src="https://www.gravatar.com/avatar/{{ author.gravatar }}?s=250&d=mm&r=x" alt="" aria-hidden="true" width="80" height="80">
 					</div>
 					<div class="col-md-10">
-						<a target="_blank" class="link-dark" href="{{ author.web }}">{{ author.display_name }}</a><a target="_blank" href="{{ author.twitter }}" class="btn follow">Follow</a>
+						{%- comment -%}
+						  rel="noopener" on both. The Follow button builds its href from the
+						  bare handle in _data/authors.yml: that field feeds jekyll-seo-tag's
+						  twitter:creator, which wants the handle alone, not a profile URL.
+						{%- endcomment -%}
+						<a target="_blank" rel="noopener" class="link-dark" href="{{ author.web }}">{{ author.display_name }}</a>{% if author.twitter %}<a target="_blank" rel="noopener" href="https://twitter.com/{{ author.twitter }}" class="btn follow" aria-label="Follow {{ author.display_name }} on Twitter">Follow</a>{% endif %}
 						<span class="author-description">{{ author.description }}</span>
 					</div>
 				</div>

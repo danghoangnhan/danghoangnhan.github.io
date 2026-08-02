@@ -1,0 +1,23 @@
+# Post authors.
+#
+# This lives in _data rather than _config.yml because jekyll-seo-tag reads
+# `site.data.authors[page.author]` and nothing else. While the block sat in
+# _config.yml as `site.authors`, seo-tag could not resolve the string
+# "danghoangnhan" to a person, so it fell back to treating the slug itself as the
+# name — every page shipped `<meta name="author" content="danghoangnhan">`, a
+# JSON-LD author and publisher of "danghoangnhan", and
+# `twitter:creator = @danghoangnhan`, which is the GitHub username and not a
+# Twitter account. `twitter:site` on the same page was already correct.
+#
+# `twitter` is the BARE handle, no @ and no URL: seo-tag prepends the @ itself,
+# and given a URL it emits `twitter:creator="@https://twitter.com/..."`. The
+# clickable Follow button in _layouts/post.html builds its href from the handle.
+danghoangnhan:
+  name: Daniel Du
+  display_name: Daniel Du
+  gravatar: 34718a0845f14f39287b2b0178a8a3df
+  email: danghoangnhan.1@gmail.com
+  url: https://danghoangnhan.github.io
+  web: https://danghoangnhan.github.io
+  twitter: CallMeMrFern
+  description: "AI software engineer. Writing up notes on computer vision, LLMs and the data platforms underneath them."

@@ -1,15 +1,15 @@
 ---
 layout: post
-title: Data Augmentation
+title: "Data Augmentation in Computer Vision"
+description: "Mirroring, random cropping, colour shifting and PCA colour augmentation: the techniques that stretch a small vision dataset."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 15
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-
-# The Importance of Data Augmentation in Computer Vision
 
 Data augmentation is a crucial technique used to improve the performance of computer vision systems. In the realm of computer vision, where the input is an image composed of countless pixels, the task of understanding the contents of an image can be quite complex. It often requires learning intricate functions to accurately recognize objects or patterns within the image.
 

@@ -16,6 +16,17 @@
 /* Replaces the jQuery `a.smoothscroll` animation that mediumish.js used to run. */
 html {
 	scroll-behavior: smooth;
+
+	/*
+	 * Clearance under the fixed navbar for every scroll the browser performs
+	 * itself, which scroll-margin-top on individual elements does not cover.
+	 * The case that matters is Tab: when focus moves to something below the fold
+	 * the browser scrolls it into view flush with the viewport top, i.e. behind
+	 * the navbar — so a keyboard user tabbing down a post kept landing on a
+	 * focused link they could not see. 57px is the measured bar height and the
+	 * fallback for before mediumish.js publishes --nav-height.
+	 */
+	scroll-padding-top: calc(var(--nav-height, 57px) + 1rem);
 }
 
 @media (prefers-reduced-motion: reduce) {

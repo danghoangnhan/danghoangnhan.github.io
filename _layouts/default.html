@@ -21,6 +21,27 @@
          of those alongside it or they will be duplicated. -->
     {% seo %}
     {%- comment -%}
+      Keep unlisted and empty pages out of the index. jekyll-seo-tag emits no robots
+      meta of its own, so two surfaces leaked:
+
+        - `hidden: true` posts. Eight surfaces filter them, but jekyll-sitemap knows
+          nothing about the flag, so every one was submitted to search engines.
+        - Category pages whose only posts are hidden. jekyll-archives builds a page
+          per category from the unfiltered list, so /category/android/ is a live URL
+          reading "Nothing published under this topic yet". Computed here rather than
+          in _layouts/archive.html because that layout's output becomes this one's
+          `content` — a variable assigned there never reaches this <head>.
+
+      `follow` is deliberate: don't index the page, do keep crawling out of it.
+    {%- endcomment -%}
+    {%- assign noindex = false -%}
+    {%- if page.hidden == true -%}{%- assign noindex = true -%}{%- endif -%}
+    {%- if page.posts -%}
+      {%- assign archive_visible = page.posts | where_exp: "p", "p.hidden != true" -%}
+      {%- if archive_visible.size == 0 -%}{%- assign noindex = true -%}{%- endif -%}
+    {%- endif -%}
+    {%- if noindex %}<meta name="robots" content="noindex, follow" />{% endif %}
+    {%- comment -%}
       NOT {% feed_meta %}. That tag advertises the feed as application/atom+xml,
       but /feed.xml in this repo is a hand-written RSS 2.0 document — the tag was
       declaring a format the file is not. (jekyll-feed itself never runs: its
@@ -61,10 +82,23 @@
       rel="stylesheet"
     />
 
-    <!-- KaTeX stylesheet (the matching scripts are deferred at end of body).
-         Pinned to the 0.16 line: 0.18 prefixes KaTeX's internal CSS classes,
-         which is a documented breaking change. 0.16.47 carries the fixes for
-         CVE-2024-28244/28245/28246 and CVE-2025-23207. -->
+    {%- comment -%}
+      KaTeX, only on pages that ask for it.
+
+      This was unconditional: every page — the home page, /about, /topics, all 25
+      posts — pulled a render-blocking stylesheet plus two deferred scripts and the
+      webfonts behind them, roughly 350 KB, to typeset maths that two posts
+      contain. The `katex:` front-matter flag already existed on exactly those
+      posts and was read by nothing.
+
+      Gated on page.katex the same way the Mermaid include at the foot of
+      _layouts/post.html is gated on page.mermaid.
+
+      Pinned to the 0.16 line: 0.18 prefixes KaTeX's internal CSS classes, which is
+      a documented breaking change. 0.16.47 carries the fixes for
+      CVE-2024-28244/28245/28246 and CVE-2025-23207.
+    {%- endcomment -%}
+    {%- if page.katex %}
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css"
@@ -72,6 +106,7 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    {%- endif %}
 
     <!-- The ?v= is not cosmetic: main.css overrides rules in screen.css, so a
          visitor holding one from cache and one fresh gets a broken page — most
@@ -89,6 +124,13 @@
 
   {% capture layout %}{% if page.layout %}layout-{{ page.layout }}{% endif %}{% endcapture %}
   <body class="{{ layout }}">
+    {%- comment -%}
+      First focusable element on the page, so a keyboard or screen-reader user can
+      jump the navbar and the search field instead of tabbing through them on every
+      post. .visually-hidden-focusable is Bootstrap's — hidden until focused.
+    {%- endcomment -%}
+    <a class="skip-link visually-hidden-focusable" href="#main-content">Skip to content</a>
+
     <!-- Begin Menu Navigation
 ================================================== -->
     <!-- No data-bs-theme here. Bootstrap 5.3 resolves it at the nearest ancestor,
@@ -96,8 +138,14 @@
          palette for this whole subtree while _dark.scss forced the bar dark anyway —
          most visibly a black toggler border and focus ring on a #161b22 bar. The nav
          inherits the correct theme from <html>. -->
+    {%- comment -%}
+      aria-label because a post page carries three <nav> landmarks — this one, the
+      table of contents, and the translations bar — and a screen reader listing
+      them announced all three as "navigation" with nothing to choose between.
+    {%- endcomment -%}
     <nav
       class="navbar navbar-expand-lg bg-white fixed-top mediumnavigation nav-down"
+      aria-label="Main"
     >
       <div class="container pe-0">
         <!-- Begin Logo -->
@@ -180,18 +228,27 @@
       <div class="container">
         <!-- Site Title
 ================================================== -->
+        {%- comment -%}
+          Home page only. This block rendered on every page, so every post carried
+          <h1>Daniel's Blogs</h1> above <h1 class="posttitle">, and the site tagline
+          sat between the navbar and the article. Two h1s per page is ambiguous to a
+          screen reader and to a crawler deciding what the page is about; interior
+          pages already name themselves.
+        {%- endcomment -%}
+        {%- if page.url == '/' %}
         <div class="mainheading">
           <h1 class="sitetitle">{{ site.name }}</h1>
           <p class="lead">
             {{ site.description }}
           </p>
         </div>
+        {%- endif %}
 
         <!-- Content
 ================================================== -->
-        <div class="main-content">
+        <main id="main-content" class="main-content">
           {{ content }}
-        </div>
+        </main>
 
         {% if site.mailchimp-list %}
         <!-- Bottom Alert Bar
@@ -241,12 +298,26 @@
       <footer class="site-footer bg-dark text-white pt-4 pb-4">
         <div class="container">
             <div class="row">
+                {%- comment -%}
+                  Each link is named after where it goes, not after the handle used
+                  there. These read "Daniel Du", "Fern", "Hoàng Nhân" and
+                  "Tu,Hung-Jen" — four different names for the same person, with the
+                  destination carried only by an icon font. Out of context (a screen
+                  reader's link list, for instance) they were unusable, and the <i>
+                  elements were not hidden, so the icon glyphs were announced too.
+
+                  Handles come from _config.yml rather than being hardcoded a second
+                  time; the LinkedIn one disagreed with the config until now.
+                {%- endcomment -%}
                 <div class="col-md-6">
+                    <h2 class="footer-heading visually-hidden">Elsewhere</h2>
                     <ul class="list-unstyled">
-                        <li><a href="https://github.com/danghoangnhan" class="text-white"><i class="fab fa-github me-2"></i>Daniel Du</a></li>
-                        <li><a href="https://twitter.com/CallMeMrFern" class="text-white"><i class="fab fa-twitter me-2"></i>Fern</a></li>
-                        <li><a href="https://facebook.com/teddddy.bearrrrr" class="text-white"><i class="fab fa-facebook-f me-2"></i>Hoàng Nhân </a></li>
-                        <li><a href="https://www.linkedin.com/in/danieldu2812" class="text-white"><i class="fab fa-linkedin-in me-2"></i>Tu,Hung-Jen</a></li>
+                        <li><a href="https://github.com/{{ site.github_username }}" class="text-white" rel="me"><i class="fab fa-github me-2" aria-hidden="true"></i>GitHub</a></li>
+                        <li><a href="https://twitter.com/{{ site.twitter_username }}" class="text-white" rel="me"><i class="fab fa-twitter me-2" aria-hidden="true"></i>Twitter</a></li>
+                        <li><a href="https://facebook.com/{{ site.facebook_username }}" class="text-white" rel="me"><i class="fab fa-facebook-f me-2" aria-hidden="true"></i>Facebook</a></li>
+                        <li><a href="https://www.linkedin.com/in/{{ site.linkedin_username }}" class="text-white" rel="me"><i class="fab fa-linkedin-in me-2" aria-hidden="true"></i>LinkedIn</a></li>
+                        <li><a href="https://instagram.com/{{ site.instagram_username }}" class="text-white" rel="me"><i class="fab fa-instagram me-2" aria-hidden="true"></i>Instagram</a></li>
+                        <li><a href="{{ '/feed.xml' | relative_url }}" class="text-white"><i class="fas fa-rss me-2" aria-hidden="true"></i>RSS</a></li>
                     </ul>
                 </div>
                 <div class="col-md-6">
@@ -293,16 +364,42 @@
     ></script>
     {%- endif %}
 
-    <!-- KaTeX -->
+    <!-- KaTeX. Gated on the same page.katex flag as the stylesheet in <head>. -->
+    {%- if page.katex %}
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            renderMathInElement(document.body, {
-                // ...options...
-            });
+      document.addEventListener("DOMContentLoaded", function () {
+        /*
+         * The options object was empty, which is not the same as "defaults are
+         * fine" — auto-render passes it straight to katex.render, whose own
+         * default is throwOnError: true. One malformed expression therefore threw
+         * out of renderMathInElement and abandoned the pass, leaving every LATER
+         * formula on the page as raw TeX. throwOnError: false renders the broken
+         * one in red and carries on, which fails at the scale of the mistake.
+         *
+         * The delimiters are auto-render's own defaults, written out because they
+         * are load-bearing: single-dollar $…$ is deliberately NOT among them, so
+         * prose about prices and shell snippets like $HOME are not silently eaten
+         * as maths.
+         *
+         * If KaTeX is blocked by a CDN failure or an extension, renderMathInElement
+         * is undefined and this would throw inside a DOMContentLoaded handler.
+         */
+        if (typeof renderMathInElement !== "function") return;
+
+        renderMathInElement(document.body, {
+          throwOnError: false,
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false }
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option"]
         });
+      });
     </script>
+    {%- endif %}
   </body>
 </html>

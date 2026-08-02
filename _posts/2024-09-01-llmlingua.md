@@ -1,6 +1,7 @@
 ---
 layout: post
-title: LLMlingua
+title: "LLMLingua: Compressing Prompts for Accelerated LLM Inference"
+description: "How LLMLingua compresses prompts using a budget controller, iterative token-level compression and distribution alignment."
 author: danghoangnhan
 categories: [ llm ]
 image: assets/images/llmlingua/LLMLingua.png
@@ -8,9 +9,7 @@ featured: true
 hidden: false
 katex: True
 ---
-# LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models
-
-### The Challenges of of LLMs
+## The Challenges of LLMs
 
 Large language models (LLMs) have revolutionized various applications due to their remarkable capabilities. Advancements in techniques like chain-of-thought prompting and in-context learning have significantly enhanced the ability of LLMs to perform complex reasoning tasks and adapt to specific domains. However, these powerful techniques often result in increasingly long prompts, comprising tens of thousands of tokens.
 This trend toward lengthy prompts presents a significant challenge. It leads to substantial computational demands and increased costs for LLM inference, hindering the broader adoption and scalability of LLMs in real-world applications. This situation has created an urgent need to balance the need for comprehensive prompts with the computational efficiency of LLMs.
@@ -125,7 +124,7 @@ where :
 - $$(x_i, y_i^{\text{LLM}})$$: the pair of instruction $$x_i$$ and the LLM generated texts $$y_i^{\text{LLM}}$$
 - $$N$$ is the number of all examples used for instruction tuning.
 
-### Key Features and Advantages
+## Key Features and Advantages
 
 - **State-of-the-art Performance:** LLMLingua consistently outperforms existing prompt compression methods, including GPT4-Generation, Random Selection, and Selective-Context. It achieves this while enabling impressive compression ratios (up to 20x), showcasing its ability to retain critical information from the original prompt.
 - **Retention of Reasoning and ICL Capabilities:** LLMLingua effectively preserves the reasoning and in-context learning capabilities of LLMs, even at high compression ratios.
@@ -133,14 +132,14 @@ where :
 - **Compatibility with Different Small LMs**: Although the choice of the smaller language model can impact performance, LLMLingua's design enables its adaptation to various smaller LMs, with satisfactory results achieved even with less powerful models like GPT2-Small.
 - **Reduction in Generated Text Length**: Prompt compression not only saves computational resources in the input but also contributes to reduced computation in the generation stage, as evidenced by the shorter text length produced by LLMs when using compressed prompts.
 
-### Practical Implications
+## Practical Implications
 
 - **Cost Reduction:** LLMLingua leads to significant cost savings by reducing the number of tokens processed during inference, a crucial factor considering the token-based pricing models of LLMs.
 - **Enabling Longer Contexts:** By compressing prompts, LLMLingua opens up possibilities for accommodating longer contexts in LLMs, potentially enhancing their performance on tasks requiring extensive background information.
 - **Potential for Downstream Task Performance Improvement:** By allowing the compression of longer prompts, LLMLingua holds the potential to enhance downstream task performance, enabling the utilization of more comprehensive prompts without incurring excessive computational costs.
 - **Improved LLM Inference Efficiency:** LLMLingua's prompt compression can contribute to improved LLM inference efficiency by compressing the KV cache, further optimizing the resource utilization during model inference.
 
-### Limitations
+## Limitations
 
 While LLMLingua delivers significant advantages, it's essential to acknowledge its limitations:
 

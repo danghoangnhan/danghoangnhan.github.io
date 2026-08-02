@@ -3,10 +3,24 @@ Estimated reading time in whole minutes.
 
 Usage: {% include reading-time.html content=post.content %}
 
-220 wpm rather than the usual 250-265: this blog is code- and equation-heavy,
-which reads slower. Posts with a lot of TeX or Mermaid source will over-report
-somewhat, since the word counter sees the source text.
+Code blocks are removed before counting rather than counted as prose. The word
+counter used to see the source text inside every fence, so a post's estimate
+scaled with how much YAML, shell and Mermaid it quoted rather than with how much
+there was to read — the Luigi post carries roughly two thousand words of
+configuration. Rouge wraps every fence in <pre>, so splitting on that is enough,
+and it costs one Liquid pass over content Jekyll has already rendered.
+
+220 wpm rather than the usual 250-265: what is left is still equation-heavy, and
+that reads slower.
 {%- endcomment -%}
-{%- assign words = include.content | strip_html | number_of_words -%}
+{%- assign chunks = include.content | split: "<pre" -%}
+{%- assign prose = chunks[0] -%}
+{%- for chunk in chunks offset: 1 -%}
+  {%- assign after = chunk | split: "</pre>" -%}
+  {%- if after.size > 1 -%}
+    {%- assign prose = prose | append: after[1] -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign words = prose | strip_html | number_of_words -%}
 {%- assign minutes = words | divided_by: 220 | plus: 1 -%}
 {{ minutes }} min read

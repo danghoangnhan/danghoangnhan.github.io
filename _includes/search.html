@@ -26,4 +26,12 @@
     data-index="{{ '/search.json' | relative_url }}"
   />
   <ul id="site-search-results" class="site-search-results" role="listbox" aria-label="Search results" hidden></ul>
+  {%- comment -%}
+    Result count, announced rather than shown. Options appearing in a listbox are
+    silent to a screen reader until the user starts arrowing through them, so
+    there was no signal that a query had matched anything — or how much. A polite
+    live region outside the listbox is the standard way to say it, and it has to
+    live outside because a listbox may contain only options.
+  {%- endcomment -%}
+  <div id="site-search-status" class="visually-hidden" role="status" aria-live="polite"></div>
 </div>

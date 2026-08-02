@@ -1,22 +1,49 @@
+{%- comment -%}
+  Share buttons.
+
+  Three things were wrong and all three are fixed together, because they share a
+  cause — only the LinkedIn button was ever brought up to standard and the other
+  two were left as the vendored theme wrote them.
+
+  1. `{{ page.title }}` was interpolated raw into a query string, and `url_encode`
+     appears nowhere else in this repo either. A title containing & truncated the
+     tweet at that point and injected a bogus parameter; # dropped everything after
+     it. Titles on this site routinely contain both : and (), and now that posts
+     carry their real descriptive names they are longer and likelier to.
+
+  2. Twitter and Facebook were icon-only links whose sole child was an empty Font
+     Awesome <i>, so they had no accessible name at all — a screen reader announced
+     the share block as three links, one of them called "Share on LinkedIn" and two
+     called "link". aria-label names them; aria-hidden on the <i> stops the icon
+     font being read as text.
+
+  3. target="_blank" without rel="noopener" hands the opened page a window.opener
+     reference back to this one.
+
+  The onclick popups are kept: they degrade to a normal navigation when JS is off,
+  and `return false` only suppresses the default when the popup actually opened.
+{%- endcomment -%}
+{%- assign share_url = page.url | absolute_url | url_encode -%}
+{%- assign share_title = page.title | strip_html | url_encode -%}
 <div class="share">
     <p>
         Share
     </p>
     <ul>
         <li class="ms-1 me-1">
-        <a target="_blank" href="https://twitter.com/intent/tweet?text={{ page.title }}&url={{ page.url | absolute_url }}" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-        <i class="fab fa-twitter"></i>
+        <a target="_blank" rel="noopener" aria-label="Share on Twitter" href="https://twitter.com/intent/tweet?text={{ share_title }}&url={{ share_url }}" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+        <i class="fab fa-twitter" aria-hidden="true"></i>
         </a>
         </li>
-        
+
         <li class="ms-1 me-1">
-        <a target="_blank" href="https://facebook.com/sharer.php?u={{ page.url | absolute_url }}" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
-        <i class="fab fa-facebook-f"></i>
+        <a target="_blank" rel="noopener" aria-label="Share on Facebook" href="https://facebook.com/sharer.php?u={{ share_url }}" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;">
+        <i class="fab fa-facebook-f" aria-hidden="true"></i>
         </a>
         </li>
-        
+
         <li class="ms-1 me-1">
-        <a target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url={{ page.url | absolute_url }}" aria-label="Share on LinkedIn" onclick="window.open(this.href, 'linkedin-share', 'width=550,height=435');return false;">
+        <a target="_blank" rel="noopener" aria-label="Share on LinkedIn" href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url }}" onclick="window.open(this.href, 'linkedin-share', 'width=550,height=435');return false;">
         <i class="fab fa-linkedin-in" aria-hidden="true"></i>
         </a>
         </li>

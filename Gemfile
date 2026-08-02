@@ -9,7 +9,10 @@ ruby file: ".ruby-version"
 gem "jekyll", "~> 4.4.1"
 
 group :jekyll_plugins do
-  gem "jekyll-feed",     "~> 0.17.0"
+  # jekyll-feed removed: its generator no-ops when the source already contains a
+  # feed.xml, and this repo hand-writes one. Carrying it meant a dependency, a
+  # Dependabot subscription and a "Jekyll Feed: Generating feed for posts" line in
+  # every build log, for a gem that produced nothing.
   gem "jekyll-sitemap",  "~> 1.4.0"
   gem "jekyll-seo-tag",  "~> 2.9.0"
   # Ignored by GitHub's legacy builder; starts working once we control the build.

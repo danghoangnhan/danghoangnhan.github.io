@@ -58,6 +58,20 @@
 
     if (Math.abs(lastScrollTop - st) <= DELTA) return;
 
+    /*
+     * Never hide the bar while the collapsed menu is open.
+     *
+     * offsetHeight includes the expanded menu, so `top: -navHeight` slid the whole
+     * open menu off the top of the screen — it stayed open in Bootstrap's state,
+     * just invisible, and any keyboard focus inside it went with it. On a phone
+     * that is one flick after tapping the hamburger.
+     */
+    var menu = document.getElementById("navbarMediumish");
+    if (menu && menu.classList.contains("show")) {
+      lastScrollTop = st;
+      return;
+    }
+
     if (st > lastScrollTop && st > navHeight) {
       // Scrolling down and clear of the navbar: tuck it away.
       nav.classList.remove("nav-down");

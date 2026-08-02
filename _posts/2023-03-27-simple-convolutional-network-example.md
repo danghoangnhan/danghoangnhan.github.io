@@ -1,15 +1,15 @@
 ---
 layout: post
-title: Simple Convolutional Network Example
+title: "A Simple Convolutional Network Example"
+description: "A complete worked ConvNet for classifying 39x39 RGB images, layer by layer, from the first convolution down to the final softmax."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 8
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-
-# Convolutional Neural Networks: A Simple Example
 
 Convolutional Neural Networks (ConvNets) are widely used for image classification and recognition tasks. In this blog post, we'll walk through a simple example of a ConvNet to understand its architecture and how it works.
 

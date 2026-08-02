@@ -10,3 +10,9 @@ _site
 # Bundler
 vendor/
 .bundle/
+
+# Local Claude Code settings. Machine-specific: absolute C:\Users paths, temp
+# directories and a personal tool allowlist, none of which belong in a public
+# repo or apply to anyone else checking it out.
+.claude/settings.json
+.claude/settings.local.json

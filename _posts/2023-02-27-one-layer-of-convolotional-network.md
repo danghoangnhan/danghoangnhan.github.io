@@ -1,16 +1,16 @@
 ---
 layout: post
-title: One Layer of a Convolutional Network
+title: "One Layer of a Convolutional Network"
+description: "A step-by-step walk through a single convolutional layer: filters, bias, activation, and the parameter count it actually costs."
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 5
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-
-# Summary: Understanding a Layer in Convolutional Neural Networks
 
 In this blog post, we will dive into the details of one layer in Convolutional Neural Networks (CNNs). CNNs are widely used for image classification and recognition tasks, and understanding the layers is crucial to comprehend their functioning. The content is based on a speech that explains the intricacies of a single layer in a CNN. Let's summarize the key points discussed.
 

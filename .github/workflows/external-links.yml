@@ -1,0 +1,51 @@
+name: External links
+
+# The link check in ci.yml runs with --disable-external so PR builds stay
+# hermetic and are not at the mercy of someone else's downtime. The cost is that
+# nothing has ever checked:
+#
+#   - outbound links in posts (papers, repos, YouTube, PyTorch docs);
+#   - the social links in the footer;
+#   - the résumé PDF, preview and LaTeX repo, which live in a SEPARATE repository
+#     and are therefore classified external and skipped;
+#   - every link and image on the home page, because _includes/postbox.html and
+#     featuredbox.html build them with `absolute_url` — so html-proofer treats
+#     each of them as external and skips it. That is most of the site's links.
+#
+# Weekly, on a schedule, so a dead link is found by a cron job rather than by a
+# reader. Non-blocking by nature: it runs on main, not on PRs, and a third party
+# going down is not a reason to fail somebody's pull request.
+on:
+  schedule:
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Build
+        env:
+          JEKYLL_ENV: production
+        run: bundle exec jekyll build --trace
+
+      - name: Check every link, external included
+        run: |
+          gem install html-proofer --no-document
+          htmlproofer ./_site \
+            --allow-hash-href \
+            --enforce-https \
+            --no-check-external-hash \
+            --ignore-status-codes "403,429,999" \
+            --hydra-config '{"max_concurrency": 5}'
+        # 403/429 are rate limiting and bot blocking rather than a broken link
+        # (LinkedIn and Twitter both do it); 999 is LinkedIn's own variant.

@@ -1,17 +1,17 @@
 ---
 layout: post
-title: MobileNet Architecture
+title: "MobileNet Architecture"
+description: "MobileNet v1's depthwise-separable blocks and the inverted residual bottleneck v2 adds on top, and what each one buys you."
 
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 12
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-
-# MobileNet Architecture
 
 In this blog post, we will explore the MobileNet architecture, which leverages depthwise separable convolutions to create computationally efficient neural networks. MobileNet v1 introduced the concept of depthwise separable convolutions, and MobileNet v2 further improved upon this architecture by incorporating residual connections and bottleneck blocks.
 

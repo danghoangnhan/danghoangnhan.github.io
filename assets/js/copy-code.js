@@ -26,6 +26,16 @@
     button.className = "copy-code";
     button.textContent = "Copy";
     button.setAttribute("aria-label", "Copy code to clipboard");
+    /*
+     * The button announces its own result.
+     *
+     * The visible label flips to "Copied" but the accessible name is pinned by the
+     * aria-label above, so a screen reader kept saying "Copy code to clipboard" and
+     * the reader got no confirmation that anything had happened — the one piece of
+     * feedback this control exists to give. aria-live on the button itself is
+     * enough: it is not focus-dependent, and the button is the thing that changed.
+     */
+    button.setAttribute("aria-live", "polite");
 
     button.addEventListener("click", function () {
       var code = block.querySelector("code") || pre;
@@ -33,16 +43,20 @@
       navigator.clipboard.writeText(code.innerText.replace(/\n$/, "")).then(
         function () {
           button.textContent = "Copied";
+          button.setAttribute("aria-label", "Code copied to clipboard");
           button.classList.add("is-copied");
           setTimeout(function () {
             button.textContent = "Copy";
+            button.setAttribute("aria-label", "Copy code to clipboard");
             button.classList.remove("is-copied");
           }, 1500);
         },
         function () {
           button.textContent = "Failed";
+          button.setAttribute("aria-label", "Copying failed");
           setTimeout(function () {
             button.textContent = "Copy";
+            button.setAttribute("aria-label", "Copy code to clipboard");
           }, 1500);
         }
       );

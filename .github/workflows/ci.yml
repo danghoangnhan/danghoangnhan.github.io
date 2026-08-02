@@ -26,6 +26,13 @@ jobs:
           # .ruby-version, and there is no ruby-version-file input.
           bundler-cache: true
 
+      # Runs before the build, because it is the cheapest check and the one that
+      # catches the class of bug this site actually had. `jekyll build` is
+      # perfectly happy with an empty post, a duplicated title, or 25 posts
+      # sharing one meta description — see the header of the script.
+      - name: Content lint
+        run: ruby script/lint-content.rb
+
       - name: Build
         env:
           JEKYLL_ENV: production
@@ -36,6 +43,14 @@ jobs:
         # http://disqus.com links, and the empty-href check caught a 404.html
         # anchor that broke when baseurl changed from "/" to "".
         #
+        # --ignore-missing-alt is NOT set. It used to be, and it was suppressing
+        # exactly the errors that mattered: the /about/ portrait and both featured
+        # thumbnails shipped for years with no alt text and a green build.
+        #
+        # --disable-external stays, because the run has to be hermetic — but note
+        # it skips every absolute_url on the page, which is most of the homepage.
+        # The scheduled job in external-links.yml is what actually checks those.
+        #
         # Note this cannot be run on Windows — html-proofer binds libcurl via
         # ethon and there is no libcurl.dll, so this job is the only place the
         # check actually runs.
@@ -43,5 +58,24 @@ jobs:
           gem install html-proofer --no-document
           htmlproofer ./_site \
             --disable-external \
-            --allow-hash-href \
-            --ignore-missing-alt
+            --allow-hash-href
+
+      - name: Accessibility check
+        # pa11y-ci runs axe and HTML CodeSniffer against the built site over a
+        # local static server. One page per template — the homepage, a post, a
+        # standalone page and a listing — because a template defect appears on
+        # every page using it, and four is enough to see all four templates.
+        #
+        # This is the check that would have caught the missing landmarks, the
+        # unnamed share buttons, the iframe with no title and the 3.23:1 body
+        # text, none of which html-proofer can see.
+        run: |
+          npm install --no-save pa11y-ci@4 http-server@14
+          npx http-server ./_site -p 4000 --silent &
+          npx wait-on http://127.0.0.1:4000 --timeout 30000 || sleep 5
+          npx pa11y-ci \
+            --config .pa11yci.json \
+            http://127.0.0.1:4000/ \
+            http://127.0.0.1:4000/poolinglayers/ \
+            http://127.0.0.1:4000/about \
+            http://127.0.0.1:4000/topics/

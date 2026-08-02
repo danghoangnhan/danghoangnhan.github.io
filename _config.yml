@@ -19,7 +19,7 @@ lang: en
 # 'https-danghoangnhan-github-io'; restoring that key is all it takes to roll back,
 # since _includes/comments.html still falls through to Disqus when giscus is unset.
 
-include: ["_pages"]
+include: ["_pages", "_redirects"]
 permalink: /:title/
 
 # Every post gets a language, so page.lang is always populated and templates do not
@@ -39,23 +39,26 @@ defaults:
       type: posts
     values:
       lang: en
+      # og:locale, not page.lang. jekyll-seo-tag resolves og:locale as
+      # `page.locale || site.locale || page.lang`, and Open Graph wants
+      # language_TERRITORY — a bare "en" is not a valid locale, so every page was
+      # emitting an invalid one. A translated post overrides BOTH keys together
+      # (`lang: vi` + `locale: vi_VN`); the values live in _data/languages.yml and
+      # .github/workflows/ci.yml fails the build if a non-English post sets only
+      # one of them.
+      locale: en_US
 
-# Authors
-authors:
-  danghoangnhan:
-    name: Daniel Du
-    display_name: Daniel Du
-    gravatar: 34718a0845f14f39287b2b0178a8a3df
-    email: danghoangnhan.1@gmail.com
-    web: https://danghoangnhan.github.io
-    twitter: https://twitter.com/CallMeMrFern
-    description: ""
+# Authors moved to _data/authors.yml — that is the only place jekyll-seo-tag
+# looks, and while they lived here every page shipped the slug "danghoangnhan"
+# as the author name and as twitter:creator. See the note in that file.
 
 # Email / Social media user names
 email: "danghoangnhan.1@gmail.com"
 twitter_username: "CallMeMrFern"
 github_username: "danghoangnhan"
-linkedin_username: "daniel-du-4734081b8"
+# Was "daniel-du-4734081b8", which disagreed with the `social:` list below and
+# with the footer link in _layouts/default.html. danieldu2812 is the live profile.
+linkedin_username: "danieldu2812"
 facebook_username: teddddy.bearrrrr
 instagram_username: teddddy.bearrrrr
 
@@ -79,8 +82,6 @@ image: assets/images/logo.png
 #########################################################################################
 ######### Nothing below needs to be changed (unless you know what you're doing) #########
 #########################################################################################
-
-rss: rss
 
 # Google Analytics 4. `_includes/google-analytics.html` iterates this, so it must
 # be a list. Universal Analytics (UA-*) was shut down by Google in 2023 — do not
@@ -113,13 +114,18 @@ giscus:
   repo_id: R_kgDOGfn8Uw
   category_id: DIC_kwDOGfn8U84DCdF8
 
-titles_from_headings:
-  strip_title: true
-  collections: true
+# `titles_from_headings:` used to sit here. It configures jekyll-titles-from-headings,
+# which is not in the Gemfile and never has been, so it did nothing — while the
+# problem it was added for (18 posts opening their body with an <h1> that repeated
+# the front-matter title) went unfixed for years. Those h1s are now removed from the
+# Markdown itself, which is explicit, reviewable in the diff, and does not depend on
+# a plugin silently rewriting titles at build time.
 
 # Plugins
 plugins:
-  - jekyll-feed
+  # jekyll-feed is NOT listed: its generator skips when a feed.xml already exists in
+  # the source, and this repo hand-writes one (RSS 2.0 rather than the Atom the gem
+  # emits). The gem has been inert since the day feed.xml was committed.
   - jekyll-sitemap
   - jekyll-archives
   - jekyll-seo-tag

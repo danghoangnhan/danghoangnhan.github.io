@@ -196,6 +196,11 @@ a.post-tag:hover {
   left: 0;
   max-height: 60vh;
   overflow-y: auto;
+  // Don't hand the scroll to the page at the ends of the list. Without this,
+  // flicking through results on a phone scrolls the document once the list
+  // bottoms out — taking the fixed navbar, and the search box with it, off screen
+  // mid-search.
+  overscroll-behavior: contain;
   margin: 0;
   padding: 0.25rem 0;
   list-style: none;
@@ -211,15 +216,29 @@ a.post-tag:hover {
   li a {
     display: block;
     padding: 0.5rem 0.85rem;
+    // Room for the active marker below, so the row does not shift when selected.
+    border-left: 3px solid transparent;
     text-decoration: none;
     color: inherit;
 
-    &:hover,
-    &:focus,
-    &.is-active {
+    &:hover {
       background: #f6f8fa;
-      outline: none;
     }
+  }
+
+  /*
+   * The keyboard selection.
+   *
+   * This shared a rule with :hover — a 2% grey wash, about 1.03:1 against the
+   * dropdown. Arrowing through results, there was no discernible indication of
+   * where you were, and `outline: none` sat on the same rule removing the only
+   * other cue. Focus genuinely does not move here (it stays in the input, per the
+   * combobox pattern), so `.is-active` is the ONLY thing a keyboard user has, and
+   * it has to be visible on its own: a solid accent bar plus a stronger wash.
+   */
+  li a.is-active {
+    background: #eaeef2;
+    border-left-color: $accent;
   }
 
   .search-title {
@@ -227,6 +246,20 @@ a.post-tag:hover {
     font-weight: 600;
     font-size: 0.9rem;
     line-height: 1.3;
+  }
+
+  // Two lines of the post's description. Several posts here have carried
+  // near-identical titles, and a title-and-date row gave the reader nothing to
+  // tell them apart by.
+  .search-excerpt {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: $muted;
   }
 
   // Now a chip row rather than a "date · categories" string, so a hit carries
@@ -464,10 +497,29 @@ a.post-tag:hover {
     padding-top: 1.25rem;
   }
 
-  // Below the sticky breakpoint the rail stacks above the article, where a long
-  // TOC would push the post itself off-screen.
+  /*
+   * Below the sticky breakpoint the rail stacks above the article, and this used
+   * to be `display: none` — so every phone and tablet reader lost the table of
+   * contents entirely, on the posts long enough to need one most. It is a
+   * collapsed <details> there instead (see assets/js/toc.js): one line above the
+   * article, opening into the same link list.
+   */
   @media (max-width: $rail-bp-max) {
-    display: none;
+    margin: 0 0 1.5rem;
+    border: 1px solid $rule;
+    border-radius: 8px;
+    font-size: 0.875rem; // 0.8rem is below the comfortable floor on a phone
+  }
+}
+
+// The <details> wrapper only needs to participate in the rail's flex column at
+// desktop widths; below that it is an ordinary block.
+.toc-details {
+  @media (min-width: $rail-bp) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 }
 
@@ -478,9 +530,33 @@ a.post-tag:hover {
   color: $muted;
   margin-bottom: 0.4rem;
 
-  // Stays put while the list below it scrolls.
+  // Stays put while the list below it scrolls, and reads as a label rather than
+  // a control: at this width toc.js forces the <details> open, so the disclosure
+  // triangle would point at an interaction that does nothing.
   @media (min-width: $rail-bp) {
     flex: 0 0 auto;
+    list-style: none;
+    cursor: default;
+    pointer-events: none;
+
+    &::-webkit-details-marker { display: none; }
+  }
+
+  // A real control on mobile: full-width, and tall enough to hit. 44px is the
+  // comfortable target size; WCAG 2.2's floor is 24px.
+  @media (max-width: $rail-bp-max) {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0 0.85rem;
+    font-size: 0.72rem;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $accent;
+      outline-offset: -2px;
+    }
   }
 }
 
@@ -500,6 +576,16 @@ a.post-tag:hover {
     overscroll-behavior: contain; // don't hand the scroll to the page at the ends
   }
 
+  // Expanded on a phone: inset from the panel edge, and capped so a long TOC
+  // scrolls inside itself rather than pushing the article off the screen — which
+  // is the reason it was hidden here in the first place.
+  @media (max-width: $rail-bp-max) {
+    max-height: 50vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0 0.85rem 0.75rem;
+  }
+
   li { margin: 0; }
 
   .toc-h3 { padding-left: 0.7rem; }
@@ -512,6 +598,11 @@ a.post-tag:hover {
     line-height: 1.35;
     border-left: 2px solid transparent;
     margin-left: -2px;
+
+    // Comfortable tap targets once this is a real mobile control.
+    @media (max-width: $rail-bp-max) {
+      padding: 0.5rem 0 0.5rem 0.6rem;
+    }
 
     &:hover { color: $accent; }
 
@@ -647,6 +738,223 @@ a.post-tag:hover {
   }
 }
 
+// -------------------------------------------------------------- section title
+
+/*
+ * screen.css:54 styles `.section-title h2` only. _layouts/page.html now emits an
+ * <h1> there — /about, /topics, /archive and /list-100 previously had no <h1> at
+ * all once the site name stopped being one on every page — so the same rule has
+ * to reach h1. Declared here rather than edited into screen.css, which is
+ * vendored and left untouched by convention.
+ */
+.section-title h1 {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  margin-bottom: 27px;
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+// ------------------------------------------------------------------ contrast
+
+/*
+ * screen.css paints most of its secondary text `rgba(0, 0, 0, 0.44)`, which
+ * composites to about #919191 on white — a contrast ratio of 3.23:1, under
+ * WCAG AA's 4.5:1 floor for body-size text. It is used for the card excerpts,
+ * card footer dates, the post byline, the "Read Story" bookmark and the Share
+ * label: in other words, most of the small print on the site.
+ *
+ * $muted-aa is 0.6 black, ~#666 on white, 5.74:1. Still visibly secondary, still
+ * clearly legible. Blockquotes get the same treatment — they were 0.5 (3.95:1).
+ *
+ * The selectors below deliberately mirror screen.css's own, element tokens and
+ * all, so they win on the cascade rather than on load order. `.listfeaturedtag
+ * h4.card-text` is not among them: the card summary is a <p> now, so that rule no
+ * longer matches anything.
+ */
+$muted-aa: rgba(0, 0, 0, 0.6);
+
+.listfeaturedtag .card-text,
+.listrecent .card-text {
+  color: $muted-aa;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+.post-top-meta span,
+span.post-date,
+span.post-read,
+span.post-read-more a,
+.share,
+.share a {
+  color: $muted-aa;
+}
+
+span.post-read-more a,
+.share a {
+  fill: $muted-aa;
+}
+
+blockquote {
+  color: $muted-aa;
+}
+
+// The search field's placeholder sat at Bootstrap's default #6c757d over #fff
+// (4.68:1) but the field itself is tinted, which pushed it under the floor.
+.site-search input::placeholder {
+  color: $muted-aa;
+  opacity: 1; // Firefox dims placeholders by default, undoing the fix above
+}
+
+// ------------------------------------------------------------------- tables
+
+/*
+ * Markdown tables had no styling at all in either theme: neither screen.css nor
+ * Bootstrap targets a bare <table>, and kramdown emits no class, so every table
+ * in a post rendered as unseparated columns of text running into each other.
+ */
+.article-post table {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid $rule;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: #f6f8fa;
+    font-weight: 600;
+  }
+}
+
+// A table wider than the column scrolls inside its own box rather than making
+// the whole page scroll sideways.
+.article-post .table-wrapper,
+.article-post table {
+  overflow-x: auto;
+  display: block;
+
+  @media (min-width: 576px) {
+    display: table;
+  }
+}
+
+// ------------------------------------------------------------------ skip link
+
+/*
+ * Bootstrap's .visually-hidden-focusable un-hides on focus but leaves the element
+ * in the normal flow, which on this layout means it appears above the fixed
+ * navbar and off-screen. Pinning it puts it where a keyboard user expects.
+ */
+.skip-link {
+  &:focus,
+  &:focus-within {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1090;
+    padding: 0.6rem 1rem;
+    background: #fff;
+    color: $accent;
+    border: 2px solid $accent;
+    border-radius: 6px;
+    text-decoration: none;
+  }
+}
+
+// -------------------------------------------------------------- reduced motion
+
+/*
+ * Honour prefers-reduced-motion. The navbar slides on every scroll direction
+ * change (screen.css:`transition: top .2s`) and the cards lift on hover; for a
+ * reader with a vestibular disorder that is exactly the motion the media query
+ * exists to switch off. Scoped to the animated properties rather than a blanket
+ * `* { transition: none }`, which would also kill the theme toggle's colour fade.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .mediumnavigation {
+    transition: none !important;
+  }
+
+  .card,
+  .card:hover,
+  .listfeaturedtag,
+  .listfeaturedtag:hover {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+// ------------------------------------------------------------------- print
+
+/*
+ * There was no print stylesheet, so printing or PDF-ing a post produced the
+ * navbar, the search box, the share rail, the footer and the comment thread
+ * around the article — and clipped every code block at the column edge, because
+ * `overflow-x: auto` has nowhere to scroll on paper.
+ *
+ * These are notes people save. Printing one should give the notes.
+ */
+@media print {
+  .mediumnavigation,
+  .site-search,
+  .theme-toggle,
+  .site-footer,
+  .post-rail,
+  .share,
+  .toc,
+  #comments,
+  .no-print,
+  .series-nav,
+  .PageNavigation,
+  .post-read-more {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  .site-content {
+    margin-top: 0 !important;
+  }
+
+  // The rail is a col-md-2 next to a col-md-9; with the rail gone the article
+  // should have the page.
+  .col-md-9 {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  // Wrap rather than clip. On screen these scroll sideways; on paper the
+  // overflow is simply lost.
+  pre,
+  code {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    border: 1px solid #ccc;
+  }
+
+  // Spell out where a link goes, since the reader cannot click it.
+  .article-post a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    word-break: break-all;
+  }
+
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  img, pre, blockquote, table { page-break-inside: avoid; }
+}
+
 // ------------------------------------------------------ card image stability
 
 // Fixes cumulative layout shift without needing per-post width/height, which
@@ -656,4 +964,23 @@ a.post-tag:hover {
   object-fit: cover;
   width: 100%;
   height: auto;
+}
+
+// The featured card's thumbnail is an <img> now rather than a CSS background on
+// an empty <span> (see the note in _includes/featuredbox.html). screen.css:110
+// still styles `.listfeaturedtag .thumbnail` with background-size/-position,
+// which an <img> ignores — object-fit and object-position are the equivalents,
+// and without them the raster stretches to fill the 290px box instead of
+// cropping to it. The anchor needs the height too, or the image has nothing to
+// be 100% of.
+.listfeaturedtag .wrapthumbnail a {
+  display: block;
+  height: 100%;
+}
+
+.listfeaturedtag .thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 38% 22%;
 }
