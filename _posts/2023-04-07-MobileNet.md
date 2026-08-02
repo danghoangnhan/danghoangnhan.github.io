@@ -4,9 +4,9 @@ title: "MobileNet"
 description: "Depthwise separable convolution explained: the building block that makes a CNN cheap enough to run on a phone."
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 11
+series_order: 16
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

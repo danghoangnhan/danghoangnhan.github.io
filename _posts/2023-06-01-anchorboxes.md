@@ -3,9 +3,9 @@ layout: post
 title: "Anchor Boxes in Object Detection"
 description: "How anchor boxes let a single grid cell detect several overlapping objects, and how IoU decides which box owns which object."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 17
+series_order: 24
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

@@ -4,9 +4,9 @@ title: "One Layer of a Convolutional Network"
 description: "A step-by-step walk through a single convolutional layer: filters, bias, activation, and the parameter count it actually costs."
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 5
+series_order: 6
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

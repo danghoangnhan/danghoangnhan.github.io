@@ -1,0 +1,469 @@
+% Bibliography for the CNN / computer-vision series.
+%
+% One entry per paper, cited by key from the posts with {% cite key %}. Each post
+% closes with {% bibliography --cited %}, which renders only the keys that post
+% used — so entries can be added here freely without touching any post.
+%
+% Conventions:
+%   - Cite the peer-reviewed venue where one exists; keep the arXiv id in `eprint`
+%     so the reader has a free copy either way.
+%   - Braces around capitalised words ({ImageNet}, {C}affe) so the IEEE CSL style
+%     does not lowercase them.
+%   - Keys are lowercase author-year-shortname, e.g. `he2016resnet`.
+
+% ---------------------------------------------------------------------------
+% Foundations: where convolution in vision came from
+% ---------------------------------------------------------------------------
+
+@article{hubel1962receptive,
+  author  = {Hubel, David H. and Wiesel, Torsten N.},
+  title   = {Receptive fields, binocular interaction and functional architecture
+             in the cat's visual cortex},
+  journal = {The Journal of Physiology},
+  volume  = {160},
+  number  = {1},
+  pages   = {106--154},
+  year    = {1962},
+  doi     = {10.1113/jphysiol.1962.sp006837}
+}
+
+@article{fukushima1980neocognitron,
+  author  = {Fukushima, Kunihiko},
+  title   = {Neocognitron: A self-organizing neural network model for a mechanism
+             of pattern recognition unaffected by shift in position},
+  journal = {Biological Cybernetics},
+  volume  = {36},
+  number  = {4},
+  pages   = {193--202},
+  year    = {1980},
+  doi     = {10.1007/BF00344251}
+}
+
+@article{lecun1989backprop,
+  author  = {LeCun, Yann and Boser, Bernhard and Denker, John S. and
+             Henderson, Donnie and Howard, Richard E. and Hubbard, Wayne and
+             Jackel, Lawrence D.},
+  title   = {Backpropagation applied to handwritten zip code recognition},
+  journal = {Neural Computation},
+  volume  = {1},
+  number  = {4},
+  pages   = {541--551},
+  year    = {1989},
+  doi     = {10.1162/neco.1989.1.4.541}
+}
+
+@article{lecun1998lenet,
+  author  = {LeCun, Yann and Bottou, L{\'e}on and Bengio, Yoshua and
+             Haffner, Patrick},
+  title   = {Gradient-based learning applied to document recognition},
+  journal = {Proceedings of the IEEE},
+  volume  = {86},
+  number  = {11},
+  pages   = {2278--2324},
+  year    = {1998},
+  doi     = {10.1109/5.726791}
+}
+
+@inproceedings{luo2016receptivefield,
+  author    = {Luo, Wenjie and Li, Yujia and Urtasun, Raquel and Zemel, Richard},
+  title     = {Understanding the effective receptive field in deep convolutional
+               neural networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2016},
+  eprint    = {1701.04128},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{scherer2010pooling,
+  author    = {Scherer, Dominik and M{\"u}ller, Andreas and Behnke, Sven},
+  title     = {Evaluation of pooling operations in convolutional architectures
+               for object recognition},
+  booktitle = {International Conference on Artificial Neural Networks (ICANN)},
+  pages     = {92--101},
+  year      = {2010},
+  doi       = {10.1007/978-3-642-15825-4_10}
+}
+
+@inproceedings{springenberg2015allconv,
+  author    = {Springenberg, Jost Tobias and Dosovitskiy, Alexey and Brox, Thomas
+               and Riedmiller, Martin},
+  title     = {Striving for simplicity: The all convolutional net},
+  booktitle = {International Conference on Learning Representations (ICLR)
+               Workshop Track},
+  year      = {2015},
+  eprint    = {1412.6806},
+  archiveprefix = {arXiv}
+}
+
+% ---------------------------------------------------------------------------
+% Datasets and benchmarks
+% ---------------------------------------------------------------------------
+
+@inproceedings{deng2009imagenet,
+  author    = {Deng, Jia and Dong, Wei and Socher, Richard and Li, Li-Jia and
+               Li, Kai and Fei-Fei, Li},
+  title     = {{ImageNet}: A large-scale hierarchical image database},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {248--255},
+  year      = {2009},
+  doi       = {10.1109/CVPR.2009.5206848}
+}
+
+@article{russakovsky2015ilsvrc,
+  author  = {Russakovsky, Olga and Deng, Jia and Su, Hao and Krause, Jonathan and
+             Satheesh, Sanjeev and Ma, Sean and Huang, Zhiheng and
+             Karpathy, Andrej and Khosla, Aditya and Bernstein, Michael and
+             Berg, Alexander C. and Fei-Fei, Li},
+  title   = {{ImageNet} large scale visual recognition challenge},
+  journal = {International Journal of Computer Vision},
+  volume  = {115},
+  number  = {3},
+  pages   = {211--252},
+  year    = {2015},
+  doi     = {10.1007/s11263-015-0816-y},
+  eprint  = {1409.0575},
+  archiveprefix = {arXiv}
+}
+
+@article{everingham2010voc,
+  author  = {Everingham, Mark and Van~Gool, Luc and Williams, Christopher K. I.
+             and Winn, John and Zisserman, Andrew},
+  title   = {The {PASCAL} visual object classes ({VOC}) challenge},
+  journal = {International Journal of Computer Vision},
+  volume  = {88},
+  number  = {2},
+  pages   = {303--338},
+  year    = {2010},
+  doi     = {10.1007/s11263-009-0275-4}
+}
+
+@inproceedings{lin2014coco,
+  author    = {Lin, Tsung-Yi and Maire, Michael and Belongie, Serge and
+               Hays, James and Perona, Pietro and Ramanan, Deva and
+               Doll{\'a}r, Piotr and Zitnick, C. Lawrence},
+  title     = {{Microsoft COCO}: Common objects in context},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  pages     = {740--755},
+  year      = {2014},
+  eprint    = {1405.0312},
+  archiveprefix = {arXiv}
+}
+
+% ---------------------------------------------------------------------------
+% Classic classification architectures
+% ---------------------------------------------------------------------------
+
+@inproceedings{krizhevsky2012alexnet,
+  author    = {Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E.},
+  title     = {{ImageNet} classification with deep convolutional neural networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  pages     = {1097--1105},
+  year      = {2012}
+}
+
+@inproceedings{zeiler2014visualizing,
+  author    = {Zeiler, Matthew D. and Fergus, Rob},
+  title     = {Visualizing and understanding convolutional networks},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  pages     = {818--833},
+  year      = {2014},
+  eprint    = {1311.2901},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{simonyan2015vgg,
+  author    = {Simonyan, Karen and Zisserman, Andrew},
+  title     = {Very deep convolutional networks for large-scale image recognition},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2015},
+  eprint    = {1409.1556},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{lin2014nin,
+  author    = {Lin, Min and Chen, Qiang and Yan, Shuicheng},
+  title     = {Network in network},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2014},
+  eprint    = {1312.4400},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{szegedy2015googlenet,
+  author    = {Szegedy, Christian and Liu, Wei and Jia, Yangqing and
+               Sermanet, Pierre and Reed, Scott and Anguelov, Dragomir and
+               Erhan, Dumitru and Vanhoucke, Vincent and Rabinovich, Andrew},
+  title     = {Going deeper with convolutions},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {1--9},
+  year      = {2015},
+  eprint    = {1409.4842},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{szegedy2016inceptionv3,
+  author    = {Szegedy, Christian and Vanhoucke, Vincent and Ioffe, Sergey and
+               Shlens, Jon and Wojna, Zbigniew},
+  title     = {Rethinking the {Inception} architecture for computer vision},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {2818--2826},
+  year      = {2016},
+  eprint    = {1512.00567},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{he2016resnet,
+  author    = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+  title     = {Deep residual learning for image recognition},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {770--778},
+  year      = {2016},
+  eprint    = {1512.03385},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{he2016identity,
+  author    = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+  title     = {Identity mappings in deep residual networks},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  pages     = {630--645},
+  year      = {2016},
+  eprint    = {1603.05027},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{veit2016ensembles,
+  author    = {Veit, Andreas and Wilber, Michael J. and Belongie, Serge},
+  title     = {Residual networks behave like ensembles of relatively shallow
+               networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2016},
+  eprint    = {1605.06431},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{li2018losslandscape,
+  author    = {Li, Hao and Xu, Zheng and Taylor, Gavin and Studer, Christoph and
+               Goldstein, Tom},
+  title     = {Visualizing the loss landscape of neural nets},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2018},
+  eprint    = {1712.09913},
+  archiveprefix = {arXiv}
+}
+
+% ---------------------------------------------------------------------------
+% Efficient architectures
+% ---------------------------------------------------------------------------
+
+@article{howard2017mobilenets,
+  author  = {Howard, Andrew G. and Zhu, Menglong and Chen, Bo and
+             Kalenichenko, Dmitry and Wang, Weijun and Weyand, Tobias and
+             Andreetto, Marco and Adam, Hartwig},
+  title   = {{MobileNets}: Efficient convolutional neural networks for mobile
+             vision applications},
+  journal = {arXiv preprint},
+  year    = {2017},
+  eprint  = {1704.04861},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{sandler2018mobilenetv2,
+  author    = {Sandler, Mark and Howard, Andrew and Zhu, Menglong and
+               Zhmoginov, Andrey and Chen, Liang-Chieh},
+  title     = {{MobileNetV2}: Inverted residuals and linear bottlenecks},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {4510--4520},
+  year      = {2018},
+  eprint    = {1801.04381},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{chollet2017xception,
+  author    = {Chollet, Fran{\c{c}}ois},
+  title     = {{Xception}: Deep learning with depthwise separable convolutions},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {1251--1258},
+  year      = {2017},
+  eprint    = {1610.02357},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{tan2019mnasnet,
+  author    = {Tan, Mingxing and Chen, Bo and Pang, Ruoming and Vasudevan, Vijay
+               and Sandler, Mark and Howard, Andrew and Le, Quoc V.},
+  title     = {{MnasNet}: Platform-aware neural architecture search for mobile},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {2820--2828},
+  year      = {2019},
+  eprint    = {1807.11626},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{tan2019efficientnet,
+  author    = {Tan, Mingxing and Le, Quoc V.},
+  title     = {{EfficientNet}: Rethinking model scaling for convolutional neural
+               networks},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  pages     = {6105--6114},
+  year      = {2019},
+  eprint    = {1905.11946},
+  archiveprefix = {arXiv}
+}
+
+% ---------------------------------------------------------------------------
+% Training techniques
+% ---------------------------------------------------------------------------
+
+@article{srivastava2014dropout,
+  author  = {Srivastava, Nitish and Hinton, Geoffrey and Krizhevsky, Alex and
+             Sutskever, Ilya and Salakhutdinov, Ruslan},
+  title   = {Dropout: A simple way to prevent neural networks from overfitting},
+  journal = {Journal of Machine Learning Research},
+  volume  = {15},
+  number  = {56},
+  pages   = {1929--1958},
+  year    = {2014}
+}
+
+@inproceedings{ioffe2015batchnorm,
+  author    = {Ioffe, Sergey and Szegedy, Christian},
+  title     = {Batch normalization: Accelerating deep network training by
+               reducing internal covariate shift},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  pages     = {448--456},
+  year      = {2015},
+  eprint    = {1502.03167},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{yosinski2014transferable,
+  author    = {Yosinski, Jason and Clune, Jeff and Bengio, Yoshua and
+               Lipson, Hod},
+  title     = {How transferable are features in deep neural networks?},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2014},
+  eprint    = {1411.1792},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{kornblith2019transfer,
+  author    = {Kornblith, Simon and Shlens, Jonathon and Le, Quoc V.},
+  title     = {Do better {ImageNet} models transfer better?},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {2661--2671},
+  year      = {2019},
+  eprint    = {1805.08974},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{cubuk2019autoaugment,
+  author    = {Cubuk, Ekin D. and Zoph, Barret and Man{\'e}, Dandelion and
+               Vasudevan, Vijay and Le, Quoc V.},
+  title     = {{AutoAugment}: Learning augmentation strategies from data},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {113--123},
+  year      = {2019},
+  eprint    = {1805.09501},
+  archiveprefix = {arXiv}
+}
+
+@article{shorten2019augmentation,
+  author  = {Shorten, Connor and Khoshgoftaar, Taghi M.},
+  title   = {A survey on image data augmentation for deep learning},
+  journal = {Journal of Big Data},
+  volume  = {6},
+  number  = {60},
+  year    = {2019},
+  doi     = {10.1186/s40537-019-0197-0}
+}
+
+% ---------------------------------------------------------------------------
+% Object detection
+% ---------------------------------------------------------------------------
+
+@inproceedings{sermanet2014overfeat,
+  author    = {Sermanet, Pierre and Eigen, David and Zhang, Xiang and
+               Mathieu, Micha{\"e}l and Fergus, Rob and LeCun, Yann},
+  title     = {{OverFeat}: Integrated recognition, localization and detection
+               using convolutional networks},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2014},
+  eprint    = {1312.6229},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{girshick2014rcnn,
+  author    = {Girshick, Ross and Donahue, Jeff and Darrell, Trevor and
+               Malik, Jitendra},
+  title     = {Rich feature hierarchies for accurate object detection and
+               semantic segmentation},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {580--587},
+  year      = {2014},
+  eprint    = {1311.2524},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{ren2015fasterrcnn,
+  author    = {Ren, Shaoqing and He, Kaiming and Girshick, Ross and Sun, Jian},
+  title     = {{Faster R-CNN}: Towards real-time object detection with region
+               proposal networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2015},
+  eprint    = {1506.01497},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{redmon2016yolo,
+  author    = {Redmon, Joseph and Divvala, Santosh and Girshick, Ross and
+               Farhadi, Ali},
+  title     = {You only look once: Unified, real-time object detection},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {779--788},
+  year      = {2016},
+  eprint    = {1506.02640},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{redmon2017yolo9000,
+  author    = {Redmon, Joseph and Farhadi, Ali},
+  title     = {{YOLO9000}: Better, faster, stronger},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {7263--7271},
+  year      = {2017},
+  eprint    = {1612.08242},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{neubeck2006nms,
+  author    = {Neubeck, Alexander and Van~Gool, Luc},
+  title     = {Efficient non-maximum suppression},
+  booktitle = {International Conference on Pattern Recognition (ICPR)},
+  pages     = {850--855},
+  year      = {2006},
+  doi       = {10.1109/ICPR.2006.479}
+}
+
+@inproceedings{bodla2017softnms,
+  author    = {Bodla, Navaneeth and Singh, Bharat and Chellappa, Rama and
+               Davis, Larry S.},
+  title     = {{Soft-NMS}: Improving object detection with one line of code},
+  booktitle = {IEEE International Conference on Computer Vision (ICCV)},
+  pages     = {5561--5569},
+  year      = {2017},
+  eprint    = {1704.04503},
+  archiveprefix = {arXiv}
+}
+
+@inproceedings{rezatofighi2019giou,
+  author    = {Rezatofighi, Hamid and Tsoi, Nathan and Gwak, JunYoung and
+               Sadeghian, Amir and Reid, Ian and Savarese, Silvio},
+  title     = {Generalized intersection over union: A metric and a loss for
+               bounding box regression},
+  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {658--666},
+  year      = {2019},
+  eprint    = {1902.09630},
+  archiveprefix = {arXiv}
+}

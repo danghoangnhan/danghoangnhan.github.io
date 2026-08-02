@@ -5,9 +5,9 @@ description: "How to reuse pre-trained ImageNet weights for your own vision task
 
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 14
+series_order: 19
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

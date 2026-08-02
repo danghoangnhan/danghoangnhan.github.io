@@ -10,6 +10,13 @@ there was to read — the Luigi post carries roughly two thousand words of
 configuration. Rouge wraps every fence in <pre>, so splitting on that is enough,
 and it costs one Liquid pass over content Jekyll has already rendered.
 
+The bibliography is dropped for the same reason, in a second pass. A CNN-series
+post cites a dozen papers, and jekyll-scholar renders each one as roughly twenty
+words of authors, venue and page range — so a fully cited post was picking up
+about a minute and a half of "reading" nobody reads. It is a lookup table, not
+prose. The <ol class="bibliography"> wrapper comes from the gem and is pinned in
+the `scholar:` block of _config.yml precisely so selectors like this keep working.
+
 220 wpm rather than the usual 250-265: what is left is still equation-heavy, and
 that reads slower.
 {%- endcomment -%}
@@ -17,6 +24,14 @@ that reads slower.
 {%- assign prose = chunks[0] -%}
 {%- for chunk in chunks offset: 1 -%}
   {%- assign after = chunk | split: "</pre>" -%}
+  {%- if after.size > 1 -%}
+    {%- assign prose = prose | append: after[1] -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign bib_chunks = prose | split: '<ol class="bibliography"' -%}
+{%- assign prose = bib_chunks[0] -%}
+{%- for chunk in bib_chunks offset: 1 -%}
+  {%- assign after = chunk | split: "</ol>" -%}
   {%- if after.size > 1 -%}
     {%- assign prose = prose | append: after[1] -%}
   {%- endif -%}

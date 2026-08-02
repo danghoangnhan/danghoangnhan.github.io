@@ -4,9 +4,9 @@ title: "Inception Network Motivation"
 description: "Why the Inception module saves you from choosing between 1x1, 3x3, 5x5 and pooling, and how 1x1 convolutions keep the cost down."
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 9
+series_order: 14
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

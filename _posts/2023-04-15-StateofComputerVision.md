@@ -3,9 +3,9 @@ layout: post
 title: "The State of Computer Vision"
 description: "Why computer vision leans on hand-engineering more than other machine learning fields, and what to reach for when data is scarce."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 16
+series_order: 21
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

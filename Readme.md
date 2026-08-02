@@ -102,16 +102,24 @@ layout: post
 title: Your title
 author: danghoangnhan
 categories: [ deep-learning, computer-vision ]
-image: assets/images/something.png
+image: /assets/images/something.png
 featured: false
 hidden: false
 ---
 ```
 
+The leading slash on `image:` is required, not stylistic. jekyll-seo-tag only
+calls `absolute_url` directly when the path starts with `/`; otherwise it joins
+the value onto the post's own URL, so `assets/images/x.png` on `/poolinglayers/`
+emits `…/poolinglayers/assets/images/x.png` — a 404 on `og:image`,
+`twitter:image` and the JSON-LD alike. `script/lint-content.rb` fails the build on
+it.
+
 Categories are lowercase-hyphenated and drive the `/category/<name>/` archive
-pages. Existing ones: `cnn`, `computer-vision`, `data-engineering`,
+pages. Existing ones: `cnn`, `computer-vision`, `coursera`, `data-engineering`,
 `deep-learning`, `devops`, `federated-learning`, `leetcode`, `llm`,
-`reinforcement-learning`.
+`reinforcement-learning`. There are no tags — `autopages.tags.enabled` is off and
+`categories` is the only taxonomy.
 
 Despite `permalink: /:title/`, a post's URL comes from its **filename** slug, not
 its title — `:title` resolves to `page.slug`, which Jekyll derives from the file
@@ -130,6 +138,44 @@ only `<h1>`, so an `#` heading in the Markdown makes a second one.
 
 Math is rendered client-side by KaTeX, which loads only on posts that set
 `katex: true`; `$$…$$` works in Markdown. Set `mermaid: true` for diagrams.
+Both flags are checked by `script/lint-content.rb`: using `$$` or a ```` ```mermaid ````
+fence without the matching flag fails the build, because both fail *soft* at
+runtime — KaTeX runs with `throwOnError: false` and an unconverted Mermaid fence
+is just a code block, so the page ships looking broken with CI green.
+
+## Citing a paper
+
+References live in one shared BibTeX file, `_bibliography/references.bib`. Add an
+entry there, then cite it by key:
+
+```markdown
+Compound scaling fixes the ratio between the three {% cite tan2019efficientnet %}.
+
+## References
+
+{% bibliography --cited --clear %}
+```
+
+`--cited` lists only the papers that post actually cited; `--clear` resets the
+per-page key list afterwards, which matters under `jekyll serve` — without it,
+deleting a `{% cite %}` leaves the key behind and the reference keeps appearing.
+
+Put the `{% bibliography %}` tag at column 0 with a blank line around it, and
+**below** the citations: keys are collected as the `{% cite %}` tags render, so a
+bibliography above them comes out empty.
+
+Two things worth knowing:
+
+- A mistyped key renders as the literal text `(missing reference)` — no link, no
+  error, exit 0. `script/lint-content.rb` checks every key against the `.bib` for
+  exactly this reason. Keys are case-sensitive.
+- Editing an entry may not invalidate the disk cache, since jekyll-scholar keys
+  its citation cache on the bibtex key alone. If a change to `references.bib`
+  does not show up locally, `rm -rf .jekyll-cache`. CI always builds clean.
+
+Adding a citation makes Liquid run over the whole post, including inside fenced
+code. If a Mermaid fence uses hexagon nodes (`id{{Text}}`) or a formula contains
+`{{`, wrap it in `{% raw %}…{% endraw %}` or Liquid will eat it.
 
 ## License
 

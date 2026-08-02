@@ -4,9 +4,9 @@ title: "The Inception Network"
 description: "How Google's Inception architecture stacks Inception modules into GoogLeNet, and what those auxiliary side branches are for."
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 10
+series_order: 15
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

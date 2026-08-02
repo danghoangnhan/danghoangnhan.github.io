@@ -5,9 +5,9 @@ description: "MobileNet v1's depthwise-separable blocks and the inverted residua
 
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 12
+series_order: 17
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

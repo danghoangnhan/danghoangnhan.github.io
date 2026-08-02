@@ -3,9 +3,9 @@ layout: post
 title: "Pooling Layers in Convolutional Neural Networks"
 description: "How max and average pooling downsample a representation, the hyperparameters they take, and why they have no weights to learn."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 6
+series_order: 7
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

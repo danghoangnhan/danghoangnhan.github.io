@@ -37,6 +37,21 @@ Failure = Struct.new(:file, :message)
 failures = []
 warnings = []
 
+# Every @entry{key, ...} in the shared bibliography.
+#
+# Parsed with a regex rather than bibtex-ruby on purpose: this script is
+# deliberately dependency-free so `ruby script/lint-content.rb` runs without
+# bundler, and the only thing needed here is the key.
+#
+# Empty when the file is absent, which is not an error — the cite check below is
+# skipped in that case rather than failing every post at once.
+BIB = File.join(ROOT, "_bibliography", "references.bib")
+BIB_KEYS = if File.exist?(BIB)
+             File.read(BIB, encoding: "UTF-8").scan(/^@\w+\s*\{\s*([^,\s]+)\s*,/).flatten.to_set
+           else
+             Set.new
+           end
+
 def split_front_matter(raw)
   # A UTF-8 BOM is invisible in an editor and Jekyll copes with it, but it makes
   # `start_with?("---")` false and the whole file look like it has no front
@@ -166,6 +181,76 @@ posts.each do |path|
     if expected && actual != expected
       failures << Failure.new(name, "lang: #{lang} requires locale: #{expected} (found #{actual.empty? ? 'nothing' : actual})")
     end
+  end
+
+  # --- citations resolve ---------------------------------------------------
+  #
+  # jekyll-scholar renders an unknown key as the literal text "(missing
+  # reference)" and returns. No link, no anchor, no warning, exit 0 — and
+  # html-proofer sees nothing wrong because no broken href was ever emitted. A
+  # typo'd or renamed key therefore ships to production looking like prose.
+  #
+  # Keys are case-sensitive: BibTeX::Bibliography looks them up in a String-keyed
+  # Hash, so `{% cite He2016resnet %}` misses `@inproceedings{he2016resnet, ...}`.
+  unless BIB_KEYS.empty?
+    body.to_s.scan(/\{%-?\s*cite\s+([^%]+?)\s*-?%\}/) do |match|
+      # One tag may cite several keys: {% cite a b c %}. Trailing --options are
+      # not keys.
+      match[0].split(/\s+/).reject { |k| k.start_with?("--") }.each do |key|
+        next if BIB_KEYS.include?(key)
+
+        failures << Failure.new(name, "{% cite #{key} %} is not a key in _bibliography/references.bib (renders as \"(missing reference)\")")
+      end
+    end
+  end
+
+  # --- math and diagrams are opt-in ----------------------------------------
+  #
+  # KaTeX and Mermaid each load only when the post sets its flag, and both fail
+  # soft: KaTeX is configured `throwOnError: false`, and an unconverted Mermaid
+  # fence is just a code block. So a post that uses either and forgets the flag
+  # builds clean, passes html-proofer, and ships showing raw TeX or raw
+  # `flowchart LR` to readers. Nothing else in CI looks at this.
+  #
+  # Fenced code is skipped for the same reason the h1 check skips it: a shell
+  # snippet costing `$$5.00` is not display math, and a ```mermaid fence is the
+  # thing being looked for, not evidence of one.
+  in_fence = false
+  fence_lang = nil
+  math_delims = 0
+  has_mermaid_fence = false
+  stripped.each_line do |line|
+    if line.start_with?("```", "~~~")
+      if in_fence
+        in_fence = false
+        fence_lang = nil
+      else
+        in_fence = true
+        fence_lang = line.strip.delete_prefix("```").delete_prefix("~~~").strip.downcase
+        has_mermaid_fence = true if fence_lang == "mermaid"
+      end
+      next
+    end
+    math_delims += line.scan("$$").length unless in_fence
+  end
+
+  if math_delims.odd?
+    failures << Failure.new(name, "odd number of $$ delimiters (#{math_delims}); one of them is unclosed and will render as literal text")
+  end
+
+  uses_math = math_delims.positive?
+  if uses_math && !front["katex"]
+    failures << Failure.new(name, "body uses $$ math but front matter has no `katex: true`; KaTeX never loads and the formulas ship as raw TeX")
+  end
+  if !uses_math && front["katex"]
+    warnings << Failure.new(name, "front matter sets katex: but the body has no $$ math; the post loads KaTeX for nothing")
+  end
+
+  if has_mermaid_fence && !front["mermaid"]
+    failures << Failure.new(name, "body has a ```mermaid fence but front matter has no `mermaid: true`; it renders as a code block")
+  end
+  if !has_mermaid_fence && front["mermaid"]
+    warnings << Failure.new(name, "front matter sets mermaid: but the body has no ```mermaid fence")
   end
 
   # --- filenames become URLs ----------------------------------------------

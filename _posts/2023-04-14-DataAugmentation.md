@@ -3,9 +3,9 @@ layout: post
 title: "Data Augmentation in Computer Vision"
 description: "Mirroring, random cropping, colour shifting and PCA colour augmentation: the techniques that stretch a small vision dataset."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 15
+series_order: 20
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

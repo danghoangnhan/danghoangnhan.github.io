@@ -4,9 +4,9 @@ title: Deep Learning Computer Vision Advancements and Exciting Applications
 description: "How deep learning reshaped computer vision, from self-driving perception and face recognition to image recommendation and art generation."
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 2
+series_order: 1
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

@@ -3,9 +3,9 @@ layout: post
 title: "A Simple Convolutional Network Example"
 description: "A complete worked ConvNet for classifying 39x39 RGB images, layer by layer, from the first convolution down to the final softmax."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 8
+series_order: 9
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

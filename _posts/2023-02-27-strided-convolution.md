@@ -3,9 +3,9 @@ layout: post
 title: "Strided Convolutions"
 description: "How stride changes the way a filter moves across an image, and the formula that gives you the resulting output size."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 3
+series_order: 4
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

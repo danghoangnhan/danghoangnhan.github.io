@@ -921,6 +921,112 @@ blockquote {
   overflow-x: auto;
 }
 
+// ------------------------------------------------------------- bibliography
+
+/*
+ * jekyll-scholar's reference list, emitted by {% bibliography --cited --clear %}.
+ *
+ * Shape is fixed by the gem and by the `scholar:` block in _config.yml, which
+ * documents that these four names must not drift:
+ *
+ *   <ol class="bibliography"><li><span id="bibtex-key">…</span></li>…</ol>
+ *
+ * The id lives on the SPAN, not the li — that span is what `a.citation` links to,
+ * so it is the element that needs scroll clearance under the fixed navbar.
+ */
+.article-post {
+  ol.bibliography {
+    /*
+     * REQUIRED, not cosmetic. ieee.csl renders its own bracketed number into the
+     * entry text ("[1]K. He, …"), so leaving the <ol> marker on produces
+     * "1. [1] K. He, …" on every single reference.
+     *
+     * It also keeps the list correct if the style is ever swapped for an
+     * author-date one, where numbering an alphabetised bibliography is wrong.
+     */
+    list-style: none;
+    padding-left: 0;
+    margin-top: 1rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+
+    > li {
+      margin-bottom: 0.65rem;
+      /*
+       * Hanging indent, so the wrapped lines of an entry sit clear of its number.
+       * jekyll-scholar renders entries one at a time and assembles the <ol>
+       * itself, so citeproc-ruby's own bibliography formatting — which would have
+       * carried this as an inline style — never runs.
+       */
+      padding-left: 2.2rem;
+      text-indent: -2.2rem;
+    }
+
+    > li > span {
+      @include clears-navbar;
+    }
+
+    /* Highlight whichever entry the reader jumped to from an inline marker. */
+    > li > span:target {
+      background: rgba(10, 43, 70, 0.08);
+      border-radius: 3px;
+    }
+  }
+
+  /*
+   * The inline [1] marker. Deliberately NOT recoloured: it inherits the site link
+   * colour, which pa11y already measures on every other in-post link. Giving it
+   * its own colour would add a new contrast surface in both themes for no gain.
+   */
+  a.citation {
+    white-space: nowrap;
+  }
+}
+
+// -------------------------------------------------------- figures & diagrams
+
+/*
+ * Diagrams in posts come in two forms and both land inside .article-post:
+ *   - inline <svg>, hand-authored, for grids and geometry
+ *   - Mermaid, which replaces a fenced block with <div class="mermaid"><svg>
+ *
+ * Inline SVG is drawn with stroke/fill="currentColor" so it inherits the body
+ * colour and needs no dark-mode counterpart. That only works while nothing here
+ * sets a colour on it — don't.
+ */
+.article-post {
+  figure {
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+
+  figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: $muted-aa;
+  }
+
+  > svg,
+  figure svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem auto;
+  }
+
+  /*
+   * Mermaid renders asynchronously, so its host is empty on first paint and the
+   * page reflows when the SVG lands. Centring it and letting a wide diagram
+   * scroll inside its own box keeps that reflow from pushing the article sideways
+   * — the same guard the tables above needed, for the same reason.
+   */
+  .mermaid {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    text-align: center;
+  }
+}
+
 // ------------------------------------------------------------------ skip link
 
 /*

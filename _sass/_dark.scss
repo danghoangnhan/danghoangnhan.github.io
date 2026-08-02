@@ -458,6 +458,21 @@ $link-hover: #a5d6ff;
   .mermaid svg {
     background: transparent;
   }
+
+  // Bibliography. Only the :target highlight needs a dark counterpart — the
+  // entry text inherits $text from .article-post, and a.citation deliberately
+  // takes the same $link colour as every other in-post link.
+  //
+  // The light rule is a navy wash at 8% alpha, which is all but invisible on
+  // #0d1117; this is the $link blue at a similar weight instead.
+  .article-post ol.bibliography > li > span:target {
+    background: rgba(121, 192, 255, 0.14);
+  }
+
+  // Hand-authored inline SVG draws itself with currentColor, so it follows $text
+  // and needs no per-property override. Mermaid's generated SVG does NOT — it
+  // bakes colours in at render time, which is why _includes/mermaid.html re-runs
+  // it on themechange rather than restyling it here.
 }
 
 // --- Bootstrap fallback, JS-off only --------------------------------------

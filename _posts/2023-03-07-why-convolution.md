@@ -3,9 +3,9 @@ layout: post
 title: Unleashing the Power of Convolutional Neural Networks
 description: "Why convolutional layers beat fully connected ones on images: parameter sharing, sparse connections, and 14 million parameters saved."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 7
+series_order: 8
 image: /assets/images/cnn1.png
 featured: false
 hidden: false

@@ -17,6 +17,22 @@ group :jekyll_plugins do
   gem "jekyll-seo-tag",  "~> 2.9.0"
   # Ignored by GitHub's legacy builder; starts working once we control the build.
   gem "jekyll-archives", "~> 2.3.0"
+
+  # Citations for the CNN series, which cites ~15 papers across 25 posts.
+  #
+  # The alternative was a hand-written "## References" list per post, which is what
+  # the DQN and Luigi posts do. That does not scale here: the same seven papers
+  # (AlexNet, VGG, ResNet, GoogLeNet, MobileNet v1/v2, EfficientNet) are cited from
+  # a dozen posts each, and a hand-maintained list means the same entry copied a
+  # dozen times, drifting apart on every correction. _bibliography/references.bib
+  # is one entry per paper, cited by key.
+  #
+  # Pulls in citeproc-ruby, csl and csl-styles. csl-styles vendors the CSL
+  # definitions, so the build needs no network beyond bundler — which matters
+  # because CI builds with JEKYLL_ENV=production on a clean runner.
+  #
+  # Ignored by GitHub's legacy builder, same as jekyll-archives above.
+  gem "jekyll-scholar", "~> 7.3"
 end
 
 # Windows and JRuby ship no system tzdata.
