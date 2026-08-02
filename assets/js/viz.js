@@ -824,6 +824,177 @@
     return root;
   }
 
+  // --- widget: nms ---------------------------------------------------------
+
+  /*
+   * Non-max suppression, one iteration of the loop per step.
+   *
+   * The boxes are a fixed scenario rather than random: two clustered detections
+   * on one object and a third elsewhere, which is the case the post describes.
+   * A `Math.random` scenario would give a different picture on every load and
+   * make the prose around it wrong half the time.
+   */
+  function nmsWidget(cfg) {
+    var UNIT = 30;
+    var GRID = 12;
+    var DEFAULT = [
+      { x: 1, y: 1, w: 5, h: 4, p: 0.92 },
+      { x: 2, y: 2, w: 5, h: 4, p: 0.78 },
+      { x: 1, y: 2, w: 5, h: 4, p: 0.63 },
+      { x: 7, y: 5, w: 4, h: 5, p: 0.85 },
+      { x: 7, y: 6, w: 4, h: 5, p: 0.55 }
+    ];
+
+    var boxes = DEFAULT.map(function (b, i) {
+      var c = {};
+      Object.keys(b).forEach(function (k) { c[k] = b[k]; });
+      c.id = i + 1;
+      return c;
+    });
+
+    var state = { thr: 0.5, step: 0 };
+    var uid = "viz-" + Math.floor(Math.random() * 1e9).toString(36);
+    var root = el("div", { class: "viz viz-nms" });
+    var figure = el("div", { class: "viz-figure" });
+    var controls = el("div", { class: "viz-controls" });
+    var readout = el("p", { class: "viz-readout", "aria-live": "polite" });
+
+    function boxIou(a, b) {
+      var iw = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
+      var ih = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+      var inter = iw * ih;
+      return inter / (a.w * a.h + b.w * b.h - inter);
+    }
+
+    /*
+     * Replays the algorithm from scratch up to `step` iterations, rather than
+     * mutating as it goes. Cheap at this size and it makes `prev` correct for
+     * free — stepping back is just replaying one fewer iteration.
+     */
+    function replay(steps) {
+      var remaining = boxes.slice().sort(function (a, b) { return b.p - a.p; });
+      var kept = [], removed = [], current = null, victims = [];
+      for (var i = 0; i < steps && remaining.length; i++) {
+        current = remaining.shift();
+        kept.push(current);
+        victims = [];
+        remaining = remaining.filter(function (b) {
+          if (boxIou(b, current) > state.thr) {
+            removed.push(b);
+            victims.push(b);
+            return false;
+          }
+          return true;
+        });
+      }
+      return { kept: kept, removed: removed, remaining: remaining, current: current, victims: victims };
+    }
+
+    var thrWrap = el("span", { class: "viz-control" });
+    var thrInput = el("input", {
+      type: "range", id: uid + "-thr", min: "0.1", max: "0.9", step: "0.05", value: "0.5"
+    });
+    var thrOut = el("output", { for: uid + "-thr" }, "0.50");
+    thrWrap.appendChild(el("label", { for: uid + "-thr" }, "IoU threshold"));
+    thrWrap.appendChild(thrInput);
+    thrWrap.appendChild(thrOut);
+    thrInput.addEventListener("input", function () {
+      state.thr = parseFloat(thrInput.value);
+      thrOut.textContent = state.thr.toFixed(2);
+      state.step = 0;
+      render();
+    });
+    controls.appendChild(thrWrap);
+
+    var prev = button("‹ back", function () {
+      state.step = Math.max(0, state.step - 1);
+      render();
+    });
+    var next = button("step ›", function () {
+      state.step = state.step + 1;
+      render();
+    });
+    var stepper = el("span", { class: "viz-stepper" });
+    stepper.appendChild(prev);
+    stepper.appendChild(next);
+    controls.appendChild(stepper);
+
+    function render() {
+      var maxSteps = replay(99).kept.length;
+      state.step = Math.min(state.step, maxSteps);
+      prev.disabled = state.step === 0;
+      next.disabled = state.step >= maxSteps;
+
+      var r = replay(state.step);
+      var w = GRID * UNIT + 20,
+        h = GRID * UNIT + 20;
+
+      var svg = svgEl("svg", {
+        viewBox: "0 0 " + w + " " + h, width: w, height: h,
+        role: "img", "aria-labelledby": uid + "-title",
+        style: "max-width:100%;height:auto"
+      });
+      var title = svgEl("title", { id: uid + "-title" });
+      title.textContent =
+        "Five candidate detections. After " + state.step + " iterations at IoU threshold " +
+        state.thr.toFixed(2) + ", " + r.kept.length + " kept and " + r.removed.length +
+        " suppressed.";
+      svg.appendChild(title);
+
+      boxes.forEach(function (b) {
+        var isKept = r.kept.indexOf(b) >= 0;
+        var isGone = r.removed.indexOf(b) >= 0;
+        var isCurrent = r.current === b && state.step > 0;
+        var justRemoved = r.victims.indexOf(b) >= 0;
+
+        svg.appendChild(svgEl("rect", {
+          x: 10 + b.x * UNIT, y: 10 + b.y * UNIT,
+          width: b.w * UNIT, height: b.h * UNIT,
+          fill: isCurrent ? "currentColor" : "none",
+          "fill-opacity": isCurrent ? "0.1" : "0",
+          stroke: "currentColor",
+          "stroke-width": isCurrent ? "2.5" : isKept ? "2" : "1.2",
+          "stroke-opacity": isGone ? "0.25" : "1",
+          "stroke-dasharray": isGone ? "3 3" : justRemoved ? "6 3" : ""
+        }));
+
+        var t = svgEl("text", {
+          x: 10 + b.x * UNIT + 6, y: 10 + b.y * UNIT + 16,
+          "font-size": "12", fill: "currentColor",
+          "fill-opacity": isGone ? "0.35" : "1"
+        });
+        t.textContent = b.p.toFixed(2) + (isGone ? " ✕" : isKept ? " ✓" : "");
+        svg.appendChild(t);
+      });
+
+      figure.textContent = "";
+      figure.appendChild(svg);
+
+      if (state.step === 0) {
+        readout.textContent =
+          boxes.length + " candidate boxes, none processed yet. Press step to take the " +
+          "highest-confidence box and suppress everything overlapping it.";
+      } else if (r.victims.length) {
+        readout.textContent =
+          "kept " + r.current.p.toFixed(2) + "; suppressed " +
+          r.victims.map(function (v) { return v.p.toFixed(2); }).join(", ") +
+          " for IoU > " + state.thr.toFixed(2) +
+          ".   " + r.kept.length + " kept, " + r.remaining.length + " still to process.";
+      } else {
+        readout.textContent =
+          "kept " + r.current.p.toFixed(2) + "; nothing overlapped it above " +
+          state.thr.toFixed(2) + ".   " + r.kept.length + " kept, " +
+          r.remaining.length + " still to process.";
+      }
+    }
+
+    root.appendChild(figure);
+    root.appendChild(controls);
+    root.appendChild(readout);
+    render();
+    return root;
+  }
+
   // --- widget: shape -------------------------------------------------------
 
   /*
@@ -1035,7 +1206,8 @@
     shape: shapeWidget,
     convolution: convolutionWidget,
     pooling: poolingWidget,
-    iou: iouWidget
+    iou: iouWidget,
+    nms: nmsWidget
   };
 
   Array.prototype.forEach.call(hosts, function (node) {

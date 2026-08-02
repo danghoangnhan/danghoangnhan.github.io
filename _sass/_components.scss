@@ -1075,6 +1075,27 @@ blockquote {
       color: inherit;
       font: inherit;
     }
+
+    select {
+      padding: 0.15rem 0.35rem;
+      border: 1px solid $rule;
+      border-radius: 3px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+    }
+
+    input[type="range"] {
+      width: 8rem;
+      // accent-color styles the track and thumb from one property and is
+      // honoured in both themes; the alternative is per-vendor pseudo-elements.
+      accent-color: $accent;
+    }
+
+    output {
+      min-width: 2.4rem;
+      font-variant-numeric: tabular-nums;
+    }
   }
 
   .viz-stepper {

@@ -480,8 +480,21 @@ $link-hover: #a5d6ff;
   // disappear or glare on #0d1117.
   .article-post {
     .viz-control input[type="number"],
+    .viz-control select,
     .viz-button {
       border-color: $rule;
+      color: $text;
+    }
+
+    // $accent is the light-theme navy, which is nearly invisible on #0d1117.
+    .viz-control input[type="range"] {
+      accent-color: $link;
+    }
+
+    // A <select>'s dropdown list is painted by the OS, not the page: without an
+    // explicit background the options render as dark-on-dark on some platforms.
+    .viz-control select option {
+      background: $surface;
       color: $text;
     }
 

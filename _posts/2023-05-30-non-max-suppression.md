@@ -12,6 +12,7 @@ featured: false
 hidden: false
 katex: true
 mermaid: true
+viz: true
 ---
 
 A detector run over an image does not produce one box per object. It produces one prediction per grid cell per anchor — often tens of thousands — and the cells *near* an object all fire, because a cell one step over still sees most of the car.
@@ -45,6 +46,14 @@ Two thresholds, doing different jobs:
 | IoU $$\tau$$ | 0.5 | how much overlap counts as "the same object" |
 
 Raising $$\tau$$ keeps more boxes (fewer are considered duplicates); lowering it suppresses more aggressively.
+
+Step the loop and watch it run. Five candidates: three clustered on one object, two on another. Each step takes the highest remaining confidence, keeps it, and deletes whatever overlaps it beyond the threshold.
+
+Then raise $$\tau$$ towards 0.9 and step again. The clustered boxes stop being recognised as duplicates and survive as separate "objects" — which is the same mechanism that makes NMS fail in crowds, seen from the other side:
+
+```viz
+type: nms
+```
 
 ## Run it per class
 
