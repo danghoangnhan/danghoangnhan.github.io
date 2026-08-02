@@ -754,6 +754,39 @@ a.post-tag:hover {
   font-size: 1.4rem;
 }
 
+// -------------------------------------------------------------------- footer
+
+/*
+ * White text over a photograph.
+ *
+ * screen.css:708 gives .site-footer `background-image: url(footer.jpg)` and
+ * `color: white`, with no colour underneath it. Contrast is therefore whatever
+ * that photograph happens to be at that pixel — unverifiable by any tool, and
+ * genuinely poor wherever the image is light. It is also the only thing keeping
+ * the footer dark: if the image 404s or is still loading, white text lands on the
+ * page background.
+ *
+ * A scrim fixes both. The gradient is a solid translucent black layer painted
+ * over the photo, so every pixel behind the text is at least 72% black and the
+ * ratio is knowable: white on rgba(0,0,0,.72) over the lightest possible photo is
+ * still above 7:1. background-color underneath covers the image failing entirely.
+ *
+ * The URL stays relative to assets/css/, which is where both this file's output
+ * and screen.css live.
+ *
+ * height: 300px becomes a minimum. A fixed height leaves dead space at desktop
+ * widths and clips the content out of the box at 200% text zoom, which WCAG 1.4.4
+ * requires to work.
+ */
+.site-footer {
+  background-color: #212529;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.72)),
+    url("../images/footer.jpg");
+  height: auto;
+  min-height: 300px;
+}
+
 // ------------------------------------------------------------------ contrast
 
 /*
