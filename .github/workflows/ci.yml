@@ -73,9 +73,20 @@ jobs:
           npm install --no-save pa11y-ci@4 http-server@14
           npx http-server ./_site -p 4000 --silent &
           npx wait-on http://127.0.0.1:4000 --timeout 30000 || sleep 5
-          npx pa11y-ci \
-            --config .pa11yci.json \
-            http://127.0.0.1:4000/ \
-            http://127.0.0.1:4000/poolinglayers/ \
-            http://127.0.0.1:4000/about \
-            http://127.0.0.1:4000/topics/
+          URLS="http://127.0.0.1:4000/ \
+                http://127.0.0.1:4000/poolinglayers/ \
+                http://127.0.0.1:4000/about \
+                http://127.0.0.1:4000/topics/"
+
+          # The default reporter names the rule and the element but not the
+          # measured value, so a contrast failure tells you which link is wrong and
+          # nothing about why. On failure, re-run with the JSON reporter, which
+          # carries axe's full message — the actual ratio and the two colours it
+          # compared. Without this the only way to debug a red build is to guess
+          # and push again.
+          if ! npx pa11y-ci --config .pa11yci.json $URLS; then
+            echo "::group::Full pa11y JSON (contains the measured values)"
+            npx pa11y-ci --config .pa11yci.json --reporter json $URLS || true
+            echo "::endgroup::"
+            exit 1
+          fi
