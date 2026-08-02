@@ -66,7 +66,7 @@ Ten million times fewer, and — this is the part that is easy to miss — **the
 
 $$\text{multiply-adds} \;=\; \underbrace{n_H^{[l]} \cdot n_W^{[l]}}_{\text{positions}} \;\times\; \underbrace{f \cdot f \cdot n_C^{[l-1]}}_{\text{per position}} \;\times\; \underbrace{n_C^{[l]}}_{\text{filters}}$$
 
-Parameters and compute differ by exactly the $$n_H \cdot n_W$$ factor. Keeping the two apart is what makes the [MobileNet](/mobilenet/) and [EfficientNet](/efficientnet/) arguments legible later — those papers optimise compute, and a model can be small in parameters while being expensive to run.
+Parameters and compute differ by exactly the $$n_H \cdot n_W$$ factor. Keeping the two apart is what makes the [MobileNet](/MobileNet/) and [EfficientNet](/EfficientNet/) arguments legible later — those papers optimise compute, and a model can be small in parameters while being expensive to run.
 
 ## What actually matters
 

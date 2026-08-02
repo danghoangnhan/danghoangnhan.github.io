@@ -28,7 +28,7 @@ $$S[i,j] \;=\; \sum_{m=0}^{f-1}\sum_{n=0}^{f-1}\sum_{c=0}^{n_C-1} I[i+m,\; j+n,\
 
 So a 6×6×3 input with one 3×3×3 filter gives a 4×4×**1** output. The channels collapse. Convolution over a volume returns a flat map, because the sum runs over $$c$$ as well.
 
-That collapse is the whole point of the rule. It also means "convolve each channel separately" is a *different operation* — depthwise convolution, which [MobileNet](/mobilenet/) is built from.
+That collapse is the whole point of the rule. It also means "convolve each channel separately" is a *different operation* — depthwise convolution, which [MobileNet](/MobileNet/) is built from.
 
 Because the filter spans channels, it can be selective about them. A filter with the vertical-edge pattern in the red slice and zeros in green and blue detects vertical edges *in red only*. A filter with the same pattern in all three slices detects vertical edges regardless of colour.
 

@@ -75,9 +75,9 @@ The activation size rising at layer 1 before falling is normal, and worth watchi
 
 **Do this arithmetic before writing the code, every time.** Layer 2 above produces 17×17 from 37×37 — not 18, not 16. The floor discards a filter position, so the last row and column of the layer-1 output never reach layer 2. That is invisible in a diagram and invisible in the code, and it is the single most common cause of a shape mismatch surfacing three layers later.
 
-**Where the parameters sit is the whole story of the architectures that follow.** Here, conv 3 holds 73% of the weights and the classifier holds 7%. Now scale it: at 224×224 with VGG-sized dense layers, the fully connected block holds ~90% of the parameters {% cite simonyan2015vgg %}. That imbalance is what global average pooling was invented to fix {% cite lin2014nin %}, and it is why [Inception](/inception-network/) and ResNet look the way they do.
+**Where the parameters sit is the whole story of the architectures that follow.** Here, conv 3 holds 73% of the weights and the classifier holds 7%. Now scale it: at 224×224 with VGG-sized dense layers, the fully connected block holds ~90% of the parameters {% cite simonyan2015vgg %}. That imbalance is what global average pooling was invented to fix {% cite lin2014nin %}, and it is why [Inception](/Inception-Network/) and ResNet look the way they do.
 
-**A network like this has one design freedom that matters and several that do not.** $$f$$, $$s$$, $$p$$ and the filter counts are all choices, but only the filter counts and the downsampling schedule meaningfully change what the network can do. Most published architectures fix $$f=3$$ throughout and vary only depth and width — which is precisely the parameterisation [EfficientNet](/efficientnet/) later formalises.
+**A network like this has one design freedom that matters and several that do not.** $$f$$, $$s$$, $$p$$ and the filter counts are all choices, but only the filter counts and the downsampling schedule meaningfully change what the network can do. Most published architectures fix $$f=3$$ throughout and vary only depth and width — which is precisely the parameterisation [EfficientNet](/EfficientNet/) later formalises.
 
 ## Source code
 
