@@ -30,6 +30,9 @@ POSTS = File.join(ROOT, "_posts")
 # pass measured 0, 23, 46 and 66 characters; the shortest real post is ~890.
 MIN_BODY_CHARS = 400
 
+# Widget names assets/js/viz.js can render. Must match the WIDGETS table there.
+VIZ_TYPES = %w[shape convolution pooling iou nms filter].freeze
+
 # Languages that may appear in `lang:`, and the locale each one requires.
 LOCALES = YAML.safe_load_file(File.join(ROOT, "_data", "languages.yml"))
 
@@ -232,6 +235,8 @@ posts.each do |path|
   fence_lang = nil
   math_delims = 0
   has_mermaid_fence = false
+  has_viz_fence = false
+  viz_types = []
   stripped.each_line do |line|
     if line.start_with?("```", "~~~")
       if in_fence
@@ -241,9 +246,12 @@ posts.each do |path|
         in_fence = true
         fence_lang = line.strip.delete_prefix("```").delete_prefix("~~~").strip.downcase
         has_mermaid_fence = true if fence_lang == "mermaid"
+        has_viz_fence = true if fence_lang == "viz"
       end
       next
     end
+    # Collect the `type:` of each viz block so an unknown one can be reported.
+    viz_types << Regexp.last_match(1).strip if in_fence && fence_lang == "viz" && line =~ /^\s*type:\s*(\S+)/
     math_delims += line.scan("$$").length unless in_fence
   end
 
@@ -264,6 +272,27 @@ posts.each do |path|
   end
   if !has_mermaid_fence && front["mermaid"]
     warnings << Failure.new(name, "front matter sets mermaid: but the body has no ```mermaid fence")
+  end
+
+  # Same contract for the interactive figures in assets/js/viz.js, which fail
+  # soft in the same way: without the flag the script never loads and the fence
+  # ships as a visible block of config.
+  if has_viz_fence && !front["viz"]
+    failures << Failure.new(name, "body has a ```viz fence but front matter has no `viz: true`; it renders as a code block")
+  end
+  if !has_viz_fence && front["viz"]
+    warnings << Failure.new(name, "front matter sets viz: but the body has no ```viz fence")
+  end
+
+  # A `type:` viz.js does not know leaves the fence on the page untouched — the
+  # renderer deliberately does not throw or blank it — so a typo is invisible
+  # here and obvious to a reader. Keep this list in step with WIDGETS in
+  # assets/js/viz.js.
+  (viz_types - VIZ_TYPES).each do |t|
+    failures << Failure.new(name, "```viz block has unknown type: #{t} (known: #{VIZ_TYPES.join(', ')})")
+  end
+  if has_viz_fence && viz_types.empty?
+    failures << Failure.new(name, "```viz block has no `type:` line, so nothing is rendered")
   end
 
   # --- filenames become URLs ----------------------------------------------

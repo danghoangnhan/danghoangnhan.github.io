@@ -473,6 +473,27 @@ $link-hover: #a5d6ff;
   // and needs no per-property override. Mermaid's generated SVG does NOT — it
   // bakes colours in at render time, which is why _includes/mermaid.html re-runs
   // it on themechange rather than restyling it here.
+
+  // Interactive figures (assets/js/viz.js) draw with currentColor too, so the
+  // SVG itself needs nothing here. Only their HTML chrome does: _components.scss
+  // gives the controls a light border and a near-white hover, both of which
+  // disappear or glare on #0d1117.
+  .article-post {
+    .viz-control input[type="number"],
+    .viz-button {
+      border-color: $rule;
+      color: $text;
+    }
+
+    .viz-button:hover:not(:disabled) {
+      background: #21262d;
+    }
+
+    .viz-readout,
+    .viz-control label {
+      color: $text-muted;
+    }
+  }
 }
 
 // --- Bootstrap fallback, JS-off only --------------------------------------

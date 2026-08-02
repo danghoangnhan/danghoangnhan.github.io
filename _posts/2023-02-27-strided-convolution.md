@@ -10,6 +10,7 @@ image: /assets/images/cnn1.png
 featured: false
 hidden: false
 katex: true
+viz: true
 ---
 
 So far the filter has moved one pixel at a time. **Stride** is the size of that step.
@@ -38,6 +39,16 @@ $$\left\lfloor \frac{7 + 0 - 3}{2} \right\rfloor + 1 = 2 + 1 = 3$$
 A 3×3 output. Positions start at columns 0, 2 and 4; a fourth position at column 6 would need columns 6, 7 and 8, and 7 and 8 do not exist. The floor discards it.
 
 **Any input pixel not reached by a valid filter position is silently dropped.** With an 8×8 input, 3×3 filter and $$s = 2$$ the output is $$\lfloor 5/2 \rfloor + 1 = 3$$, and the last row and column of the image never influence it at all.
+
+Step through the positions and watch it happen — one axis is enough, since the other behaves identically. This is that 8-cell case: three windows, and the eighth cell struck through because no window ever reaches it. Drop $$n$$ back to 7 and the strike-through disappears.
+
+```viz
+type: shape
+n: 8
+f: 3
+p: 0
+s: 2
+```
 
 ## A worked example
 

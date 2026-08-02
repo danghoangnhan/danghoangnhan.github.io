@@ -1025,6 +1025,94 @@ blockquote {
     overflow-x: auto;
     text-align: center;
   }
+
+  /*
+   * Interactive figures (assets/js/viz.js), which replace a ```viz fence.
+   *
+   * Same container treatment as .mermaid above and for the same reason: the
+   * widget is built after first paint, so it must not be able to widen the
+   * article when it lands.
+   *
+   * Nothing here sets a colour on the SVG. The widgets draw themselves with
+   * currentColor so they follow the theme with no dark-mode counterpart — the
+   * same contract as the hand-authored figures further up. Adding a fill or
+   * stroke colour here would break it silently in one theme or the other.
+   */
+  .viz {
+    margin: 1.5rem 0;
+  }
+
+  .viz-figure {
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  .viz-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .viz-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    label {
+      margin: 0;
+      color: $muted-aa;
+    }
+
+    input[type="number"] {
+      width: 4rem;
+      padding: 0.15rem 0.35rem;
+      border: 1px solid $rule;
+      border-radius: 3px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+    }
+  }
+
+  .viz-stepper {
+    display: inline-flex;
+    gap: 0.35rem;
+    margin-left: auto;
+  }
+
+  .viz-button {
+    padding: 0.2rem 0.6rem;
+    border: 1px solid $rule;
+    border-radius: 3px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: #f6f8fa;
+    }
+
+    /*
+     * A disabled stepper button still has to clear 3:1 against the background
+     * for its border to read as a control, so this dims rather than greys out.
+     */
+    &:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+  }
+
+  .viz-readout {
+    margin: 0.6rem 0 0;
+    font-size: 0.9rem;
+    color: $muted-aa;
+    // Tabular figures stop the line jittering as the numbers change.
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 // ------------------------------------------------------------------ skip link
@@ -1094,7 +1182,13 @@ blockquote {
   .no-print,
   .series-nav,
   .PageNavigation,
-  .post-read-more {
+  .post-read-more,
+  /*
+   * The interactive figure keeps its SVG on paper but loses its controls: a
+   * number input and a "next" button are meaningless printed, and the figure
+   * still shows whatever state the reader left it in.
+   */
+  .viz-controls {
     display: none !important;
   }
 
