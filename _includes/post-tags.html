@@ -1,0 +1,34 @@
+{%- comment -%}
+  The category + language chip strip, shared by the post header and both card
+  footers. One include, three call sites, so the /category/ URL shape and the
+  language lookup are defined once rather than copy-pasted into two
+  near-identical card footers.
+
+  `item` is passed explicitly instead of reading an ambient variable: postbox
+  and featuredbox run inside a for loop over `post`, while _layouts/post.html
+  has only `page`.
+
+  `class` is an optional modifier hook — the cards pass "post-tags--card" for
+  the smaller scale that a 12px footer needs.
+{%- endcomment -%}
+{%- assign item = include.item -%}
+{%- assign code = item.lang | default: site.lang | default: 'en' -%}
+{%- assign language = site.data.languages[code] -%}
+<ul class="post-tags{% if include.class %} {{ include.class }}{% endif %}">
+  {%- assign sorted = item.categories | sort -%}
+  {%- for category in sorted %}
+  <li>
+    <a class="post-tag" href="{{ category | slugify | prepend: '/category/' | append: '/' | relative_url }}">{{ category }}</a>
+  </li>
+  {%- endfor %}
+  <li>
+    {%- comment -%}
+      A <span>, not a link: there is no per-language archive to point at. The
+      visually-hidden prefix is not decoration — "EN" on its own is read out as
+      a bare word with no indication of what it qualifies.
+    {%- endcomment -%}
+    <span class="post-tag post-tag--lang" title="{{ language.name | default: code }}">
+      <span class="visually-hidden">Written in </span>{{ language.short | default: code | upcase }}
+    </span>
+  </li>
+</ul>

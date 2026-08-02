@@ -19,7 +19,8 @@ sitemap: false
 "t": {{ post.title | jsonify }},
 "u": {{ post.url | relative_url | jsonify }},
 "d": {{ post.date | date: "%b %Y" | jsonify }},
-"c": {{ post.categories | join: " " | jsonify }},
+"c": {{ post.categories | jsonify }},
+"l": {{ post.lang | default: site.lang | default: 'en' | jsonify }},
 "e": {{ post.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }},
 "b": {{ post.content | strip_html | strip_newlines | jsonify }}
 }{%- unless forloop.last -%},{%- endunless -%}

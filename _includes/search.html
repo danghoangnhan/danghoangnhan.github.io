@@ -1,3 +1,16 @@
+{%- comment -%}
+  Navbar search. Driven by assets/js/search.js against /search.json.
+
+  This is the ARIA combobox pattern, and two of its rules are worth stating here
+  because the markup used to break both: focus never leaves the input (the active
+  result is announced through aria-activedescendant, not by moving focus into the
+  list), and a listbox may contain only options — so the empty/error row is
+  emitted as role="presentation" rather than sitting in the tree as a bogus one.
+
+  aria-expanded starts false and is now genuinely maintained by search.js. It was
+  previously hardcoded here and never updated, so the control permanently claimed
+  to be collapsed while showing a full set of results.
+{%- endcomment -%}
 <div class="site-search">
   <label class="visually-hidden" for="site-search">Search posts</label>
   <input

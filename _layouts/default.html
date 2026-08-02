@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ site.lang | default: 'en' }}">
+{% comment %}
+  page.lang first: a post carrying a language badge must declare the same
+  language here, or the badge is contradicted by the document itself — which
+  is what screen readers and translation tooling actually read.
+{% endcomment %}
+<html lang="{{ page.lang | default: site.lang | default: 'en' }}">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -15,7 +20,20 @@
          Open Graph, Twitter cards and BlogPosting JSON-LD. Do not hand-write any
          of those alongside it or they will be duplicated. -->
     {% seo %}
-    {% feed_meta %}
+    {%- comment -%}
+      NOT {% feed_meta %}. That tag advertises the feed as application/atom+xml,
+      but /feed.xml in this repo is a hand-written RSS 2.0 document — the tag was
+      declaring a format the file is not. (jekyll-feed itself never runs: its
+      generator skips when a feed.xml already exists in the source, so the gem has
+      been inert here all along.) Declaring the real type is the honest fix and
+      leaves existing subscribers on the same URL and the same format.
+    {%- endcomment -%}
+    <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | absolute_url }}" />
+    {%- comment -%}
+      Alternate-language links. jekyll-seo-tag has no concept of translations, so
+      these are ours to emit.
+    {%- endcomment -%}
+    {% include hreflang.html %}
 
     <link
       rel="stylesheet"

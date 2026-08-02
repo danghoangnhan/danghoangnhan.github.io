@@ -39,6 +39,12 @@ spotifyplaylist: 68DXxYTn25JzqqF9Xez4hV
 
 Consider my repositories if you find my project interesting, at least your star could make someone's day.
 
+### Résumé
+
+Built from LaTeX source and rebuilt on every push, so this is always the current version.
+
+{% include resume.html %}
+
 {% include spotifyplaylist.html id=page.spotifyplaylist %}
 
 ### I’m best reached via email. I’m always open to interesting conversations and collaboration

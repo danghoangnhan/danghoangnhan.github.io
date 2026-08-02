@@ -8,6 +8,7 @@
 @use "syntax";
 @use "syntax-dark";
 @use "spotify-embed";
+@use "resume-embed";
 @use "components";
 // Last, so its overrides win over the vendored theme and the components above.
 @use "dark";

@@ -135,16 +135,32 @@ $link-hover: #a5d6ff;
     border-bottom-color: $text-muted;
   }
 
-  // rgba(0,0,0,.05) on #0d1117 is no pill at all. Only the background is set:
-  // the label colour comes from the blanket `a` rule above, which is
-  // !important and would beat anything declared here — exactly as
-  // screen.css:10 already beats screen.css:411 in light mode.
-  ul.tags li a {
-    background: #21262d;
+  // Category and language chips. $rule, not the light #eaeaea, or the outline
+  // disappears into #0d1117.
+  //
+  // Only border and hover fill are set here. The category label's colour comes
+  // from the blanket `a` rule above, which is !important and would beat anything
+  // declared at this point — the same constraint the old `ul.tags li a` rule
+  // worked around, and the reason screen.css:10 beats screen.css:411 in light
+  // mode.
+  .post-tag {
+    border-color: $rule;
+  }
 
-    &:hover {
-      background: #30363d;
-    }
+  a.post-tag:hover {
+    background: #21262d;
+  }
+
+  // The language badge is a <span>, so that !important `a` rule does not reach
+  // it and $muted — rgba(0,0,0,.55) — would leave it near-invisible.
+  .post-tag--lang {
+    color: $text-muted;
+  }
+
+  // Same split for the translation switcher: the label is a <span> and needs a
+  // colour, the link is an <a> and already has one it cannot lose.
+  .post-translations__label {
+    color: $text-muted;
   }
 
   // Dormant — post.html renders no related-posts block today — but a near-white
@@ -167,9 +183,7 @@ $link-hover: #a5d6ff;
   }
 
   // .sep draws its rule with `background: #999`, not a border, so the
-  // border-color it used to share with `hr` never applied to it. The tag pills
-  // that shared that rule have no border either — they are handled by the
-  // `ul.tags li a` background above.
+  // border-color it used to share with `hr` never applied to it.
   .sep {
     background-color: $rule;
   }
@@ -214,6 +228,12 @@ $link-hover: #a5d6ff;
     &::placeholder {
       color: $text-muted;
     }
+
+    // The light focus ring is $accent (#0a2b46), which is all but black against
+    // #0d1117 — the field would look unfocused.
+    &:focus {
+      border-color: $link;
+    }
   }
 
   .site-search-results {
@@ -228,6 +248,7 @@ $link-hover: #a5d6ff;
     }
 
     .search-meta,
+    .search-date,
     .search-empty {
       color: $text-muted;
     }

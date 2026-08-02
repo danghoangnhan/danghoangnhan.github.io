@@ -1,0 +1,73 @@
+{%- comment -%}
+  Résumé embed.
+
+  The résumé lives in a SEPARATE repo (danghoangnhan/resume), a GitHub Pages
+  project site published from LaTeX to resume.pdf on every push to its main.
+  This blog is the user site and cannot publish anything at /resume/ — GitHub
+  routes that path to the project repo — which is why this is a section of
+  /about/ rather than a page of its own.
+
+  The URLs are ABSOLUTE, and that is load-bearing rather than sloppy. The
+  html-proofer step in .github/workflows/ci.yml is BLOCKING and runs with
+  --disable-external, so it resolves root-relative links against this repo's
+  _site. /resume/resume.pdf does not exist there, so "/resume/resume.pdf" would
+  404 the build. Absolute URLs are classified external and skipped — and they
+  are also the truthful description, since it genuinely is another site.
+
+  resume.pdf is embedded directly rather than iframing that repo's wrapper page:
+  the wrapper carries its own header and footer, which would render nested inside
+  this site's chrome, and its markup can change at any time. The PDF is the
+  stable published artifact.
+
+  The action row comes BEFORE the viewer deliberately. Inline PDF rendering is
+  unreliable on mobile, and an <object>'s fallback children do not render when a
+  browser half-handles the type — so the links must not live inside it.
+{%- endcomment -%}
+{%- comment -%}
+  All three artifacts come from that repo's build-resume.yml, which assembles
+  site/{resume.pdf,index.html,preview.png} and publishes the directory to Pages.
+  preview.png is a raster of the document, which is what makes a usable small-screen
+  fallback possible — see the note on __preview below.
+{%- endcomment -%}
+{%- assign resume_home = "https://danghoangnhan.github.io/resume/" -%}
+{%- assign resume_pdf = "https://danghoangnhan.github.io/resume/resume.pdf" -%}
+{%- assign resume_preview = "https://danghoangnhan.github.io/resume/preview.png" -%}
+<div class="embed-resume">
+  <p class="embed-resume__actions">
+    <a class="embed-resume__btn embed-resume__btn--primary" href="{{ resume_pdf }}">Download PDF</a>
+    <a class="embed-resume__btn" href="{{ resume_home }}">Open full page</a>
+    <a class="embed-resume__btn" href="https://github.com/danghoangnhan/resume">LaTeX source</a>
+  </p>
+
+  <object class="embed-resume__frame"
+          data="{{ resume_pdf }}"
+          type="application/pdf"
+          aria-label="Résumé of Hung-Jen (Daniel) Tu">
+    <p class="embed-resume__fallback">
+      This browser can&rsquo;t display the PDF inline.
+      <a href="{{ resume_pdf }}">Open the résumé</a> instead.
+    </p>
+  </object>
+
+  {%- comment -%}
+    Small-screen path, shown where CSS hides the <object> above.
+
+    This is NOT a duplicate of the fallback inside the object. That one renders
+    only when a browser refuses application/pdf outright; the mobile problem is
+    the opposite — iOS Safari and Android Chrome claim the type and then paint a
+    blank or unscrollable box, so the fallback never fires and the reader is
+    stuck. A raster of the document sidesteps the whole question.
+
+    Lazily loaded: it is ~490 KB, sits well below the fold on /about/, and desktop
+    readers never see it.
+  {%- endcomment -%}
+  <a class="embed-resume__preview" href="{{ resume_pdf }}">
+    <img src="{{ resume_preview }}"
+         alt="Résumé of Hung-Jen (Daniel) Tu — tap to open the full PDF"
+         loading="lazy"
+         decoding="async" />
+  </a>
+  <p class="embed-resume__compact">
+    <a href="{{ resume_pdf }}">Open the résumé (PDF)</a> for a selectable, zoomable version.
+  </p>
+</div>
