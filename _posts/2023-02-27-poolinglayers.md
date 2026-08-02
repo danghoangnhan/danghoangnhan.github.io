@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Pooling Layers in Convolutional Neural Networks"
-description: "How max and average pooling downsample a representation, the hyperparameters they take, and why they have no weights to learn."
+description: "How max and average pooling downsample a representation, why they have no weights, and why modern architectures increasingly do without them."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
@@ -9,45 +9,55 @@ series_order: 7
 image: /assets/images/cnn1.png
 featured: false
 hidden: false
+katex: true
 ---
 
-In Convolutional Neural Networks (ConvNets), pooling layers are often used alongside convolutional layers to reduce the size of the representation and enhance certain features' robustness. This blog post summarizes the key concepts and operations involved in pooling layers.
+Pooling shrinks a feature map by replacing each small window with a single summary number. It is the one layer in a ConvNet with **no parameters at all** — nothing about it is learned, and backpropagation has nothing to update.
 
-## Max Pooling
+## Max pooling
 
-- Max pooling is a commonly used pooling technique in ConvNets.
-- It aims to downsample the input representation while preserving the most prominent features.
-- The process involves dividing the input into regions, typically squares, and taking the maximum value within each region.
-- The size of the pooling filter (f) determines the region size, and the stride (s) specifies the step size for moving the filter across the input.
-- The output of max pooling is a reduced representation, where each element corresponds to the maximum value within its corresponding region.
+Take the window, keep the largest value, discard the rest. With $$f = 2$$, $$s = 2$$ on a 4×4 input:
 
-## Intuition Behind Max Pooling
+$$\begin{bmatrix} 1 & 3 & 2 & 1 \\ 2 & 9 & 1 & 1 \\ 1 & 3 & 2 & 3 \\ 5 & 6 & 1 & 2 \end{bmatrix} \;\longrightarrow\; \begin{bmatrix} 9 & 2 \\ 6 & 3 \end{bmatrix}$$
 
-- Max pooling aims to preserve detected features within the input.
-- If a particular feature exists anywhere within a region, the maximum value in that region remains high in the output.
-- Features that are not detected consistently across the regions result in lower maximum values in the output.
-- The underlying reason for the effectiveness of max pooling is not fully understood, but it has been found to work well in practice.
+Each 2×2 block collapses to its maximum. The output is half the height and half the width, so a quarter of the values survive.
 
-## Hyperparameters of Max Pooling
+The output size rule is the same one from [part 4](/strided-convolution/), with the filter size now meaning the pooling window:
 
-- The hyperparameters of max pooling include the filter size (f) and the stride (s).
-- Common choices for hyperparameters are f = 2 and s = 2, which reduce the height and width of the representation by a factor of 2.
-- Padding (p) can be added to the input, but it is rarely used in max pooling.
+$$\left\lfloor \frac{n + 2p - f}{s} \right\rfloor + 1$$
 
-## Pooling in 3D Inputs
+Padding is almost always 0 for pooling, and $$f = s = 2$$ is overwhelmingly the common choice — which is why pooling breaks the odd-filter-size convention from [part 3](/padding-convolution-neural-network/). Nothing needs a centre pixel here, and 2×2 with stride 2 tiles the input exactly, with no overlap and nothing dropped.
 
-- When dealing with 3D inputs, such as multiple channels, max pooling is performed independently on each channel.
-- The output dimensions remain the same as the input, but the pooling operation is applied to each channel separately.
+## Average pooling
 
-## Average Pooling
+Same window, mean instead of maximum:
 
-- Average pooling is another type of pooling, where the average value within each region is taken instead of the maximum.
-- While max pooling is more commonly used, average pooling has limited applications, except for collapsing representations in very deep networks.
+$$\begin{bmatrix} 1 & 3 & 2 & 1 \\ 2 & 9 & 1 & 1 \\ 1 & 3 & 2 & 3 \\ 5 & 6 & 1 & 2 \end{bmatrix} \;\longrightarrow\; \begin{bmatrix} 3.75 & 1.25 \\ 3.75 & 2 \end{bmatrix}$$
 
-## Learning and Parameters
+Max pooling dominates inside networks. Average pooling survives in one very important place — **global average pooling**, where the window is the entire feature map, turning $$n_H \times n_W \times n_C$$ into $$1 \times 1 \times n_C$$. That single trick is what lets an architecture drop the enormous fully connected layers discussed in [part 6](/one-layer-of-convolotional-network/); it was introduced with Network in Network {% cite lin2014nin %} and adopted by GoogLeNet {% cite szegedy2015googlenet %} and ResNet {% cite he2016resnet %}.
 
-- Pooling layers have no parameters to learn.
-- The hyperparameters of the pooling layer, such as filter size and stride, are set manually or through cross-validation.
-- Pooling is a fixed function applied during network computation.
+## Pooling acts per channel
 
-Understanding pooling layers is essential for grasping the downsampling and feature preservation aspects of ConvNets. While max pooling is the preferred choice in many cases, average pooling can also be useful in specific scenarios. By setting the appropriate hyperparameters, pooling layers contribute to the overall efficiency and robustness of ConvNets.
+This is the detail most often got wrong. Pooling does **not** sum over channels the way convolution does. It runs independently on each channel and the channel count is unchanged:
+
+$$n_H \times n_W \times n_C \;\longrightarrow\; \left\lfloor \frac{n_H - f}{s} \right\rfloor + 1 \;\times\; \left\lfloor \frac{n_W - f}{s} \right\rfloor + 1 \;\times\; n_C$$
+
+Convolution mixes channels and can change their number; pooling never touches them.
+
+## What actually matters
+
+**Pooling has no parameters, but it is not free.** The hyperparameters $$f$$ and $$s$$ are design decisions that permanently discard information — and because there is nothing to learn, the network cannot compensate for a bad choice the way it can with a badly initialised convolution. It also means pooling layers are sometimes not counted as "layers" at all, which is why depth figures for the same network differ between sources.
+
+**The invariance argument is weaker than it is usually stated.** Max pooling is often justified as giving translation invariance: shift the input a pixel and the maximum in the window is often unchanged. That holds for shifts *within* a window and fails at window boundaries, so what you actually get is partial invariance to small shifts, not invariance. Networks are far more robust to translation because of data augmentation and parameter sharing than because of pooling.
+
+**Modern architectures increasingly drop it.** If a stride-2 convolution can downsample and it has learnable weights, the argument for a fixed max is thin — the all-convolutional experiments showed no accuracy loss from replacing pooling with strided convolution {% cite springenberg2015allconv %}, and ResNet uses exactly one max-pool layer, right after the stem. Pooling persists mainly at the very start (cheap early downsampling on a large feature map) and at the very end (global average pooling). The middle of a modern network usually has none.
+
+**Backpropagation through max pooling routes, it does not distribute.** The gradient goes entirely to whichever input held the maximum; every other input in the window gets zero. Average pooling splits the gradient evenly instead. This is worth knowing when a network trains oddly: max pooling makes the gradient signal sparse.
+
+## Source code
+
+- [`Convolution_model_Step_by_Step_v1.ipynb`](https://github.com/danghoangnhan/cousera/tree/main/ConvolutionalNeuralNetworks/week1/W1A1) — `pool_forward` implements both modes, and the backward pass shows the routing behaviour above explicitly.
+
+## References
+
+{% bibliography --cited --clear %}

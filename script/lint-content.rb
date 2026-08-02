@@ -204,6 +204,19 @@ posts.each do |path|
     end
   end
 
+  # --- a bibliography with nothing in it -----------------------------------
+  #
+  # {% bibliography --cited %} on a post that cites nothing renders
+  # <ol class="bibliography"></ol> — an empty list under a "References" heading.
+  # Valid HTML, invisible to html-proofer, and it looks like the references
+  # failed to load. Upstream has an open issue asking for it to be suppressible;
+  # until then the fix is to not write the heading.
+  has_bibliography = body.to_s.match?(/\{%-?\s*bibliography/)
+  has_cite = body.to_s.match?(/\{%-?\s*cite\s/)
+  if has_bibliography && !has_cite
+    failures << Failure.new(name, "has {% bibliography %} but no {% cite %}; it renders an empty <ol> under the References heading")
+  end
+
   # --- math and diagrams are opt-in ----------------------------------------
   #
   # KaTeX and Mermaid each load only when the post sets its flag, and both fail

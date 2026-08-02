@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "A Simple Convolutional Network Example"
-description: "A complete worked ConvNet for classifying 39x39 RGB images, layer by layer, from the first convolution down to the final softmax."
+description: "A complete ConvNet for 39x39 RGB images traced layer by layer, with every shape derived from the formula and every parameter counted."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
@@ -9,27 +9,80 @@ series_order: 9
 image: /assets/images/cnn1.png
 featured: false
 hidden: false
+katex: true
+mermaid: true
 ---
 
-Convolutional Neural Networks (ConvNets) are widely used for image classification and recognition tasks. In this blog post, we'll walk through a simple example of a ConvNet to understand its architecture and how it works.
+Everything in parts 2 through 8 assembled into one network, with every shape derived rather than asserted.
 
-Let's consider the task of classifying images as either cats or not cats. We'll work with a relatively small image size of 39 x 39 pixels with three color channels (RGB). In ConvNets, we process images through multiple layers, each designed to extract and learn different features.
+The input is a 39×39×3 image and the task is binary classification.
 
-The first layer of our ConvNet uses 3 x 3 filters to detect features in the image. With a stride of 1 and no padding, we apply 10 filters in this layer. The resulting activations form the input for the next layer, which will have dimensions of 37 x 37 x 10.
+```mermaid
+flowchart LR
+  I["input<br/>39 x 39 x 3"] --> C1["conv 1<br/>f=3, s=1, p=0<br/>10 filters"]
+  C1 --> A1["37 x 37 x 10"]
+  A1 --> C2["conv 2<br/>f=5, s=2, p=0<br/>20 filters"]
+  C2 --> A2["17 x 17 x 20"]
+  A2 --> C3["conv 3<br/>f=5, s=2, p=0<br/>40 filters"]
+  C3 --> A3["7 x 7 x 40"]
+  A3 --> F["flatten<br/>1960"]
+  F --> S["logistic<br/>1 unit"]
+```
 
-To compute the output size of a convolutional layer, we use the formula `n + 2p - f / s + 1`, where `n` is the input size, `p` is the padding, `f` is the filter size, and `s` is the stride. In our case, the image dimensions shrink to 37 x 37 due to the 3 x 3 filters.
+## Deriving each shape
 
-Moving to the next layer, we apply 5 x 5 filters with a stride of 2 and no padding. Let's assume we use 20 filters in this layer. As a result, the output dimensions become 17 x 17 x 20, showing a faster reduction in size due to the larger stride.
+The rule, from [part 4](/strided-convolution/):
 
-Continuing further, we apply another layer with 5 x 5 filters and a stride of 2. Assuming no padding and using 40 filters, the output size becomes 7 x 7 x 40. At this point, we have transformed our initial image into a compact representation of 7 x 7 x 40 features.
+$$n^{[l]} = \left\lfloor \frac{n^{[l-1]} + 2p^{[l]} - f^{[l]}}{s^{[l]}} \right\rfloor + 1$$
 
-To make predictions, we flatten this 7 x 7 x 40 volume into a vector of 1,960 units. This vector is then fed into a logistic regression or softmax unit, which produces the final classification output, determining whether the image contains a cat or not.
+**Layer 1** — $$f=3$$, $$s=1$$, $$p=0$$, 10 filters:
 
-In designing ConvNets, careful selection of hyperparameters such as filter size, stride, padding, and the number of filters is crucial. These choices significantly impact the network's performance, and guidelines and recommendations are available to help make informed decisions.
+$$\left\lfloor \frac{39 + 0 - 3}{1} \right\rfloor + 1 = 37 \;\Rightarrow\; 37 \times 37 \times 10$$
 
-It's important to note that as we go deeper into the ConvNet, the spatial dimensions (height and width) tend to decrease while the number of channels typically increases. This trend is observed in many convolutional neural network architectures.
+**Layer 2** — $$f=5$$, $$s=2$$, $$p=0$$, 20 filters:
 
-ConvNets often include pooling layers and fully connected layers in addition to convolutional layers. Pooling layers reduce spatial dimensions, while fully connected layers provide the final classification output based on the extracted features.
+$$\left\lfloor \frac{37 + 0 - 5}{2} \right\rfloor + 1 = \lfloor 16 \rfloor + 1 = 17 \;\Rightarrow\; 17 \times 17 \times 20$$
 
-In conclusion, Convolutional Neural Networks have revolutionized image classification and recognition tasks. Understanding their architecture and the role of different layers helps in designing effective models for various computer vision applications.
+**Layer 3** — $$f=5$$, $$s=2$$, $$p=0$$, 40 filters:
 
+$$\left\lfloor \frac{17 + 0 - 5}{2} \right\rfloor + 1 = \lfloor 6 \rfloor + 1 = 7 \;\Rightarrow\; 7 \times 7 \times 40$$
+
+**Flatten** — $$7 \times 7 \times 40 = 1960$$ values into a vector, then one logistic unit for the binary decision.
+
+## The full accounting
+
+| Layer | Output shape | Activation size | Parameters |
+|---|---|---|---|
+| Input | 39 × 39 × 3 | 4,563 | 0 |
+| Conv 1 (3×3, s1, ×10) | 37 × 37 × 10 | 13,690 | $$(3 \cdot 3 \cdot 3 + 1) \cdot 10 = 280$$ |
+| Conv 2 (5×5, s2, ×20) | 17 × 17 × 20 | 5,780 | $$(5 \cdot 5 \cdot 10 + 1) \cdot 20 = 5{,}020$$ |
+| Conv 3 (5×5, s2, ×40) | 7 × 7 × 40 | 1,960 | $$(5 \cdot 5 \cdot 20 + 1) \cdot 40 = 20{,}040$$ |
+| Flatten | 1,960 | 1,960 | 0 |
+| Logistic | 1 | 1 | $$1960 + 1 = 1{,}961$$ |
+| **Total** | | | **27,301** |
+
+Note the two trends running in opposite directions, which is the shape of essentially every classification ConvNet:
+
+- **Spatial dimensions shrink**: 39 → 37 → 17 → 7.
+- **Channel depth grows**: 3 → 10 → 20 → 40.
+- **Activation size falls**: 4,563 → 13,690 → 5,780 → 1,960.
+
+The network trades *where* something is for *what* it is. By the last conv layer there are 40 feature types and only 49 positions; at the input there were 3 channels and 1,521 positions.
+
+The activation size rising at layer 1 before falling is normal, and worth watching in a real network — activation memory during training is usually dominated by the early layers, while parameter memory is dominated by the late ones.
+
+## What actually matters
+
+**Do this arithmetic before writing the code, every time.** Layer 2 above produces 17×17 from 37×37 — not 18, not 16. The floor discards a filter position, so the last row and column of the layer-1 output never reach layer 2. That is invisible in a diagram and invisible in the code, and it is the single most common cause of a shape mismatch surfacing three layers later.
+
+**Where the parameters sit is the whole story of the architectures that follow.** Here, conv 3 holds 73% of the weights and the classifier holds 7%. Now scale it: at 224×224 with VGG-sized dense layers, the fully connected block holds ~90% of the parameters {% cite simonyan2015vgg %}. That imbalance is what global average pooling was invented to fix {% cite lin2014nin %}, and it is why [Inception](/inception-network/) and ResNet look the way they do.
+
+**A network like this has one design freedom that matters and several that do not.** $$f$$, $$s$$, $$p$$ and the filter counts are all choices, but only the filter counts and the downsampling schedule meaningfully change what the network can do. Most published architectures fix $$f=3$$ throughout and vary only depth and width — which is precisely the parameterisation [EfficientNet](/efficientnet/) later formalises.
+
+## Source code
+
+- [`Convolution_model_Application.ipynb`](https://github.com/danghoangnhan/cousera/tree/main/ConvolutionalNeuralNetworks/week1/W1A2) — the same structure built in TensorFlow, where `model.summary()` prints the table above.
+
+## References
+
+{% bibliography --cited --clear %}
