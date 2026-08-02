@@ -1,8 +1,7 @@
 ---
 layout: post
 title: Transfer Learning
-description: "How to reuse pre-trained ImageNet weights for your own vision task, and how much of the network to freeze given your dataset size."
-
+description: "How much of a pre-trained network to freeze given your dataset size, why features stop transferring as you go deeper, and the caching trick that makes it fast."
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision, coursera ]
@@ -11,39 +10,64 @@ series_order: 19
 image: /assets/images/cnn1.png
 featured: false
 hidden: false
+katex: true
+mermaid: true
 ---
-## Transfer Learning: Accelerating Computer Vision Applications with Pre-Trained Models
 
-When building computer vision applications, leveraging pre-trained models can significantly speed up the development process and yield faster progress. Instead of training a neural network from scratch, you can download pre-trained weights and use transfer learning to adapt the model to your specific task. In this blog post, we will explore the concept of transfer learning and how it can be applied to computer vision tasks for efficient and effective results.
+Almost nobody trains a vision network from random initialisation. ImageNet has 1.2 million labelled images {% cite russakovsky2015ilsvrc %}; your dataset has 500. The features a network learned on the former are mostly the features you need for the latter.
 
-### The Power of Pre-Trained Models
+## Why it works at all
 
-The computer vision research community has made significant contributions by posting numerous datasets online, such as ImageNet, MS COCO, and Pascal, which serve as valuable resources for training neural networks. These datasets have been used to train models with high-performance accuracy over several weeks or months, utilizing powerful GPUs and complex optimization techniques. By downloading these pre-trained models, you can benefit from the knowledge and expertise that went into their creation, saving you time and effort.
+Early layers learn edges and colour blobs — general to essentially all natural images. Later layers learn increasingly task-specific combinations, until the final layer is entirely about the 1000 ImageNet classes {% cite zeiler2014visualizing %}.
 
-### Transfer Learning for Custom Tasks
+The measurement behind this is worth knowing precisely. Freeze the first $$k$$ layers of an ImageNet network, retrain the rest on a different task, and plot accuracy against $$k$$: performance stays flat for small $$k$$ and degrades as $$k$$ grows, with the degradation appearing around the middle of the network {% cite yosinski2014transferable %}. There is no sharp boundary between "general" and "specific" features — the transition is gradual, which is why "how much to freeze" is a dial and not a switch.
 
-Let's consider an example where you want to build a cat detector to recognize your own pet cat. Assuming you have a limited number of images of your cats, you might encounter a data scarcity issue. In such cases, transfer learning becomes invaluable. You can download a pre-trained neural network along with its weights, originally trained on a large dataset like ImageNet, which contains a thousand different classes.
+## How much to freeze
 
-To adapt the pre-trained model to your specific task, you need to modify the output layer. Instead of predicting one of the thousand classes, you create a new softmax layer with three possible outputs: Tigger, Misty, or neither. The key idea is to freeze the parameters of all the earlier layers in the network and only train the parameters associated with your softmax layer.
+```mermaid
+flowchart TB
+  A["how much labelled data?"] --> B["very little<br/>(~100s)"]
+  A --> C["moderate<br/>(~1000s)"]
+  A --> D["a lot<br/>(~100k+)"]
+  B --> B2["freeze everything<br/>retrain the classifier only"]
+  C --> C2["freeze early layers<br/>fine-tune the last few blocks"]
+  D --> D2["initialise from pre-trained<br/>fine-tune the whole network"]
+```
 
-### Freezing and Training Layers
+| Data | Freeze | Train | Learning rate |
+|---|---|---|---|
+| ~100s | all convolutional layers | new classifier head | normal |
+| ~1,000s | early blocks | last blocks + head | reduced, ~10× lower |
+| ~100,000s | nothing | everything | low, pre-trained as init |
 
-Most deep learning frameworks support freezing layers, allowing you to specify which layers' weights should remain unchanged during training. By freezing earlier layers, which have learned general features, you leverage their fixed functionality to compute feature vectors for input images. These feature vectors are then used as input for training a shallow softmax model that predicts the desired classes.
+Two rules that matter more than the exact boundaries:
 
-To speed up training, you can pre-compute the activations of these frozen layers for all examples in the training set and save them to disk. This way, you don't need to recalculate the activations for every epoch or pass through the training set, resulting in more efficient computations.
+**Always replace the final layer.** ImageNet's head outputs 1000 classes; yours does not. That layer is discarded and a new one initialised randomly, whatever else you do.
 
-### Adapting to Different Dataset Sizes
+**Use a much lower learning rate when fine-tuning.** The pre-trained weights are already good. A normal learning rate on the first batch — while the randomly initialised head is producing large, meaningless gradients — will destroy them before they can help. This is the most common way transfer learning is made to fail. The standard fix is to train the head alone for an epoch or two with everything frozen, *then* unfreeze and continue at a low rate.
 
-The amount of labeled data you have for your task plays a crucial role in determining the extent of transfer learning. If you have a small training set, freezing more layers and training only a few parameters might suffice. However, with a larger labeled dataset, you can consider freezing fewer layers and training more parameters in the network.
+## The caching trick
 
-For datasets with ample data, you can even replace the last few layers or add your own hidden units, followed by the softmax outputs. This allows you to fine-tune the network's higher-level representations to better suit your specific task.
+If every layer up to some point is frozen, those layers compute the same thing on every epoch. Run the dataset through them **once**, save the activations to disk, and train the head directly on the saved features:
 
-### Embracing Transfer Learning in Computer Vision
+$$\text{images} \;\xrightarrow{\text{frozen network, once}}\; \text{feature vectors} \;\xrightarrow{\text{train, many epochs}}\; \text{classifier}$$
 
-Transfer learning has proven to be highly effective in computer vision applications. By utilizing pre-trained models, you can leverage the knowledge gained from extensive training on large datasets. This approach significantly improves performance, especially when you have limited labeled data or computational resources.
+The training loop then touches a shallow head on small vectors instead of a deep network on images. For a fully frozen backbone this is often the difference between minutes and hours, and it works on a CPU.
 
-Unless you have an exceptionally large dataset and sufficient computational resources to train from scratch, transfer learning is an approach worth considering in computer vision. It allows you to benefit from existing expertise, save valuable time, and achieve competitive results with smaller training sets.
+The catch: it is incompatible with data augmentation. Augmentation makes each epoch see different pixels, so the cached activations would be wrong — see [part 20](/DataAugmentation/). Cache when the backbone is frozen *and* the inputs are fixed; otherwise pay for the forward pass.
 
-In conclusion, transfer learning offers a powerful strategy to accelerate the development of computer vision applications. By harnessing pre-trained models, you can efficiently adapt them to your specific tasks, overcoming data limitations and achieving impressive results. Embrace transfer learning and unlock the potential of computer vision in
+## What actually matters
 
-your projects.
+**Better ImageNet models are better starting points, but the correlation is weaker than it looks.** Across ImageNet architectures, top-1 accuracy correlates with transfer performance — yet the ranking is not preserved on every downstream task, and the advantage largely disappears when the target dataset is large enough to train from scratch {% cite kornblith2019transfer %}. Picking the top of the ImageNet leaderboard as a backbone is a reasonable default, not a guarantee.
+
+**Domain distance is what actually decides how much to freeze, and dataset size is a proxy for it.** ImageNet is photographs of objects. Transferring to more photographs of objects works extremely well. Transferring to greyscale medical scans, satellite imagery or document scans works much less well, because even the early features are somewhat wrong — natural-image colour statistics do not apply. With a distant domain, fine-tune more of the network than the dataset size alone would suggest, and treat "ImageNet pre-training always helps" as false in that regime.
+
+**Batch normalisation makes "frozen" ambiguous.** A frozen BN layer still updates its running mean and variance in training mode unless explicitly told not to, so a "frozen" backbone can silently drift and degrade — especially with small batches. Set the BN layers to inference mode when freezing. This is a real and frequently hit bug, not a theoretical concern.
+
+## Source code
+
+- [`Transfer_learning_with_MobileNet_v1.ipynb`](https://github.com/danghoangnhan/cousera/tree/main/ConvolutionalNeuralNetworks/week2/W2A2) — loads MobileNetV2 pre-trained on ImageNet, replaces the head, trains with the base frozen, then unfreezes the last layers at a reduced learning rate. It also sets `training=False` on the base model, which is the batch-norm point above.
+
+## References
+
+{% bibliography --cited --clear %}

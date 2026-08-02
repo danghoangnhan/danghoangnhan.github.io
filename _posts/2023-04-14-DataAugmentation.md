@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Data Augmentation in Computer Vision"
-description: "Mirroring, random cropping, colour shifting and PCA colour augmentation: the techniques that stretch a small vision dataset."
+description: "The standard augmentations and what invariance each one encodes, PCA colour augmentation written out, and why the wrong transform quietly costs accuracy."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
@@ -9,42 +9,63 @@ series_order: 20
 image: /assets/images/cnn1.png
 featured: false
 hidden: false
+katex: true
 ---
 
-Data augmentation is a crucial technique used to improve the performance of computer vision systems. In the realm of computer vision, where the input is an image composed of countless pixels, the task of understanding the contents of an image can be quite complex. It often requires learning intricate functions to accurately recognize objects or patterns within the image.
+Vision is almost always data-limited, so augmentation is almost always on. Every transformation you apply is a statement: *this change should not alter the label*. Get that statement wrong and you are training the network to ignore something that matters.
 
-Unlike some other domains, computer vision typically faces a constant need for more data. In the majority of computer vision problems, obtaining more data is highly beneficial. This is where data augmentation comes into play. Whether you are using transfer learning or training a model from scratch, data augmentation can significantly enhance the training process.
+## The standard set
 
-Let's explore some common data augmentation techniques in computer vision:
+| Transform | Invariance encoded | Watch out for |
+|---|---|---|
+| Horizontal flip | left–right mirror | text, digits, road signs, anything chiral |
+| Random crop / resize | scale and position | cropping the object out entirely |
+| Rotation (small) | camera tilt | 6 vs 9, aerial imagery has no canonical up |
+| Colour shift | illumination | tasks where colour *is* the label |
+| Shear / warp | viewpoint | rarely helps on natural photographs |
 
-## Geometric Transformations
+Horizontal flipping is the cheapest and most reliable: it doubles the dataset, and for most natural images a mirrored cat is still a cat. Vertical flipping usually is not safe — photographs have a canonical up and satellite images do not, so this is domain-dependent rather than universal.
 
-Geometric transformations involve altering the spatial configuration of an image. These transformations help the model become invariant to changes in orientation, scale, or position of objects within the image.
+Random cropping is the workhorse. Take a random sub-rectangle and resize it to the input dimensions. This is also what makes the "resolution" dimension of [EfficientNet](/EfficientNet/) meaningful at training time.
 
-### Mirroring
+## PCA colour augmentation
 
-Mirroring involves flipping an image horizontally or vertically to generate new training examples. For example, if your training set includes an image of a cat, you can create a mirrored version of the same image by flipping it horizontally. This technique can help the model become invariant to the orientation of objects.
+The one worth writing out, introduced with AlexNet {% cite krizhevsky2012alexnet %}.
 
-### Random Cropping
+Rather than perturbing R, G and B independently — which produces colours natural images never contain — run PCA over the RGB values of the whole training set and perturb *along the principal axes* of the colour distribution.
 
-Random cropping entails selecting random subsets or crops from an image. This technique allows the model to learn from different parts of the image, enabling it to handle variations in object placement or scale. For instance, if you have an image of a landscape with a cat in the center, you can create multiple random crops that focus on different parts of the image, such as the cat, the background, or both.
+For each image, add to every pixel:
 
-## Color Shifting
+$$[\mathbf{p}_1, \mathbf{p}_2, \mathbf{p}_3] \, [\alpha_1 \lambda_1, \; \alpha_2 \lambda_2, \; \alpha_3 \lambda_3]^{\mathsf{T}}$$
 
-Color shifting techniques involve modifying the color distribution of an image to make the model more robust to variations in lighting conditions or color variations in real-world scenarios.Color shifting is another widely used data augmentation technique:
+where $$\mathbf{p}_i$$ and $$\lambda_i$$ are the eigenvectors and eigenvalues of the 3×3 RGB covariance matrix, and each $$\alpha_i$$ is drawn once per image from $$\mathcal{N}(0, 0.1)$$.
 
-### Distorting Color Channels
+Because the dominant principal component of natural images is overall brightness, this mostly varies intensity and illumination colour together — approximating a change of lighting rather than an arbitrary colour shift. The paper reports it reduced top-1 error by over 1%.
 
-This technique involves adding or subtracting values from the red, green, and blue (RGB) channels of an image. By distorting the color channels, the model becomes more robust to changes in lighting conditions or color variations that may occur in real-world scenarios. For example, you can distort the color channels of an image by adding more red and blue while subtracting from the green channel. This can simulate variations in lighting conditions or changes in the color temperature.
+## Where it runs
 
-### PCA Color Augmentation
+Augmentation is CPU work — decode, crop, flip, adjust — and it happens while the GPU trains on the previous batch:
 
-PCA Color Augmentation is a technique that utilizes Principles Component Analysis (PCA) to sample values for color distortion. It balances color components while keeping the overall color tint intact. This approach helps the model become invariant to variations in color distribution without affecting the object or content being recognized in the image.
+$$\underbrace{\text{worker threads: load, augment}}_{\text{CPU}} \;\longrightarrow\; \text{queue} \;\longrightarrow\; \underbrace{\text{forward, backward}}_{\text{GPU}}$$
 
-Implementing data augmentation typically involves a separate thread responsible for loading images from storage and applying the desired transformations. This process can be parallelized with the training process, which can take place on either the CPU or GPU.
+If the CPU pipeline cannot keep up, the GPU sits idle and augmentation becomes the training bottleneck. A GPU at 40% utilisation on a vision job is usually a data-loading problem, not a model problem.
 
-During training, it is common to implement the desired distortions on the fly. This involves having a separate thread responsible for loading images from storage and applying the selected transformations. The distorted images are then passed to the training process, which can take place on either the CPU or GPU. By implementing distortions during training, the model learns to generalize better and becomes more robust to real-world variations.
+This is also why augmentation is incompatible with the cached-activation trick from [part 19](/TransferLearning/): the point of augmentation is that each epoch sees different pixels, and the point of caching is that they do not.
 
-To achieve the best results, it's important to experiment with different hyperparameters for data augmentation. While starting with existing open-source implementations is recommended, customizing the hyperparameters based on specific requirements can capture more invariances and yield better performance.
+## What actually matters
 
-In conclusion, data augmentation plays a vital role in enhancing the performance of computer vision models. By generating additional training examples and introducing variations in the data, models become more capable of handling real-world scenarios and improve their generalization capability. Incorporating data augmentation into the training workflow is essential for building robust and accurate computer vision systems.
+**Augmentation choice is a hyperparameter and it is dataset-specific.** Horizontal flip on a digit classifier teaches the network that a mirrored 2 is a 2. Rotation on aerial imagery is free because there is no canonical orientation; rotation on portraits is not. The right set is not universal, and copying an ImageNet recipe onto a different domain is a real source of silently lost accuracy.
+
+**It regularises — which means it can be too strong.** Augmentation reduces overfitting by making the training distribution wider. Push it far enough and you widen it past the test distribution: the network spends capacity on heavily distorted images it will never see, and both training and validation accuracy fall. If validation accuracy is *above* training accuracy, the augmentation is probably too aggressive.
+
+**Searching the policy beats designing it.** AutoAugment treats the augmentation policy as something to optimise rather than choose, searching over operations and magnitudes, and finds policies that outperform hand-designed ones — including transfer across datasets {% cite cubuk2019autoaugment %}. Later work showed most of the gain comes from much cheaper random policies with tuned magnitude, which is worth knowing before spending compute on a search {% cite shorten2019augmentation %}.
+
+**Augment training data only.** Applying random transforms at validation time makes the metric noisy and not comparable across runs. The exception is deliberate test-time augmentation, which is a separate technique with its own cost — and one of the benchmark tricks [part 21](/StateofComputerVision/) is about.
+
+## Source code
+
+- [`Transfer_learning_with_MobileNet_v1.ipynb`](https://github.com/danghoangnhan/cousera/tree/main/ConvolutionalNeuralNetworks/week2/W2A2) — builds an augmentation pipeline with `RandomFlip` and `RandomRotation` as Keras layers, so the transforms run on-device as part of the model.
+
+## References
+
+{% bibliography --cited --clear %}
