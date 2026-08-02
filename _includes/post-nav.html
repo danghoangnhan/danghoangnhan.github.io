@@ -1,0 +1,61 @@
+{%- comment -%}
+  Previous/next post links.
+
+  Replaces Jekyll's built-in page.previous / page.next, which walk site.posts
+  with no filter at all. Two consequences, both real:
+
+    1. They link to `hidden: true` posts. Reproducible before this include
+       existed: /TransferLearning/ offered "previous: Using Open-Source
+       Implementation", which is hidden and appears in no listing on the site.
+       6 of the 30 posts are hidden, so this was not a corner case.
+
+    2. Now that posts carry a language, they would walk across languages —
+       handing a reader of a Vietnamese post an English one as "next".
+
+  So the neighbours are computed over the same filtered set the listings use.
+  Language is part of the filter on purpose: the home page deliberately mixes
+  languages because it is a catalogue, but prev/next is a "keep reading"
+  affordance and switching language mid-stride is not that. A post that is the
+  only one in its language simply gets no neighbours, which is the honest answer.
+
+  site.posts is newest-first, so the OLDER neighbour is at index+1 and the NEWER
+  one at index-1 — matching what page.previous/page.next meant.
+
+  A hidden post is not in the filtered set, so `found` stays false and the whole
+  block is skipped; without that guard the index would default to 0 and every
+  hidden post would claim the two newest posts as its neighbours.
+{%- endcomment -%}
+{%- assign lang_now = page.lang | default: site.lang | default: 'en' -%}
+{%- assign nav_posts = site.posts | where_exp: "p", "p.hidden != true" | where_exp: "p", "p.lang == lang_now" -%}
+
+{%- assign here = 0 -%}
+{%- assign found = false -%}
+{%- for p in nav_posts -%}
+  {%- if p.url == page.url -%}
+    {%- assign here = forloop.index0 -%}
+    {%- assign found = true -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if found -%}
+  {%- assign older_i = here | plus: 1 -%}
+  {%- assign newer_i = here | minus: 1 -%}
+
+  {%- assign older = false -%}
+  {%- if older_i < nav_posts.size -%}{%- assign older = nav_posts[older_i] -%}{%- endif -%}
+
+  {%- assign newer = false -%}
+  {%- if here > 0 -%}{%- assign newer = nav_posts[newer_i] -%}{%- endif -%}
+
+  {%- if older or newer %}
+<div class="row PageNavigation d-flex justify-content-between fw-bold">
+    {%- if older %}
+  <a class="prev d-block col-md-6" href="{{ older.url | absolute_url }}">&laquo; {{ older.title }}</a>
+    {%- endif %}
+    {%- if newer %}
+  <a class="next d-block col-md-6 text-lg-end" href="{{ newer.url | absolute_url }}">{{ newer.title }} &raquo;</a>
+    {%- endif %}
+  <div class="clearfix"></div>
+</div>
+  {%- endif -%}
+{%- endif -%}

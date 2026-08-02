@@ -1,0 +1,30 @@
+{%- comment -%}
+  Language switcher for a post that exists in more than one language.
+
+  Translations are linked by a shared `ref:` key in front matter rather than by a
+  filename convention, so the slugs stay idiomatic in each language instead of
+  being forced to mirror the English one.
+
+  Renders nothing at all unless a sibling actually exists — same guard
+  _includes/series-nav.html uses for `parts.size > 1`. The 30 posts that carry no
+  `ref:` are therefore untouched by this include.
+
+  Link text is the NATIVE language name from _data/languages.yml ("Tiếng Việt",
+  not "Vietnamese"): the person who wants that version is the person who reads it.
+  The `lang` attribute is what makes a screen reader pronounce it correctly, and
+  `hreflang` tells the browser what it is getting before the click.
+{%- endcomment -%}
+{%- if page.ref -%}
+  {%- assign siblings = site.posts | where: "ref", page.ref -%}
+  {%- if siblings.size > 1 -%}
+<nav class="post-translations" aria-label="Translations of this post">
+  <span class="post-translations__label">Also in</span>
+  {%- for p in siblings -%}
+    {%- assign plang = p.lang | default: site.lang | default: 'en' -%}
+    {%- unless p.url == page.url -%}
+  <a class="post-translations__link" href="{{ p.url | relative_url }}" lang="{{ plang }}" hreflang="{{ plang }}">{{ site.data.languages[plang].name | default: plang }}</a>
+    {%- endunless -%}
+  {%- endfor -%}
+</nav>
+  {%- endif -%}
+{%- endif -%}

@@ -11,7 +11,13 @@ layout: null
     <pubDate>{{ site.time | date_to_rfc822 }}</pubDate>
     <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
     <generator>Jekyll v{{ jekyll.version }}</generator>
-    {% for post in site.posts limit:10 %}
+    {%- comment -%}
+      The same `hidden` filter index.html, search.json, topics, archive and the
+      category pages all apply. Without it the feed was the one public surface
+      that still published unlisted drafts — 6 of the 30 posts are hidden.
+    {%- endcomment -%}
+    {%- assign feed_posts = site.posts | where_exp: "p", "p.hidden != true" -%}
+    {% for post in feed_posts limit:10 %}
       <item>
         <title>{{ post.title | xml_escape }}</title>
         <description>{{ post.content | xml_escape }}</description>

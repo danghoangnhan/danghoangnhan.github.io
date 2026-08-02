@@ -1,0 +1,30 @@
+# Post languages. The key matches the `lang:` value in post front matter and is
+# emitted verbatim as the <html lang> attribute by _layouts/default.html, so it
+# has to stay a valid BCP 47 tag — "vi", not "vietnamese".
+#
+# A post with no `lang:` falls back to site.lang, so adding a language here is
+# only half the job: the posts written in it need the front matter too.
+#
+# `locale` is NOT read by any template here — it is documentation for the author.
+# jekyll-seo-tag builds og:locale as `page.locale || site.locale || page.lang`
+# (drop.rb), and Open Graph wants language_TERRITORY, so a post carrying only
+# `lang: vi` ships the invalid `og:locale: vi`. A non-English post should set both:
+#
+#     lang: vi
+#     locale: vi_VN
+#
+# Deliberately no site-wide `locale:` in _config.yml: it would win over page.lang
+# for any post that set `lang:` and forgot `locale:`, turning a slightly malformed
+# locale into a confidently wrong one.
+en:
+  name: English
+  short: EN
+  locale: en_US
+vi:
+  name: Tiếng Việt
+  short: VI
+  locale: vi_VN
+zh:
+  name: 中文
+  short: ZH
+  locale: zh_TW

@@ -16,6 +16,20 @@ $accent: #0a2b46;
 $rail-bp: 1024px;
 $rail-bp-max: 1023.98px;
 
+// Height of the fixed navbar, used as the fallback whenever --nav-height is
+// unset — i.e. before mediumish.js runs, and permanently if JS never runs.
+// Matches the `margin-top: 57px` screen.css:45 already puts on .site-content;
+// that value is the only one of the old hardcoded guesses that was measured
+// against the real bar, so it is the honest static answer.
+$nav-fallback: 57px;
+
+// Clearance for anything scrolled to by an anchor, so it lands below the fixed
+// navbar instead of underneath it. One definition, applied to article headings,
+// the topic and archive headings, and the comments thread.
+@mixin clears-navbar {
+  scroll-margin-top: calc(var(--nav-height, #{$nav-fallback}) + 1.5rem);
+}
+
 // ---------------------------------------------------------------- utilities
 
 .visually-hidden {
@@ -38,12 +52,118 @@ $rail-bp-max: 1023.98px;
   color: $muted;
 }
 
+// --------------------------------------------------------------- post tags
+
+// Category and language chips, rendered by _includes/post-tags.html in the post
+// header and both card footers.
+//
+// The pill geometry is deliberately the same as .topic-cloud below: /topics/ and
+// a post header are two views of one taxonomy, and they looked like two unrelated
+// widgets when the header used screen.css's square `ul.tags` chips instead. That
+// vendored block is now dead — post.html was its only consumer — but screen.css
+// is left untouched, so it stays there unused.
+.post-tags {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.post-tag {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid $rule;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-decoration: none;
+  color: $accent;
+  // A category like "reinforcement-learning" breaking across two lines reads as
+  // two chips. Let the row wrap instead.
+  white-space: nowrap;
+}
+
+a.post-tag:hover {
+  background: #f6f8fa;
+  text-decoration: none;
+}
+
+// The language is a fact about the post, not a destination — there is no
+// per-language archive — so it renders as a <span> and is toned down to keep the
+// clickable category chips as the visual lead. Same uppercase/letter-spaced
+// treatment .toc-heading uses for its label.
+.post-tag--lang {
+  color: $muted;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+// Card footers are 12px type in a three-across grid, and 18 posts carry three
+// categories plus the language badge. At full size that strip ran to three lines.
+.post-tags--card {
+  margin-bottom: 0.6rem;
+  gap: 0.3rem;
+
+  .post-tag {
+    padding: 0.12rem 0.55rem;
+    font-size: 0.7rem;
+  }
+
+  .post-tag--lang {
+    font-size: 0.62rem;
+  }
+}
+
+// --------------------------------------------------------- post translations
+
+// Rendered by _includes/translations.html, only on posts that actually have a
+// sibling in another language. It sits directly under the chip strip, so it takes
+// the chip strip's bottom margin as its own top spacing rather than adding more.
+.post-translations {
+  margin: -0.5rem 0 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.post-translations__label {
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+}
+
+// Underlined rather than pill-shaped on purpose: this is a sentence ("Also in
+// Tiếng Việt"), not another taxonomy chip, and giving it the .post-tag treatment
+// made it read as a third category.
+.post-translations__link {
+  color: $accent;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
 // ------------------------------------------------------------------- search
 
 .site-search {
   position: relative;
   margin-left: 1rem;
-  min-width: 190px;
+
+  // `flex: 0 1 240px` rather than the old rigid `min-width: 190px`: the field
+  // may now shrink when the bar is tight instead of forcing the navbar to wrap
+  // onto a second row. That wrap is what made the bar taller than the post
+  // rail's offset assumed, which is how the share block ended up beneath it —
+  // see the --nav-height note on .post-rail below.
+  flex: 0 1 240px;
+  min-width: 0;
 
   input[type="search"] {
     border-radius: 999px;
@@ -51,12 +171,20 @@ $rail-bp-max: 1023.98px;
     padding: 0.3rem 0.9rem;
     font-size: 0.85rem;
     width: 100%;
+
+    &:focus {
+      border-color: $accent;
+      box-shadow: none;
+      outline: 2px solid transparent; // keeps a visible ring in forced-colours
+    }
   }
 
-  // The navbar collapses below lg; give the field its own row there.
+  // The navbar collapses below lg; give the field its own full-width row there
+  // rather than leaving it competing with the toggle for a single line.
   @media (max-width: 991px) {
     margin: 0.75rem 0 0.25rem;
-    min-width: 0;
+    flex: 1 1 auto;
+    width: 100%;
   }
 }
 
@@ -101,11 +229,34 @@ $rail-bp-max: 1023.98px;
     line-height: 1.3;
   }
 
+  // Now a chip row rather than a "date · categories" string, so a hit carries
+  // the same vocabulary the cards and the post header use.
   .search-meta {
-    display: block;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
     font-size: 0.75rem;
     color: $muted;
-    margin-top: 2px;
+    margin-top: 4px;
+  }
+
+  .search-date {
+    margin-left: auto;
+    white-space: nowrap;
+    font-size: 0.7rem;
+  }
+
+  // Scoped down rather than adding a global size modifier: this is the only
+  // place chips appear at dropdown scale.
+  .post-tag {
+    padding: 0.05rem 0.45rem;
+    font-size: 0.65rem;
+    line-height: 1.45;
+  }
+
+  .post-tag--lang {
+    font-size: 0.6rem;
   }
 
   .search-empty {
@@ -157,8 +308,7 @@ $rail-bp-max: 1023.98px;
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    // Clear the fixed navbar when jumping to an anchor.
-    scroll-margin-top: 80px;
+    @include clears-navbar;
   }
 }
 
@@ -204,7 +354,7 @@ $rail-bp-max: 1023.98px;
     font-size: 1.5rem;
     padding-bottom: 0.4rem;
     border-bottom: 1px solid $rule;
-    scroll-margin-top: 80px;
+    @include clears-navbar;
   }
 }
 
@@ -264,8 +414,19 @@ $rail-bp-max: 1023.98px;
 .post-rail {
   @media (min-width: $rail-bp) {
     position: sticky;
-    top: 90px;
-    max-height: calc(100vh - 110px);
+    // Derived from the navbar's measured height rather than the 90px literal
+    // this used to carry. The bar grew when the search field and theme toggle
+    // were added and this number did not follow, so on any width where the bar
+    // renders taller than 90px the share block slid underneath it.
+    // assets/js/mediumish.js publishes --nav-height; $nav-fallback covers the
+    // JS-off branch this repo deliberately supports (see _theme-scope.scss),
+    // so the variable is never load-bearing.
+    top: calc(var(--nav-height, #{$nav-fallback}) + 1.5rem);
+    max-height: calc(100vh - var(--nav-height, #{$nav-fallback}) - 3rem);
+    // Belt and braces: the navbar is Bootstrap .fixed-top (z-index 1030), so an
+    // explicit low stacking order here means that even if the offsets were wrong
+    // the rail can only ever go under the menu, never paint over it.
+    z-index: 1;
     display: flex;
     flex-direction: column;
 
@@ -362,15 +523,23 @@ $rail-bp-max: 1023.98px;
   }
 }
 
-// The navbar is fixed-top and ~57px tall, so a TOC link would otherwise scroll
-// its heading to y=0 and straight underneath it. Same offset the topic and
-// archive headings already use above.
+// The navbar is fixed-top, so a TOC link would otherwise scroll its heading to
+// y=0 and straight underneath it.
+//
+// #comments gets the same treatment and had none at all: _includes/share.html
+// links to it, main.scss sets `html { scroll-behavior: smooth }`, and the thread
+// therefore glided to y=0 and parked itself behind the bar. The headings were
+// fixed for this and the comments anchor was missed.
 .article-post {
   h2,
   h3,
   h4 {
-    scroll-margin-top: 80px;
+    @include clears-navbar;
   }
+}
+
+#comments {
+  @include clears-navbar;
 }
 
 // ------------------------------------------------------------------- share

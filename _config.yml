@@ -22,6 +22,24 @@ lang: en
 include: ["_pages"]
 permalink: /:title/
 
+# Every post gets a language, so page.lang is always populated and templates do not
+# each carry their own `| default:` chain. Override per post with `lang: vi` in front
+# matter; the codes are the keys of _data/languages.yml and must stay valid BCP 47,
+# because _layouts/default.html emits them verbatim as <html lang>.
+#
+# A post in another language should ALSO carry `locale: vi_VN` — jekyll-seo-tag
+# derives og:locale from page.lang when no locale is given, and a bare "vi" is not a
+# valid Open Graph locale. See the note in _data/languages.yml.
+#
+# Translations of one article additionally share a `ref:` key, which is what
+# _includes/translations.html and _includes/hreflang.html match on.
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      lang: en
+
 # Authors
 authors:
   danghoangnhan:

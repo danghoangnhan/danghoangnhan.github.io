@@ -20,6 +20,35 @@
   var DELTA = 5; // ignore scroll jitter smaller than this
   var lastScrollTop = 0;
   var ticking = false;
+  var measuring = false;
+
+  /*
+   * Publish the navbar's real height so CSS can offset against it.
+   *
+   * The stylesheets used to hardcode four different guesses at this number
+   * — .site-content margin-top: 57px, .post-rail top: 90px, its
+   * max-height: calc(100vh - 110px), and scroll-margin-top: 80px on headings.
+   * They cannot all be right, and none of them moved when the search field and
+   * theme toggle were added to the bar. When the navbar renders taller than the
+   * rail's assumed 90px (it wraps at some widths, and grows outright when the
+   * menu is collapsed and open), the sticky share block ends up underneath it.
+   *
+   * offsetHeight is already read below for the hide-on-scroll logic, so this
+   * measures nothing new — it just stops CSS from having to guess.
+   */
+  function publishNavHeight() {
+    measuring = false;
+    document.documentElement.style.setProperty(
+      "--nav-height",
+      nav.offsetHeight + "px"
+    );
+  }
+
+  function scheduleMeasure() {
+    if (measuring) return;
+    measuring = true;
+    window.requestAnimationFrame(publishNavHeight);
+  }
 
   function update() {
     ticking = false;
@@ -54,4 +83,22 @@
     },
     { passive: true }
   );
+
+  publishNavHeight();
+  window.addEventListener("resize", scheduleMeasure, { passive: true });
+
+  // The collapsed menu changes the bar's height by a lot, and Bootstrap animates
+  // it — so measure when the transition finishes, not when the click lands.
+  var collapse = document.getElementById("navbarMediumish");
+  if (collapse) {
+    collapse.addEventListener("shown.bs.collapse", publishNavHeight);
+    collapse.addEventListener("hidden.bs.collapse", publishNavHeight);
+  }
+
+  // Webfonts land after first paint and reflow the bar. `document.fonts` is
+  // guarded because the JS-off/older-browser path must degrade to the CSS
+  // fallback rather than throw here and abandon the scroll handler above.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(publishNavHeight);
+  }
 })();

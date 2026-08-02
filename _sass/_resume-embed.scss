@@ -1,0 +1,137 @@
+// Résumé embed, rendered by _includes/resume.html on /about/.
+//
+// Kept in its own partial rather than folded into _components.scss for the same
+// reason _spotify-embed.scss is: an embed of a third-party document is a
+// self-contained thing, and the two are the only places this site hands a box
+// over to content it does not control.
+
+@use "theme-scope" as *;
+
+$rule: #eaeaea;
+$muted: rgba(0, 0, 0, 0.55);
+$accent: #0a2b46;
+
+// Below this the inline viewer is hidden. iOS Safari and Android Chrome either
+// render a blank box or a single unscrollable page, and an <object>'s fallback
+// children do NOT appear in that case — the browser claims it handled the type.
+// So the breakpoint, not feature detection, is what has to make the call.
+$resume-bp: 768px;
+
+.embed-resume {
+  margin: 1.5rem 0 2rem;
+}
+
+.embed-resume__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+
+.embed-resume__btn {
+  display: inline-block;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid $accent;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+// screen.css sets `a { color: #0a2b46 !important }`, so the filled button cannot
+// win on colour with a normal declaration. Inverting the BACKGROUND instead of
+// the text would leave dark-on-dark, so this is the one place that has to match
+// that !important to stay legible.
+.embed-resume__btn--primary {
+  background: $accent;
+  color: #fff !important;
+}
+
+.embed-resume__frame {
+  width: 100%;
+  height: 85vh;
+  min-height: 480px;
+  border: 1px solid $rule;
+  border-radius: 8px;
+  // The PDF paints its own white page; this shows through the gap while it
+  // loads so the box does not flash as an empty dark rectangle.
+  background: #fff;
+
+  @media (max-width: $resume-bp - 0.02px) {
+    display: none;
+  }
+}
+
+.embed-resume__fallback {
+  padding: 2rem 1.25rem;
+  color: $muted;
+}
+
+// The rendered page image, shown only where the inline viewer is hidden. Kept a
+// link rather than a bare <img> so a tap still reaches the real document, which
+// is the selectable, zoomable, screen-reader-legible version.
+.embed-resume__preview {
+  display: block;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid $rule;
+    border-radius: 8px;
+  }
+
+  @media (min-width: $resume-bp) {
+    display: none;
+  }
+}
+
+.embed-resume__compact {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  color: $muted;
+
+  // The inline viewer is showing, so this would just be noise.
+  @media (min-width: $resume-bp) {
+    display: none;
+  }
+}
+
+@include when-dark {
+  // Deliberately NOT inverted. `filter: invert()` on an embedded PDF wrecks a
+  // LaTeX document — it flips the link colours, the figures and any coloured
+  // rules along with the paper, and hinted text renders muddy. The document stays
+  // white and instead gets matted: a border and a slightly lifted surround, so it
+  // reads as a sheet of paper resting on the page rather than a blown-out panel.
+  .embed-resume__frame {
+    border-color: #30363d;
+    box-shadow: 0 0 0 6px #161b22;
+  }
+
+  .embed-resume__btn {
+    border-color: #30363d;
+  }
+
+  // Matted for the same reason as the viewer: it is a picture of white paper.
+  .embed-resume__preview img {
+    border-color: #30363d;
+  }
+
+  // The filled button keeps a light label, but $accent (#0a2b46) is nearly black
+  // against #0d1117 — it needs the dark palette's link blue behind it instead.
+  .embed-resume__btn--primary {
+    background: #1f6feb;
+    border-color: #1f6feb;
+    color: #fff !important;
+  }
+
+  .embed-resume__fallback,
+  .embed-resume__compact {
+    color: #8b949e;
+  }
+}

@@ -17,6 +17,7 @@
             <h4 class="card-text">{{ post.excerpt | strip_html | truncatewords:30 }}</h4>            
         </div>
         <div class="card-footer bg-white">
+            {% include post-tags.html item=post class="post-tags--card" %}
             <div class="wrapfooter">
                 {% if post.author %}
                 <span class="meta-footer-thumb">

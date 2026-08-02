@@ -1,0 +1,32 @@
+{%- comment -%}
+  rel="alternate" hreflang links for posts that exist in several languages.
+
+  Google requires these to be RECIPROCAL: every version must point at every other
+  version AND at itself. That falls out for free here because the loop emits the
+  whole sibling set without excluding the current page — which is why this looks
+  like it has an off-by-one against _includes/translations.html, where the current
+  page IS skipped. The switcher is for humans and must not link to the page you
+  are already on; this is for crawlers and must include it.
+
+  x-default names the version to serve a reader whose language we do not publish.
+  It is the site-default-language sibling, falling back to the first one if the
+  default language is not among the translations.
+
+  Emits nothing for the 30 posts with no `ref:`. jekyll-seo-tag handles the rest
+  of the head; this covers only what it does not know about.
+{%- endcomment -%}
+{%- if page.ref -%}
+  {%- assign siblings = site.posts | where: "ref", page.ref -%}
+  {%- if siblings.size > 1 -%}
+    {%- assign default_lang = site.lang | default: 'en' -%}
+    {%- assign fallback = siblings | first -%}
+    {%- for p in siblings -%}
+      {%- assign plang = p.lang | default: default_lang -%}
+    <link rel="alternate" hreflang="{{ plang }}" href="{{ p.url | absolute_url }}" />
+      {%- if plang == default_lang -%}
+        {%- assign fallback = p -%}
+      {%- endif -%}
+    {%- endfor %}
+    <link rel="alternate" hreflang="x-default" href="{{ fallback.url | absolute_url }}" />
+  {%- endif -%}
+{%- endif -%}

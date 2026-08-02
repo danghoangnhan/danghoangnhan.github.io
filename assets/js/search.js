@@ -36,16 +36,20 @@
       })
       .catch(function (err) {
         loading = false;
+        // Same two rules as render(): role="presentation" because a listbox may
+        // only hold options, and setExpanded so aria-expanded does not go stale.
         results.innerHTML =
-          '<li class="search-empty">Search is unavailable right now.</li>';
-        results.hidden = false;
+          '<li role="presentation" class="search-empty">Search is unavailable right now.</li>';
+        setExpanded(true);
         throw err;
       });
   }
 
   function score(post, terms) {
     var title = post.t.toLowerCase();
-    var cats = post.c.toLowerCase();
+    // search.json now ships categories as an array so the same field can be
+    // rendered as chips; scoring still wants one flat haystack.
+    var cats = (post.c || []).join(" ").toLowerCase();
     var body = post.b.toLowerCase();
     var total = 0;
 
@@ -71,39 +75,77 @@
       .replace(/"/g, "&quot;");
   }
 
+  /*
+   * Open/close the listbox and keep aria-expanded honest.
+   *
+   * aria-expanded used to be hardcoded false in the markup and never touched, so
+   * the combobox told assistive tech it was collapsed the whole time it was
+   * showing results. Closing also drops the active descendant, or the input
+   * keeps pointing at the id of an option that is no longer in the document.
+   */
+  function setExpanded(isOpen) {
+    results.hidden = !isOpen;
+    input.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    if (!isOpen) {
+      activeIndex = -1;
+      input.removeAttribute("aria-activedescendant");
+    }
+  }
+
   function render(matches, query) {
     activeIndex = -1;
+    input.removeAttribute("aria-activedescendant");
 
     if (!query) {
-      results.hidden = true;
       results.innerHTML = "";
+      setExpanded(false);
       return;
     }
 
     if (matches.length === 0) {
+      // role="presentation": a listbox may only contain options, and this row is
+      // a message rather than something selectable.
       results.innerHTML =
-        '<li class="search-empty">No posts match &ldquo;' +
+        '<li role="presentation" class="search-empty">No posts match &ldquo;' +
         escapeHtml(query) +
-        '&rdquo;</li>';
-      results.hidden = false;
+        "&rdquo;</li>";
+      setExpanded(true);
       return;
     }
 
     results.innerHTML = matches
-      .map(function (m) {
+      .map(function (m, i) {
+        // Same chip vocabulary as the cards and the post header, so a result
+        // reads identically wherever the reader meets it. Spans rather than
+        // links because they sit inside the option's own anchor.
+        var chips = (m.c || [])
+          .map(function (c) {
+            return '<span class="post-tag">' + escapeHtml(c) + "</span>";
+          })
+          .join("");
+
+        var lang = (m.l || "en").toUpperCase();
+
         return (
-          '<li role="option"><a href="' +
-          m.u +
+          '<li role="presentation">' +
+          '<a role="option" aria-selected="false" id="site-search-opt-' +
+          i +
+          '" href="' +
+          escapeHtml(m.u) +
           '"><span class="search-title">' +
           escapeHtml(m.t) +
           '</span><span class="search-meta">' +
+          chips +
+          '<span class="post-tag post-tag--lang">' +
+          escapeHtml(lang) +
+          '</span><span class="search-date">' +
           escapeHtml(m.d) +
-          (m.c ? " &middot; " + escapeHtml(m.c) : "") +
-          "</span></a></li>"
+          "</span></span></a></li>"
         );
       })
       .join("");
-    results.hidden = false;
+
+    setExpanded(true);
   }
 
   function search() {
@@ -137,18 +179,36 @@
   }
 
   function items() {
-    return Array.prototype.slice.call(results.querySelectorAll('li[role="option"] a'));
+    return Array.prototype.slice.call(results.querySelectorAll('[role="option"]'));
   }
 
+  /*
+   * Move the selection. Focus deliberately stays in the input.
+   *
+   * This used to call .focus() on the result link, which moved DOM focus out of
+   * the combobox — that is why arrow keys needed a second listener bound to the
+   * list, and why Enter appeared to work (the browser was activating a focused
+   * anchor, not anything this file did). The combobox pattern keeps focus put
+   * and points at the selection with aria-activedescendant instead.
+   */
   function highlight(next) {
     var list = items();
     if (list.length === 0) return;
+
     list.forEach(function (el) {
       el.classList.remove("is-active");
+      el.setAttribute("aria-selected", "false");
     });
+
     activeIndex = (next + list.length) % list.length;
-    list[activeIndex].classList.add("is-active");
-    list[activeIndex].focus();
+    var el = list[activeIndex];
+    el.classList.add("is-active");
+    el.setAttribute("aria-selected", "true");
+    input.setAttribute("aria-activedescendant", el.id);
+
+    // The list caps at 60vh and scrolls; without this the selection walks off
+    // the bottom and the reader is arrowing through something they cannot see.
+    if (el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
   }
 
   // Warm the index as soon as intent is shown, so the first query feels instant.
@@ -159,38 +219,33 @@
     debounceTimer = setTimeout(search, 150);
   });
 
+  // One handler, because focus never leaves the input. Arrows wrap in both
+  // directions: from nothing selected, Down takes the first and Up the last.
   input.addEventListener("keydown", function (e) {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      highlight(0);
-    } else if (e.key === "Escape") {
-      input.value = "";
-      render([], "");
-      input.blur();
-    }
-  });
+    var list = items();
 
-  results.addEventListener("keydown", function (e) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
       highlight(activeIndex + 1);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      if (activeIndex <= 0) {
-        activeIndex = -1;
-        input.focus();
-      } else {
-        highlight(activeIndex - 1);
+      highlight(activeIndex - 1);
+    } else if (e.key === "Enter") {
+      // Only intercept when something is selected, so Enter on a bare query
+      // still does whatever the form would normally do.
+      if (activeIndex >= 0 && list[activeIndex]) {
+        e.preventDefault();
+        window.location.href = list[activeIndex].getAttribute("href");
       }
     } else if (e.key === "Escape") {
+      input.value = "";
       render([], "");
-      input.focus();
     }
   });
 
   document.addEventListener("click", function (e) {
     if (!results.contains(e.target) && e.target !== input) {
-      results.hidden = true;
+      setExpanded(false);
     }
   });
 })();
