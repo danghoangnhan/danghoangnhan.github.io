@@ -25,6 +25,9 @@
   // Monotonic id for the most recent query, so a slow response for an old query
   // cannot overwrite the results of a newer one.
   var queryToken = 0;
+  // Set when Enter is pressed before any result exists — see the keydown handler.
+  // The render that follows honours it once and clears it.
+  var pendingEnter = false;
 
   var WEIGHT = { title: 10, categories: 5, body: 1 };
   var MAX_RESULTS = 8;
@@ -74,12 +77,18 @@
    * A non-selectable row: the loading, empty and error states.
    *
    * role="presentation" because a listbox may contain only options, and this is a
-   * message rather than something the reader can choose. aria-live on the results
-   * container (see _includes/search.html) is what actually announces it.
+   * message rather than something the reader can choose.
+   *
+   * The text is ALSO written to the live region. It is not enough to put it in the
+   * listbox: the listbox itself carries no aria-live (an earlier comment here
+   * claimed it did — it does not, and adding one to a listbox is the wrong fix
+   * anyway), so "Searching", "No posts match" and "Search is unavailable" were
+   * shown to sighted readers and to nobody else.
    */
   function message(text) {
     results.innerHTML =
       '<li role="presentation" class="search-empty">' + escapeHtml(text) + "</li>";
+    status.textContent = text;
     setExpanded(true);
   }
 
@@ -138,24 +147,36 @@
     activeIndex = -1;
     input.removeAttribute("aria-activedescendant");
 
+    // Both paths below settle the query without producing anything to open, so a
+    // pending Enter is spent here rather than left armed to hijack a later render.
     if (!query) {
+      pendingEnter = false;
       results.innerHTML = "";
+      status.textContent = "";
       setExpanded(false);
       return;
     }
 
     if (matches.length === 0) {
+      pendingEnter = false;
       message("No posts match “" + query + "”");
       return;
     }
 
-    // Announced through the aria-live region on the results list. Without it a
+    // Announced through the live region beside the listbox. Without it a
     // screen-reader user got no signal that anything had happened at all: the
     // options appear silently, and aria-activedescendant only speaks once the
     // reader starts arrowing.
     var count =
       matches.length === 1 ? "1 result" : matches.length + " results";
     status.textContent = count + " for " + query;
+
+    // Enter was pressed before there was anything to open. Honour it now, once.
+    if (pendingEnter) {
+      pendingEnter = false;
+      window.location.href = matches[0].u;
+      return;
+    }
 
     results.innerHTML = matches
       .map(function (m, i) {
@@ -207,12 +228,25 @@
 
   function search() {
     var query = input.value.trim();
+
+    /*
+     * The token advances FIRST, before the short-query bail-out.
+     *
+     * It used to advance after it, which left the abandoned-query case
+     * unguarded: type "conv" (the fetch starts), then delete back to "c". The
+     * second call returns here with the token untouched, so when the fetch lands
+     * its handler still matches the current token, renders results for "conv" and
+     * re-opens a dropdown the reader has just emptied the box to dismiss.
+     *
+     * Advancing on every call means any query in flight is superseded by whatever
+     * the reader did next, including deleting.
+     */
+    var token = ++queryToken;
+
     if (query.length < 2) {
       render([], "");
       return;
     }
-
-    var token = ++queryToken;
 
     // Only shown if the index has not arrived yet, which is the case for the
     // first query after focus. Previously this window rendered nothing.
@@ -248,10 +282,26 @@
         // loadIndex has already rendered the failure row and re-thrown so callers
         // can tell. Swallowing it here keeps a dead network from logging an
         // unhandled rejection on every keystroke.
+        //
+        // Disarm Enter: the index never arrived, so there is nowhere to go, and
+        // leaving it armed would make a later successful search navigate on its
+        // own long after the reader pressed the key.
+        pendingEnter = false;
       });
   }
 
+  /*
+   * The currently SELECTABLE options.
+   *
+   * `results.hidden` is checked because setExpanded(false) only hides the list —
+   * it leaves the option markup in the DOM. Without this guard, closing the popup
+   * and then pressing Enter navigated to a result the reader could no longer see,
+   * and the arrow keys moved a selection inside a hidden list instead of
+   * reopening it. Message rows are role="presentation", so they are excluded
+   * here already and Enter cannot activate "Searching" or "No posts match".
+   */
   function items() {
+    if (results.hidden) return [];
     return Array.prototype.slice.call(results.querySelectorAll('[role="option"]'));
   }
 
@@ -322,11 +372,25 @@
        * a dropdown, having pressed the key that normally means "go". Taking the
        * top hit is the least surprising reading of the gesture and needs no new
        * page.
+       *
+       * When there is nothing to go to yet, Enter runs the search rather than
+       * being swallowed. Two windows made it a no-op otherwise, and both are
+       * exactly when a fast typist presses it: inside the 150ms debounce, and
+       * while the first index fetch is still in flight. Cancelling the debounce
+       * and searching synchronously covers the first; the pendingEnter flag below
+       * covers the second by navigating as soon as results exist.
        */
       var target = activeIndex >= 0 ? list[activeIndex] : list[0];
       if (target) {
         e.preventDefault();
         window.location.href = target.getAttribute("href");
+      } else if (input.value.trim().length >= 2) {
+        // Nothing to go to yet: the debounce has not fired, or the index is still
+        // loading. Run the search now and let it navigate when it lands.
+        e.preventDefault();
+        clearTimeout(debounceTimer);
+        pendingEnter = true;
+        search();
       }
     } else if (e.key === "Escape") {
       /*
@@ -335,6 +399,8 @@
        * look at the page behind it lost what they had typed and had to type it
        * again. The two-step is what the ARIA combobox pattern specifies.
        */
+      // Escape also disarms a pending Enter — the reader is dismissing, not going.
+      pendingEnter = false;
       if (!results.hidden) {
         setExpanded(false);
       } else {

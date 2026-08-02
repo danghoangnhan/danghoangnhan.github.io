@@ -32,9 +32,22 @@ layout: default
   </div>
 
   {%- if posts.size > 0 %}
+  {%- comment -%}
+    first_card marks the LCP image so postbox.html fetches it at high priority
+    instead of lazily. postbox.html used to work this out from forloop.first, but
+    that was wrong on the home page (the first visible post is normally featured
+    and rendered elsewhere), so it became a flag the caller passes — and this
+    caller was not updated, which left every category page lazy-loading its own
+    largest above-the-fold image. Here forloop.first IS the right answer, because
+    nothing is skipped.
+  {%- endcomment -%}
   <div class="row listrecent">
     {%- for post in posts %}
-      {%- include postbox.html %}
+      {%- if forloop.first -%}
+        {%- include postbox.html first_card=true -%}
+      {%- else -%}
+        {%- include postbox.html -%}
+      {%- endif -%}
     {%- endfor %}
   </div>
   {%- else %}

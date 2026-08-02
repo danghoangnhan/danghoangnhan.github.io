@@ -10,23 +10,41 @@
   hidden post is still a built, reachable URL, and this list was the one surface
   that still offered them. It linked readers at a post with an empty body.
 
-  Ordering is by date, then by an optional `series_order` — four parts share
-  2023-02-27, and date alone left their order down to file-read order.
+  That cuts both ways, so keep it in mind before hiding a post in this series:
+  this is the ONLY navigation into a course part, so hiding one removes it from
+  the site entirely rather than merely unlisting it.
+
+  Ordering is by `series_order` ALONE, not by date. Every part carries one, which
+  matters because Liquid sorts a missing value FIRST — a new part without the key
+  would silently become part 1 rather than landing at the end. script/lint-content.rb
+  does not check this yet; adding a part means adding its number.
 {%- endcomment -%}
 {%- if page.series -%}
   {%- assign meta = site.data.series[page.series] -%}
   {%- assign in_series = site.posts | where: "series", page.series | where_exp: "p", "p.hidden != true" -%}
   {%- assign parts = in_series | sort: "series_order" -%}
+  {%- comment -%}
+    Is the current page actually in the list? A hidden post in this series is
+    filtered out of `parts` above, including when it is the page being rendered —
+    which left it showing an empty "Part  of " label and an <ol> with no current
+    entry. Nothing to say about position in that case, so the label is dropped.
+  {%- endcomment -%}
+  {%- assign here_listed = false -%}
+  {%- for p in parts -%}
+    {%- if p.url == page.url -%}{%- assign here_listed = true -%}{%- endif -%}
+  {%- endfor -%}
   {%- if parts.size > 1 -%}
 <aside class="series-nav" aria-label="Post series">
   <details{% if page.series_open %} open{% endif %}>
     <summary>
       <span class="series-name">{{ meta.name | default: page.series }}</span>
+      {%- if here_listed %}
       <span class="series-position">
         {%- for p in parts -%}
           {%- if p.url == page.url -%}Part {{ forloop.index }} of {{ parts.size }}{%- endif -%}
         {%- endfor -%}
       </span>
+      {%- endif %}
     </summary>
     {%- if meta.description %}
     <p class="series-description">{{ meta.description }}</p>

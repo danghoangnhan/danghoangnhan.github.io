@@ -4,7 +4,7 @@ title: "LongLLMLingua: Prompt Compression for Long-Context LLMs"
 description: "LongLLMLingua's question-aware compression, document reordering and subsequence recovery, for prompts that run to long contexts."
 author: danghoangnhan
 categories: [ llm ]
-image: assets/images/llmlingua/LongLLMLingua.png
+image: /assets/images/llmlingua/LongLLMLingua.png
 featured: true
 hidden: false
 katex: True

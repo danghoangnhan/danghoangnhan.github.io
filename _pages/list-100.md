@@ -1,6 +1,7 @@
 ---
 layout: page
 title: List 100
+description: "A hundred things I want to do before I die, and how far I've got. Recommendations welcome."
 comments: true
 permalink: /list-100
 ---

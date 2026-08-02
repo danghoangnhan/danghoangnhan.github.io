@@ -20,6 +20,19 @@ lang: en
 # since _includes/comments.html still falls through to Disqus when giscus is unset.
 
 include: ["_pages", "_redirects"]
+
+# Jekyll copies any unrecognised top-level directory into _site, so script/ was
+# being published — /script/lint-content.rb served as part of the site. Build
+# tooling is not content.
+exclude:
+  - script/
+  - Gemfile
+  - Gemfile.lock
+  - Readme.md
+  - LICENSE
+  - .ruby-version
+  - .pa11yci.json
+
 permalink: /:title/
 
 # Every post gets a language, so page.lang is always populated and templates do not
@@ -34,6 +47,19 @@ permalink: /:title/
 # Translations of one article additionally share a `ref:` key, which is what
 # _includes/translations.html and _includes/hreflang.html match on.
 defaults:
+  # Everything, posts and pages alike. og:locale was scoped to `type: posts` at
+  # first, which left the home page, /about, /list-100, /topics/, /archive/,
+  # /404.html and every /category/ page still emitting the invalid bare "en".
+  - scope:
+      path: ""
+    values:
+      locale: en_US
+  # KNOWN GAP: this does not reach the nine /category/ pages, which still emit the
+  # bare `og:locale: en`. jekyll-archives builds them itself and applies no
+  # front-matter defaults, so neither the scope above nor a `type: archives` scope
+  # touches them — the latter was tried and changed nothing. Fixing it properly
+  # needs a _plugins/ hook, which is more machinery than an Open Graph locale on a
+  # category listing is worth. Recorded rather than papered over.
   - scope:
       path: ""
       type: posts
@@ -46,7 +72,6 @@ defaults:
       # (`lang: vi` + `locale: vi_VN`); the values live in _data/languages.yml and
       # .github/workflows/ci.yml fails the build if a non-English post sets only
       # one of them.
-      locale: en_US
 
 # Authors moved to _data/authors.yml — that is the only place jekyll-seo-tag
 # looks, and while they lived here every page shipped the slug "danghoangnhan"

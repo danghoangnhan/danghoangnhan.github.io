@@ -40,12 +40,18 @@ jobs:
 
       - name: Check every link, external included
         run: |
-          gem install html-proofer --no-document
+          gem install html-proofer -v '~> 5.2' --no-document
+          # --hydra, not --hydra-config. html-proofer's CLI names the JSON-config
+          # flags --typhoeus, --hydra and --cache, with no -config suffix; the
+          # config-FILE key is `hydra:`, which is where the wrong name came from.
+          # OptionParser rejects the unknown flag outright, so the whole run died
+          # with a backtrace before checking a single link — and because this
+          # workflow is schedule-only it never ran on a PR to show that.
           htmlproofer ./_site \
             --allow-hash-href \
             --enforce-https \
             --no-check-external-hash \
             --ignore-status-codes "403,429,999" \
-            --hydra-config '{"max_concurrency": 5}'
+            --hydra '{"max_concurrency": 5}'
         # 403/429 are rate limiting and bot blocking rather than a broken link
         # (LinkedIn and Twitter both do it); 999 is LinkedIn's own variant.

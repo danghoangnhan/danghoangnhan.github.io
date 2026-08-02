@@ -7,13 +7,9 @@ author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
 series_order: 9
-image: assets/images/cnn1.png
+image: /assets/images/cnn1.png
 featured: false
-hidden: true
-# Unlisted: kept out of sitemap.xml too. jekyll-sitemap has no concept of the
-# `hidden` flag the other eight surfaces honour, so this post was filtered from
-# every listing on the site and then submitted to search engines anyway.
-sitemap: false
+hidden: false
 ---
 
 When designing a layer for a Convolutional Neural Network (ConvNet), you often have to choose between different filter sizes or decide whether to use a convolutional or pooling layer. The Inception network introduces a novel approach by combining various filter sizes and pooling layers in a single layer, allowing the network to learn the best combinations. In this blog post, we will explore the inception module and how it reduces computational costs while maintaining performance.
@@ -44,4 +40,4 @@ The Inception network architecture allows for increased flexibility in feature e
 
 ## Conclusion
 
-The Inception network, with its inception module, presents an innovative approach to ConvNet architecture. By combining different filter sizes and pooling layers
+The Inception network, with its inception module, presents an innovative approach to ConvNet architecture. By combining different filter sizes and pooling layers in a single block — and using 1x1 convolutions to keep the cost of doing so manageable — it lets the network learn which combination works for a given layer, rather than forcing that choice at design time.

@@ -88,8 +88,13 @@
       This was unconditional: every page — the home page, /about, /topics, all 25
       posts — pulled a render-blocking stylesheet plus two deferred scripts and the
       webfonts behind them, roughly 350 KB, to typeset maths that two posts
-      contain. The `katex:` front-matter flag already existed on exactly those
-      posts and was read by nothing.
+      contain. The `katex:` front-matter flag already existed and was read by
+      nothing.
+
+      Four posts set the flag; two of them (llama, longlingua) contain no maths at
+      all, so they still pay for KaTeX they do not use. That is the author's call
+      to make per post, and over-declaring is the safe direction: a post with
+      maths and no flag renders raw TeX, which is the failure that matters.
 
       Gated on page.katex the same way the Mermaid include at the foot of
       _layouts/post.html is gated on page.mermaid.

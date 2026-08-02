@@ -6,7 +6,7 @@ author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
 series_order: 8
-image: assets/images/cnn1.png
+image: /assets/images/cnn1.png
 featured: false
 hidden: false
 ---
@@ -33,6 +33,3 @@ ConvNets often include pooling layers and fully connected layers in addition to 
 
 In conclusion, Convolutional Neural Networks have revolutionized image classification and recognition tasks. Understanding their architecture and the role of different layers helps in designing effective models for various computer vision applications.
 
----
-
-I hope you find this blog post summary helpful! Let me know if you have any further questions.

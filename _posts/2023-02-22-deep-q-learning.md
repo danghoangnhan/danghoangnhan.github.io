@@ -3,7 +3,7 @@ layout: post
 title: "Deep Q-Learning (DQN)"
 author: danghoangnhan
 categories: [ deep-learning, reinforcement-learning ]
-image: assets/images/dqn.jpeg
+image: /assets/images/dqn.jpeg
 featured: false
 hidden: false
 description: "Why tabular Q-learning breaks down in continuous state spaces, and how DQN replaces the Q-table with a neural network and a replay buffer."

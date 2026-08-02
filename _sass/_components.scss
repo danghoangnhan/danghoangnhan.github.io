@@ -512,6 +512,28 @@ a.post-tag:hover {
   }
 }
 
+/*
+ * Below the rail breakpoint, the rail is not a rail.
+ *
+ * The two columns are col-md-2 and col-md-9, and Bootstrap's `md` starts at
+ * 768px — but the sticky rail only exists from $rail-bp (1024px). Every width in
+ * between got the worst of both: the TOC panel and the share block crammed into a
+ * ~120px column beside a 9/12 article, with a dead 1/12 gutter, on every tablet
+ * and every landscape phone. The mobile TOC styles above were written for a
+ * full-width panel and had nowhere to go.
+ *
+ * flex-basis rather than the grid classes because the classes are what is wrong;
+ * overriding them here keeps the markup describing the desktop intent.
+ */
+@media (max-width: $rail-bp-max) {
+  .post-rail-col,
+  .post-main-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
 // The <details> wrapper only needs to participate in the rail's flex column at
 // desktop widths; below that it is an ordinary block.
 .toc-details {
@@ -790,11 +812,15 @@ a.post-tag:hover {
  * which WCAG 1.4.4 requires to work.
  */
 .site-footer {
+  // The fallback if Bootstrap fails to load. When it does load, .bg-dark on the
+  // element sets the same colour with !important and wins — which is fine, it is
+  // the same value, and this is what keeps the footer dark either way.
   background-color: #212529;
+  // These two are the ones that actually change the rendering: they override
+  // screen.css:709 and :715. Vertical padding is deliberately not set here —
+  // the markup carries Bootstrap's pt-4 pb-4, which is !important and would win.
   background-image: none;
   height: auto;
-  min-height: 0;
-  padding: 2.5rem 0;
 }
 
 // ------------------------------------------------------------------ contrast
@@ -876,16 +902,23 @@ blockquote {
   }
 }
 
-// A table wider than the column scrolls inside its own box rather than making
-// the whole page scroll sideways.
-.article-post .table-wrapper,
+/*
+ * A table wider than the column scrolls inside its own box rather than making the
+ * whole page scroll sideways.
+ *
+ * This is `display: block` at EVERY width. It previously reverted to
+ * `display: table` above 576px, where overflow-x has no effect on a table box —
+ * so the guard was inert at exactly the widths where a wide table is most likely
+ * to be read, and the page scrolled sideways instead. It also listed a
+ * `.table-wrapper` class that appears nowhere: kramdown emits a bare <table> with
+ * no wrapper, so that half of the selector never matched anything.
+ *
+ * A block-level table still lays its rows and cells out as a table (they generate
+ * anonymous table boxes), and width: 100% above keeps it filling the column.
+ */
 .article-post table {
-  overflow-x: auto;
   display: block;
-
-  @media (min-width: 576px) {
-    display: table;
-  }
+  overflow-x: auto;
 }
 
 // ------------------------------------------------------------------ skip link
@@ -914,23 +947,22 @@ blockquote {
 // -------------------------------------------------------------- reduced motion
 
 /*
- * Honour prefers-reduced-motion. The navbar slides on every scroll direction
- * change (screen.css:`transition: top .2s`) and the cards lift on hover; for a
- * reader with a vestibular disorder that is exactly the motion the media query
- * exists to switch off. Scoped to the animated properties rather than a blanket
- * `* { transition: none }`, which would also kill the theme toggle's colour fade.
+ * Honour prefers-reduced-motion.
+ *
+ * The navbar is the one real animation on the site: screen.css gives
+ * .mediumnavigation `transition: top .2s ease-in-out`, and mediumish.js drives it
+ * on every change of scroll direction — a bar sliding in and out of view all the
+ * way down a long post is exactly the motion this media query exists to stop.
+ *
+ * Only that. An earlier version of this block also reset .card and
+ * .listfeaturedtag transitions and transforms; neither carries any, in screen.css
+ * or anywhere else, so those rules described a hover-lift the cards do not have.
+ * Scoped rather than a blanket `* { transition: none }`, which would also kill
+ * the theme toggle's colour fade for no benefit.
  */
 @media (prefers-reduced-motion: reduce) {
   .mediumnavigation {
     transition: none !important;
-  }
-
-  .card,
-  .card:hover,
-  .listfeaturedtag,
-  .listfeaturedtag:hover {
-    transition: none !important;
-    transform: none !important;
   }
 }
 
@@ -960,10 +992,32 @@ blockquote {
     display: none !important;
   }
 
+  /*
+   * Force black-on-white regardless of the reader's theme.
+   *
+   * `body { color: #000 }` alone was not enough: in dark mode every heading,
+   * link, code block and table cell carries its own explicit light colour from
+   * _dark.scss, which inherits nothing from body. A reader who prefers dark mode
+   * and printed a post got #c9d1d9 text on white paper — legible on screen,
+   * nearly blank on paper.
+   *
+   * The blanket rule costs syntax highlighting on the printout, which is the
+   * right trade: a dark theme's highlight palette is light-on-dark and prints as
+   * muddy pastels on white anyway.
+   */
+  html,
   body {
     background: #fff !important;
     color: #000 !important;
     font-size: 11pt;
+  }
+
+  body *,
+  body *::before,
+  body *::after {
+    color: #000 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
   }
 
   .site-content {
