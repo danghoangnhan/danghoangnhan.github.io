@@ -754,6 +754,49 @@ a.post-tag:hover {
   font-size: 1.4rem;
 }
 
+// -------------------------------------------------------------------- footer
+
+/*
+ * A flat colour, not a photograph.
+ *
+ * screen.css:708 gives .site-footer `background-image: url(footer.jpg)` and
+ * `color: white`, with no colour underneath it. Three problems, in order of how
+ * much they matter:
+ *
+ * 1. The contrast of every footer link is whatever the photograph happens to be at
+ *    that pixel. It is genuinely poor wherever the image is light, and there is no
+ *    value anyone — a person or a tool — can state and check.
+ * 2. Nothing keeps the footer dark if the image is missing or still loading. White
+ *    text then lands on the page background. That is not hypothetical: the image
+ *    was accidentally deleted one commit ago and the whole footer went invisible.
+ * 3. It costs 183 KB on every page for decoration.
+ *
+ * A scrim was tried first — a translucent black layer over the photo — and it does
+ * fix the human problem, but axe still cannot resolve a background it cannot
+ * sample, so it returns `incomplete` (needsFurtherReview) for all eight elements
+ * rather than a pass. An accessibility check that can only ever say "someone
+ * should look at this" is not worth having in CI, and the honest way to get a
+ * verifiable answer is to give it something verifiable to measure.
+ *
+ * #212529 is Bootstrap's own $dark, which the markup already asks for via .bg-dark
+ * and which _dark.scss deepens to #010409. White on it is 15.9:1.
+ *
+ * footer.jpg stays in the repo because screen.css still references it and a
+ * dangling url() is how the last mistake happened. The override means no browser
+ * ever requests it.
+ *
+ * height: 300px becomes a minimum while this rule exists: a fixed height leaves
+ * dead space at desktop widths and clips content out of the box at 200% text zoom,
+ * which WCAG 1.4.4 requires to work.
+ */
+.site-footer {
+  background-color: #212529;
+  background-image: none;
+  height: auto;
+  min-height: 0;
+  padding: 2.5rem 0;
+}
+
 // ------------------------------------------------------------------ contrast
 
 /*
