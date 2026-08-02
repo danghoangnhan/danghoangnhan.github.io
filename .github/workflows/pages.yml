@@ -53,3 +53,56 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  # Confirms that what this workflow built is what visitors are served.
+  #
+  # This exists because for a long time it wasn't. The repository's Pages source
+  # was still "Deploy from a branch", so every run of this workflow built a
+  # correct Jekyll 4.4.1 artifact, uploaded it, reported success — and GitHub
+  # served a legacy Jekyll 3.10 build of the same branch instead. Two consequences
+  # were live the whole time and neither was visible from inside CI:
+  #
+  #   - jekyll-archives is not on the legacy builder's plugin allowlist, so every
+  #     /category/ page 404'd. The home page alone carried 56 links to them.
+  #   - the legacy builder ships sassc, which does not understand Dart Sass
+  #     `@use`, so it emitted the six @use lines of assets/css/main.scss as
+  #     literal text and compiled none of _sass/. main.css was 231 bytes. Dark
+  #     mode, syntax highlighting, the table of contents, the copy buttons, the
+  #     series nav and the search dropdown were all unstyled in production while
+  #     looking perfect locally.
+  #
+  # A green build is not evidence of a working site. These three assertions are.
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Verify production is serving this build
+        run: |
+          set -euo pipefail
+          BASE="https://danghoangnhan.github.io"
+
+          # GitHub Pages can take a moment to propagate a fresh deploy.
+          sleep 20
+
+          echo "--- generator"
+          gen=$(curl -fsSL "$BASE/" | grep -o 'name="generator" content="[^"]*"' || true)
+          echo "$gen"
+          case "$gen" in
+            *"Jekyll v4"*) ;;
+            *) echo "::error::Expected a Jekyll 4.x build. Production is not serving this workflow's artifact — check Settings > Pages > Source is 'GitHub Actions'."; exit 1 ;;
+          esac
+
+          echo "--- category archives (jekyll-archives runs only on our own build)"
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/category/cnn/")
+          echo "/category/cnn/ -> $code"
+          [ "$code" = "200" ] || { echo "::error::/category/cnn/ returned $code; jekyll-archives did not run."; exit 1; }
+
+          echo "--- stylesheet compiled (Dart Sass @use resolved)"
+          css=$(curl -fsSL "$BASE/assets/css/main.css")
+          bytes=$(printf '%s' "$css" | wc -c)
+          echo "main.css -> ${bytes} bytes"
+          [ "$bytes" -gt 5000 ] || { echo "::error::main.css is ${bytes} bytes; the _sass partials did not compile."; exit 1; }
+          printf '%s' "$css" | grep -q 'data-theme' || { echo "::error::main.css contains no data-theme rules; dark mode is not deployed."; exit 1; }
+          printf '%s' "$css" | grep -q '@use' && { echo "::error::main.css contains literal @use; the builder did not resolve the Sass modules."; exit 1; }
+
+          echo "All production smoke checks passed."

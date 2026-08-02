@@ -109,15 +109,27 @@ hidden: false
 ```
 
 Categories are lowercase-hyphenated and drive the `/category/<name>/` archive
-pages. Existing ones: `android`, `cnn`, `computer-vision`, `data-engineering`,
+pages. Existing ones: `cnn`, `computer-vision`, `data-engineering`,
 `deep-learning`, `devops`, `federated-learning`, `leetcode`, `llm`,
 `reinforcement-learning`.
 
-Post URLs come from the title slug (`permalink: /:title/`), so **renaming a post
-file or its title changes its URL**.
+Despite `permalink: /:title/`, a post's URL comes from its **filename** slug, not
+its title — `:title` resolves to `page.slug`, which Jekyll derives from the file
+name. So retitling a post is safe; **renaming the file changes the URL**, and a
+published URL needs a stub in `_redirects/` when it moves (there is a worked
+example there).
 
-Use `<!--more-->` to mark where the homepage excerpt should stop. Math is
-rendered client-side by KaTeX; `$$…$$` works in Markdown.
+Every post needs a `description:`. It is the meta description, the Open Graph and
+Twitter description, the RSS summary, and the text on the post's card — without
+one, all of those silently fall back to the site-wide tagline. A non-English post
+also needs `lang:` **and** the matching `locale:` from `_data/languages.yml`; CI
+fails the build if one is set without the other.
+
+Start the body at `##`. The post layout already renders `title:` as the page's
+only `<h1>`, so an `#` heading in the Markdown makes a second one.
+
+Math is rendered client-side by KaTeX, which loads only on posts that set
+`katex: true`; `$$…$$` works in Markdown. Set `mermaid: true` for diagrams.
 
 ## License
 

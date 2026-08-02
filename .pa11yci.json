@@ -1,0 +1,15 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "runners": ["axe", "htmlcs"],
+    "timeout": 30000,
+    "chromeLaunchConfig": {
+      "args": ["--no-sandbox", "--disable-dev-shm-usage"]
+    },
+    "hideElements": "#giscus-container, iframe[src*='giscus'], iframe[src*='spotify']",
+    "ignore": [
+      "notice",
+      "warning"
+    ]
+  }
+}
