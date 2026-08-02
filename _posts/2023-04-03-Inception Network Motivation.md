@@ -1,43 +1,95 @@
 ---
 layout: post
 title: "Inception Network Motivation"
-description: "Why the Inception module saves you from choosing between 1x1, 3x3, 5x5 and pooling, and how 1x1 convolutions keep the cost down."
+description: "Why the Inception module refuses to choose a filter size, and the 120M to 12.4M bottleneck arithmetic that makes running all of them affordable."
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 9
-image: /assets/images/cnn1.png
+series_order: 14
+image: /assets/images/og/Inception-Network-Motivation.png
 featured: false
 hidden: false
+katex: true
+mermaid: true
 ---
 
-When designing a layer for a Convolutional Neural Network (ConvNet), you often have to choose between different filter sizes or decide whether to use a convolutional or pooling layer. The Inception network introduces a novel approach by combining various filter sizes and pooling layers in a single layer, allowing the network to learn the best combinations. In this blog post, we will explore the inception module and how it reduces computational costs while maintaining performance.
+Every layer so far has forced a choice: 1×1, 3×3, 5×5, or pool? [VGG](/classic-networks-lenet-alexnet-vgg/) answered by fixing 3×3 everywhere and never revisiting it.
 
-## Introduction to the Inception Module
+Inception's answer is to refuse the question — **do all of them, and let the network weight the results** {% cite szegedy2015googlenet %}.
 
-The Inception module is a fundamental building block of the Inception network architecture developed by Christian Szegedy and his team. Instead of selecting a specific filter size or pooling layer, the Inception module incorporates them all. It takes an input volume, applies different filter sizes, and concatenates their outputs to form a composite volume. This approach allows the network to capture features at multiple scales and learn the most relevant representations.
+## The naive module
 
-## The Inception Module Structure
+Take a 28×28×192 input. Apply every option in parallel, pad so they all produce 28×28, and concatenate along the channel axis:
 
-Let's consider an example where the input is a 28x28x192-dimensional volume. Instead of choosing a single filter size, the Inception module applies 1x1, 3x3, and 5x5 convolutions, as well as a pooling layer. The 1x1 convolution reduces the input volume to 28x28x64, while the 3x3 and 5x5 convolutions produce volumes of 20x20x128 and 28x28x32, respectively. The pooling layer output matches the dimensions of the input volume, resulting in 28x28x32.
+```mermaid
+flowchart LR
+  IN["28 x 28 x 192"] --> A["1x1 conv<br/>64 filters"]
+  IN --> B["3x3 conv, same<br/>128 filters"]
+  IN --> C["5x5 conv, same<br/>32 filters"]
+  IN --> D["3x3 maxpool, same<br/>32 channels"]
+  A --> CAT["concatenate<br/>28 x 28 x 256"]
+  B --> CAT
+  C --> CAT
+  D --> CAT
+```
 
-To maintain the consistency of dimensions, the Inception module uses "same" convolutions. The output volumes from different filters are stacked together along the channel dimension, creating a composite volume. In this example, the resulting volume would be 28x28x256 (64+128+32+32).
+$$64 + 128 + 32 + 32 = 256$$ output channels. The network learns how much of each branch it wants by learning the filters in each; a branch that is useless gets small weights.
 
-## Computational Costs of the Inception Layer
+Note this is **concatenation**, not the addition ResNet uses. The channel counts add up, and they are chosen per branch.
 
-While the Inception module provides flexibility and powerful feature extraction, it introduces increased computational costs. For example, considering the 5x5 filter, the cost can be calculated as follows: The input volume is 28x28x192, and we apply a 5x5 same convolution with 32 filters. This results in an output volume of 28x28x32. Each output value requires 5x5x192 multiplications. So, the total number of multiplications for this operation is 120 million.
+## The problem: the 5×5 branch
 
-## Reducing Computational Costs with 1x1 Convolutions
+Count the multiplies in that 5×5 branch alone. 32 filters, each 5×5×192, evaluated at 28×28 positions:
 
-To mitigate the computational costs of the Inception module, the concept of 1x1 convolutions comes into play. By incorporating a 1x1 convolution before the larger filter sizes, we can reduce the number of channels in the intermediate volume. For example, we can apply a 1x1 convolution to the 192-channel input, reducing it to 16 channels before the 5x5 convolution. This effectively acts as a bottleneck layer.
+$$\underbrace{28 \times 28 \times 32}_{\text{output values}} \times \underbrace{5 \times 5 \times 192}_{\text{per value}} \;=\; \mathbf{120 \text{ million multiplies}}$$
 
-By employing a 1x1 convolution, we reduce the computational cost significantly. In the previous example, the cost was reduced from 120 million multiplications to 12.4 million. The intermediate volume with 16 channels is passed through the 5x5 convolution, resulting in the desired output of 28x28x32.
+For **one branch of one layer**. Stack nine of these modules, as GoogLeNet does, and the network is unaffordable in 2014 terms — and this is why the naive module was never actually used.
 
-## Benefits of the Inception Network Architecture
+## The fix: bottleneck first
 
-The Inception network architecture allows for increased flexibility in feature extraction by incorporating various filter sizes and pooling layers. By using 1x1 convolutions strategically, it reduces computational costs while maintaining performance. The bottleneck layer enables a significant reduction in the representation size without sacrificing the network's capabilities.
+Insert a 1×1 convolution to cut 192 channels down to 16 before the expensive 5×5 ([part 13](/one-by-one-convolutions/) is why this works):
 
-## Conclusion
+$$28 \times 28 \times 192 \;\xrightarrow{\;1\times1,\; 16\;}\; 28 \times 28 \times 16 \;\xrightarrow{\;5\times5,\; 32\;}\; 28 \times 28 \times 32$$
 
-The Inception network, with its inception module, presents an innovative approach to ConvNet architecture. By combining different filter sizes and pooling layers in a single block — and using 1x1 convolutions to keep the cost of doing so manageable — it lets the network learn which combination works for a given layer, rather than forcing that choice at design time.
+Now count both steps:
+
+$$\underbrace{28 \times 28 \times 16 \times (1 \times 1 \times 192)}_{2.4\text{M}} \;+\; \underbrace{28 \times 28 \times 32 \times (5 \times 5 \times 16)}_{10.0\text{M}} \;=\; \mathbf{12.4 \text{ million}}$$
+
+| | Multiplies |
+|---|---|
+| Direct 5×5 | 120M |
+| With 1×1 bottleneck | 12.4M |
+| **Ratio** | **~10×** |
+
+Identical input shape, identical output shape, one tenth the compute. The 16-channel middle layer is the "bottleneck", and the whole module is built around them.
+
+## The real module
+
+Every expensive branch gets a bottleneck, and the pooling branch gets a 1×1 *after* it — pooling cannot change the channel count ([part 7](/poolinglayers/)), so without that projection the pool branch would contribute all 192 input channels to the concatenation and dominate it:
+
+```mermaid
+flowchart LR
+  IN["28 x 28 x 192"] --> A["1x1 conv"]
+  IN --> B1["1x1 conv<br/>reduce to 96"] --> B2["3x3 conv, same"]
+  IN --> C1["1x1 conv<br/>reduce to 16"] --> C2["5x5 conv, same"]
+  IN --> D1["3x3 maxpool, same"] --> D2["1x1 conv<br/>project to 32"]
+  A --> CAT["concatenate"]
+  B2 --> CAT
+  C2 --> CAT
+  D2 --> CAT
+```
+
+That asymmetry is worth noticing: reduce *before* convolution, project *after* pooling.
+
+## What actually matters
+
+**Does the bottleneck hurt?** It is the obvious objection — squeezing 192 channels into 16 must lose something. Empirically, within reason, performance is unaffected. But "within reason" is load-bearing: the reduction ratio is a tuned hyperparameter, and squeezing too hard does cost accuracy. Inception's own ratios vary per branch and per module, which is what a tuned quantity looks like.
+
+**Multiply-adds are not latency, and this module is the standard example.** Four parallel branches with different filter sizes, then a concatenation, is far less GPU-friendly than one dense stack of 3×3s: more kernel launches, worse memory locality, poor arithmetic intensity. Inception has fewer FLOPs than VGG and is not proportionally faster. This gap between counted operations and measured time recurs for [MobileNet](/MobileNet/) and [EfficientNet](/EfficientNet/), and it is why papers increasingly report latency on named hardware instead of FLOPs.
+
+**"Let the network decide" has a hidden cost.** The branch *widths* — 64, 128, 32, 32 — are still hand-chosen, and there are four of them per module across nine modules. Inception replaced one hyperparameter (which filter size) with several (how wide is each branch). That is a real trade, and it is a large part of why neural architecture search became attractive: by [EfficientNet](/EfficientNet/) the branch structure is searched rather than designed.
+
+## References
+
+{% bibliography --cited --clear %}

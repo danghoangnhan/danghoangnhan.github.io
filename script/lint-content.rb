@@ -30,12 +30,30 @@ POSTS = File.join(ROOT, "_posts")
 # pass measured 0, 23, 46 and 66 characters; the shortest real post is ~890.
 MIN_BODY_CHARS = 400
 
+# Widget names assets/js/viz.js can render. Must match the WIDGETS table there.
+VIZ_TYPES = %w[shape convolution pooling iou nms filter].freeze
+
 # Languages that may appear in `lang:`, and the locale each one requires.
 LOCALES = YAML.safe_load_file(File.join(ROOT, "_data", "languages.yml"))
 
 Failure = Struct.new(:file, :message)
 failures = []
 warnings = []
+
+# Every @entry{key, ...} in the shared bibliography.
+#
+# Parsed with a regex rather than bibtex-ruby on purpose: this script is
+# deliberately dependency-free so `ruby script/lint-content.rb` runs without
+# bundler, and the only thing needed here is the key.
+#
+# Empty when the file is absent, which is not an error — the cite check below is
+# skipped in that case rather than failing every post at once.
+BIB = File.join(ROOT, "_bibliography", "references.bib")
+BIB_KEYS = if File.exist?(BIB)
+             File.read(BIB, encoding: "UTF-8").scan(/^@\w+\s*\{\s*([^,\s]+)\s*,/).flatten.to_set
+           else
+             Set.new
+           end
 
 def split_front_matter(raw)
   # A UTF-8 BOM is invisible in an editor and Jekyll copes with it, but it makes
@@ -166,6 +184,115 @@ posts.each do |path|
     if expected && actual != expected
       failures << Failure.new(name, "lang: #{lang} requires locale: #{expected} (found #{actual.empty? ? 'nothing' : actual})")
     end
+  end
+
+  # --- citations resolve ---------------------------------------------------
+  #
+  # jekyll-scholar renders an unknown key as the literal text "(missing
+  # reference)" and returns. No link, no anchor, no warning, exit 0 — and
+  # html-proofer sees nothing wrong because no broken href was ever emitted. A
+  # typo'd or renamed key therefore ships to production looking like prose.
+  #
+  # Keys are case-sensitive: BibTeX::Bibliography looks them up in a String-keyed
+  # Hash, so `{% cite He2016resnet %}` misses `@inproceedings{he2016resnet, ...}`.
+  unless BIB_KEYS.empty?
+    body.to_s.scan(/\{%-?\s*cite\s+([^%]+?)\s*-?%\}/) do |match|
+      # One tag may cite several keys: {% cite a b c %}. Trailing --options are
+      # not keys.
+      match[0].split(/\s+/).reject { |k| k.start_with?("--") }.each do |key|
+        next if BIB_KEYS.include?(key)
+
+        failures << Failure.new(name, "{% cite #{key} %} is not a key in _bibliography/references.bib (renders as \"(missing reference)\")")
+      end
+    end
+  end
+
+  # --- a bibliography with nothing in it -----------------------------------
+  #
+  # {% bibliography --cited %} on a post that cites nothing renders
+  # <ol class="bibliography"></ol> — an empty list under a "References" heading.
+  # Valid HTML, invisible to html-proofer, and it looks like the references
+  # failed to load. Upstream has an open issue asking for it to be suppressible;
+  # until then the fix is to not write the heading.
+  has_bibliography = body.to_s.match?(/\{%-?\s*bibliography/)
+  has_cite = body.to_s.match?(/\{%-?\s*cite\s/)
+  if has_bibliography && !has_cite
+    failures << Failure.new(name, "has {% bibliography %} but no {% cite %}; it renders an empty <ol> under the References heading")
+  end
+
+  # --- math and diagrams are opt-in ----------------------------------------
+  #
+  # KaTeX and Mermaid each load only when the post sets its flag, and both fail
+  # soft: KaTeX is configured `throwOnError: false`, and an unconverted Mermaid
+  # fence is just a code block. So a post that uses either and forgets the flag
+  # builds clean, passes html-proofer, and ships showing raw TeX or raw
+  # `flowchart LR` to readers. Nothing else in CI looks at this.
+  #
+  # Fenced code is skipped for the same reason the h1 check skips it: a shell
+  # snippet costing `$$5.00` is not display math, and a ```mermaid fence is the
+  # thing being looked for, not evidence of one.
+  in_fence = false
+  fence_lang = nil
+  math_delims = 0
+  has_mermaid_fence = false
+  has_viz_fence = false
+  viz_types = []
+  stripped.each_line do |line|
+    if line.start_with?("```", "~~~")
+      if in_fence
+        in_fence = false
+        fence_lang = nil
+      else
+        in_fence = true
+        fence_lang = line.strip.delete_prefix("```").delete_prefix("~~~").strip.downcase
+        has_mermaid_fence = true if fence_lang == "mermaid"
+        has_viz_fence = true if fence_lang == "viz"
+      end
+      next
+    end
+    # Collect the `type:` of each viz block so an unknown one can be reported.
+    viz_types << Regexp.last_match(1).strip if in_fence && fence_lang == "viz" && line =~ /^\s*type:\s*(\S+)/
+    math_delims += line.scan("$$").length unless in_fence
+  end
+
+  if math_delims.odd?
+    failures << Failure.new(name, "odd number of $$ delimiters (#{math_delims}); one of them is unclosed and will render as literal text")
+  end
+
+  uses_math = math_delims.positive?
+  if uses_math && !front["katex"]
+    failures << Failure.new(name, "body uses $$ math but front matter has no `katex: true`; KaTeX never loads and the formulas ship as raw TeX")
+  end
+  if !uses_math && front["katex"]
+    warnings << Failure.new(name, "front matter sets katex: but the body has no $$ math; the post loads KaTeX for nothing")
+  end
+
+  if has_mermaid_fence && !front["mermaid"]
+    failures << Failure.new(name, "body has a ```mermaid fence but front matter has no `mermaid: true`; it renders as a code block")
+  end
+  if !has_mermaid_fence && front["mermaid"]
+    warnings << Failure.new(name, "front matter sets mermaid: but the body has no ```mermaid fence")
+  end
+
+  # Same contract for the interactive figures in assets/js/viz.js, which fail
+  # soft in the same way: without the flag the script never loads and the fence
+  # ships as a visible block of config.
+  if has_viz_fence && !front["viz"]
+    failures << Failure.new(name, "body has a ```viz fence but front matter has no `viz: true`; it renders as a code block")
+  end
+  if !has_viz_fence && front["viz"]
+    warnings << Failure.new(name, "front matter sets viz: but the body has no ```viz fence")
+  end
+
+  # A `type:` viz.js does not know leaves the fence on the page untouched — the
+  # renderer deliberately does not throw or blank it — so a typo is invisible
+  # here and obvious to a reader. Keep this list in step with WIDGETS in
+  # assets/js/viz.js.
+  (viz_types - VIZ_TYPES).each do |t|
+    failures << Failure.new(name, "```viz block has unknown type: #{t} (known: #{VIZ_TYPES.join(', ')})")
+  end
+  if has_viz_fence && viz_types.empty?
+    failures << Failure.new(name, "```viz block has no `type:` line, so nothing is rendered")
   end
 
   # --- filenames become URLs ----------------------------------------------

@@ -1,51 +1,94 @@
 ---
 layout: post
 title: "Understanding Padding in Convolutional Neural Networks"
-description: "Why convolutions shrink a feature map, and how valid and same padding keep spatial resolution intact through a deep CNN."
+description: "Why convolution shrinks its input and under-uses the border, the p = (f-1)/2 rule that fixes both, and why filter sizes are almost always odd."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
-image: /assets/images/cnn1.png
+categories: [ deep-learning, cnn, computer-vision, coursera ]
+image: /assets/images/og/padding-convolution-neural-network.png
 featured: true
 hidden: false
 series: cnn-course
-series_order: 1
+series_order: 3
+katex: true
+viz: true
 ---
 
+Plain convolution has two defects. Padding fixes both with one change.
 
-Convolutional Neural Networks (CNNs) have revolutionized the field of computer vision, enabling impressive results in tasks such as image classification and object detection. In CNNs, convolutions are a fundamental operation used to extract features from input images. However, convolutions can result in downsampling and loss of information from the edges of the image. To overcome these challenges, padding is commonly used in CNNs. In this article, we will explore the concept of padding in convolutional operations and understand its importance.
+## Defect 1: the image shrinks
 
-## The Downsides of Standard Convolutions
+An $$n \times n$$ input convolved with an $$f \times f$$ filter produces
 
-When performing convolutions on an input image, the output size of the feature map is usually smaller than the input size. For example, if we apply a 3x3 filter to a 6x6 image, the output will be a 4x4 feature map. This downsampling can lead to a decrease in spatial resolution as we apply more convolutions in deep neural networks. Additionally, pixels at the edges of the image are used less in the output, resulting in a loss of information.
+$$(n - f + 1) \times (n - f + 1)$$
 
-## Introducing Padding
+Each layer costs $$f - 1$$ pixels per side. With 3×3 filters that is 2 pixels a layer, which sounds harmless until the layers stack:
 
-Padding is a technique that addresses the downsampling and information loss issues in convolutions. It involves adding extra border pixels around the input image before performing the convolution operation. By padding the image, we can preserve the original size and ensure that all pixels contribute equally to the output feature map.
+| Layer | Output size (3×3 filters, no padding) |
+|---|---|
+| input | 224 × 224 |
+| 1 | 222 × 222 |
+| 5 | 214 × 214 |
+| 20 | 184 × 184 |
+| 50 | 124 × 124 |
+| 111 | 2 × 2 |
 
-## Understanding Padding Size
+A network cannot go much deeper than $$n/2$$ layers before there is nothing left to convolve. VGG-16 is 16 weight layers deep and ResNet-152 is far more {% cite simonyan2015vgg %}{% cite he2016resnet %} — neither is possible if every layer eats the image.
 
-The amount of padding added to the image is determined by the padding size (p) and the filter size (f). There are two common choices for padding: "valid" and "same" convolutions.
+## Defect 2: the border is under-used
 
-- **Valid Convolutions**: In valid convolutions, no padding is added. The output size is smaller than the input size, following the formula n - f + 1 by n - f + 1. For example, a 6x6 image convolved with a 3x3 filter results in a 4x4 output.
+Count how many times each input pixel is read. For a 3×3 filter, a pixel in the middle of the image falls under the filter at nine different positions. The pixel in the very corner falls under it exactly **once**.
 
-- **Same Convolutions**: In same convolutions, the padding is adjusted to keep the output size the same as the input size. The formula for calculating the padding size is p = (f - 1) / 2. When applying the same convolution, an n x n image padded with p pixels on all sides results in an output size of n x n.
+The network therefore sees interior pixels nine times as often as corner pixels. Information at the edges is systematically down-weighted — not because it matters less, but as an artefact of the geometry.
 
-## Advantages of Padding
+## The fix
 
-Padding offers several benefits in convolutional operations:
+Add a border of $$p$$ zero-valued pixels around the input before convolving. The output becomes
 
-1. **Preserving Spatial Resolution**: By padding the input image, we maintain the original size throughout the convolutional layers of a deep neural network. This helps in retaining fine-grained details and spatial information.
+$$(n + 2p - f + 1) \times (n + 2p - f + 1)$$
 
-2. **Mitigating Information Loss**: Pixels at the edges of the image are fully utilized, as they have the same number of overlapping regions as the pixels in the center. Padding reduces the bias towards the central regions, ensuring that information from all parts of the image is considered.
+Now solve for the $$p$$ that leaves the size unchanged. Setting $$n + 2p - f + 1 = n$$ gives
 
-3. **Facilitating Network Design**: By using padding, we can control the downsampling rate and the spatial resolution of feature maps. This allows us to design deeper networks without rapidly shrinking the output size.
+$$p = \frac{f - 1}{2}$$
 
-## Practical Considerations
+For a 3×3 filter, $$p = 1$$. For 5×5, $$p = 2$$. For 7×7, $$p = 3$$.
 
-When working with padded convolutions, it is common to use filter sizes (f) that are odd numbers, such as 3x3 or 5x5. Odd-sized filters enable symmetric padding and provide a central pixel for reference. This convention simplifies the design of convolutional networks and ensures compatibility across different architectures.
+The corner pixel now sits inside a padded border, so it is read as often as any other pixel, and the feature map survives arbitrarily many layers.
 
-When specifying the padding for convolutional operations, you can either set the padding size (p) explicitly or use the terms "valid" or "same" convolutions to indicate no padding or padding for equal input-output size, respectively.
+Set $$p$$ to 0 below and the 6×6 input gives a 4×4 output; set it to 1 and the output is 6×6 again. The dashed cells are the zeros being added, and stepping to the first position shows the corner pixel now sitting inside a full window rather than at its corner:
 
-In conclusion, padding is a crucial technique in CNNs that helps address downsampling
+```viz
+type: convolution
+n: 6
+filter: vertical
+stride: 1
+padding: 1
+```
 
- and information loss issues during convolution operations. By padding the input images, we preserve spatial resolution, mitigate information bias, and facilitate the design of deeper networks. Understanding and utilizing padding effectively can significantly improve the performance of convolutional neural networks in various computer vision tasks.
+The two conventions have names:
+
+- **Valid** — no padding, $$p = 0$$, output $$n - f + 1$$. The name means every filter position lies entirely within real input.
+- **Same** — pad so the output matches the input, $$p = (f-1)/2$$.
+
+## Why filter sizes are odd
+
+Look at $$p = (f-1)/2$$ again. If $$f$$ is even then $$p$$ is not an integer, which forces *asymmetric* padding — an extra pixel on the left but not the right. That is implementable but introduces a directional bias with no reason to exist.
+
+Odd $$f$$ also gives the filter a well-defined centre pixel, so a filter's position can be described by a single coordinate.
+
+This is why convolution filters are almost always 1×1, 3×3, 5×5 or 7×7, and essentially never 2×2 or 4×4. Pooling is different — 2×2 is standard there, and [part 7 explains why](/poolinglayers/).
+
+## What actually matters
+
+**Zero is a choice, and a strange one.** Padding with zeros asserts that the world outside the image is uniformly black, which is false. This creates a real artefact: filters learn to respond to the border itself, and a network can infer *absolute position* from how much zero padding a region sees — which partly defeats the translation invariance convolution was supposed to buy. Frameworks offer `reflect`, `replicate` and `circular` padding for this reason. Zero padding is the default because it is cheap and works well enough, not because it is principled.
+
+**"Same" stops meaning same as soon as the stride is not 1.** The rule $$p = (f-1)/2$$ preserves size only at stride 1. With stride $$s$$ the output is $$\lfloor (n + 2p - f)/s \rfloor + 1$$, so TensorFlow's `padding='same'` actually means "output $$\lceil n/s \rceil$$" — the input divided by the stride, not the input. [Part 4 covers strided convolution](/strided-convolution/), and this is a routine source of off-by-one shape errors.
+
+**Padding costs compute.** Going from 224×224 to a padded 226×226 is 1.8% more filter positions to evaluate. Negligible once; it compounds through a deep network, and it is one reason efficient architectures sometimes drop it on their smallest feature maps.
+
+## Source code
+
+- [`Convolution_model_Step_by_Step_v1.ipynb`](https://github.com/danghoangnhan/cousera/tree/main/ConvolutionalNeuralNetworks/week1/W1A1) — the `zero_pad` function is exactly this, built on `np.pad`.
+
+## References
+
+{% bibliography --cited --clear %}

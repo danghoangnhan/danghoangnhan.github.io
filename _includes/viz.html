@@ -1,0 +1,21 @@
+{%- comment -%}
+  Interactive figures, opt-in per post via `viz: true` front matter.
+
+  Same gating idea as _includes/mermaid.html directly above: a post with no
+  ```viz fence has no reason to fetch the script, and script/lint-content.rb
+  fails the build if the fence and the flag disagree in either direction.
+
+  Self-hosted rather than a CDN, unlike Bootstrap/KaTeX/Mermaid. Those all carry
+  `integrity` + `crossorigin` + an exactly pinned version, which is this site's
+  substitute for a Content-Security-Policy — GitHub Pages serves no response
+  headers, so a real CSP is not available. A file under assets/js/ needs no SRI
+  because there is no third party to distrust.
+
+  `defer` matches the other local scripts in _layouts/default.html.
+
+  No interaction with copy-code.js is needed: it selects div.highlighter-rouge,
+  which kramdown only emits for a fence Rouge can actually highlight. `viz` is
+  not a Rouge lexer, so the fence comes out as a bare <pre><code> and never
+  reaches that selector — the same reason ```mermaid does not.
+{%- endcomment -%}
+<script defer src="{{ '/assets/js/viz.js' | relative_url }}"></script>

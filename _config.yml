@@ -156,6 +156,7 @@ plugins:
   - jekyll-sitemap
   - jekyll-paginate-v2
   - jekyll-seo-tag
+  - jekyll-scholar
 
 # Pagination.
 #
@@ -234,6 +235,50 @@ autopages:
     enabled: false
   collections:
     enabled: false
+
+# Citations, jekyll-scholar. See Readme.md "Citing a paper".
+#
+# Posts cite with {% raw %}{% cite key %}{% endraw %} inline and close with
+# {% raw %}{% bibliography --cited --clear %}{% endraw %} under a `## References`
+# heading, so each post lists only the papers it actually cited.
+#
+# Only keys whose default is wrong here, or whose default is load-bearing and must
+# not drift on a gem upgrade, are set. The full default hash is
+# lib/jekyll/scholar/defaults.rb in the gem.
+scholar:
+  # Numeric [1] markers, matching the papers being cited. Vendored inside
+  # csl-styles, so it resolves from disk — CSL::Loader checks File.exist? before
+  # falling through to Kernel.open, and that fallback would be an HTTP request in
+  # the middle of `jekyll build`. Only ever name a style csl-styles ships.
+  style: ieee
+  locale: en
+
+  # LOAD-BEARING, even though it matches the gem default.
+  #
+  # With a numeric style the inline [n] comes from a per-render counter while the
+  # bibliography's [n] comes from the entry's POSITION in the list. They agree only
+  # while the list stays in citation order, which is what sort_by: none preserves.
+  # Setting sort_by to author or year desyncs the two silently — the prose says [3]
+  # and the reference list numbers that same paper [1]. Nothing catches it.
+  #
+  # Switching to an author-date style (apa) is what makes `sort_by: name` correct.
+  # Change both in the same commit or not at all.
+  sort_by: none
+
+  source: ./_bibliography
+  bibliography: references.bib
+
+  # Deliberately NOT set: details_layout. It defaults to 'bibtex.html' and the
+  # details-page generator is gated on site.layouts.key?('bibtex'), so it is
+  # already inert — there is no _layouts/bibtex.html. Creating one is the only
+  # thing that switches on per-entry pages, and that would push one URL per
+  # reference into site.pages, and from there into sitemap.xml and html-proofer's
+  # crawl. Do not add that layout.
+  #
+  # Also not set: bibliography_class, reference_tagname, cite_class,
+  # bibliography_list_tag. _sass/_components.scss selects on all four
+  # (ol.bibliography > li > span, a.citation); changing one here unstyles the
+  # reference list on 25 posts with no error.
 
 # Dependencies
 markdown: kramdown

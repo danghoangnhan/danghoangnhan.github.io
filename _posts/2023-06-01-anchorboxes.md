@@ -1,51 +1,75 @@
 ---
 layout: post
 title: "Anchor Boxes in Object Detection"
-description: "How anchor boxes let a single grid cell detect several overlapping objects, and how IoU decides which box owns which object."
+description: "The one-object-per-cell limit anchor boxes remove, the label vector written out in full, and why k-means on the training set beats hand-picked shapes."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 17
-image: /assets/images/cnn1.png
+series_order: 24
+image: /assets/images/og/anchorboxes.png
 featured: false
 hidden: false
+katex: true
 ---
-Anchor boxes play a crucial role in overcoming the limitation of traditional object detection approaches, where each grid cell can detect only one object. By allowing multiple objects to be detected within a single grid cell, anchor boxes significantly enhance the accuracy and flexibility of object detection algorithms. Let's delve into how anchor boxes work in detail.
 
-## The Motivation for Anchor Boxes
+A grid-based detector assigns each object to the cell containing its midpoint. That works until two midpoints land in the same cell — a person standing in front of a car, viewed head on — and then the cell has one output slot and two objects.
 
-In traditional object detection, an image is divided into a grid, and each grid cell is responsible for detecting objects that fall within its boundaries. However, when multiple objects are present in close proximity or overlap, assigning only one object to each grid cell becomes a challenge. This is where anchor boxes come into play.
+Anchor boxes give each cell several slots, each specialised to a different object *shape*.
 
-## Understanding Anchor Boxes
+## The label vector without anchors
 
-Anchor boxes are predefined bounding box shapes that serve as reference templates for objects in an image. These boxes encapsulate various object shapes, sizes, and aspect ratios. The number of anchor boxes used can vary depending on the complexity of the dataset and the desired level of detection granularity. For simplicity, let's consider an example with two anchor boxes.
+Each grid cell predicts
 
-## Encoding Labels with Anchor Boxes
+$$y = \begin{bmatrix} p_c & b_x & b_y & b_h & b_w & c_1 & c_2 & c_3 \end{bmatrix}^{\mathsf{T}}$$
 
-In the YOLO (You Only Look Once) algorithm, anchor boxes are integrated into the label encoding process. Previously, the label vector for each grid cell consisted of object presence (PC), bounding box coordinates (PX, PY, PH, PW), and class probabilities (C1, C2, C3). However, with anchor boxes, the label vector expands to include two sets of parameters for each anchor box.
+- $$p_c$$ — is there an object here at all
+- $$b_x, b_y$$ — the midpoint, relative to the cell, so both lie in $$[0,1]$$
+- $$b_h, b_w$$ — height and width, relative to the whole image, so these can exceed 1 when an object is larger than one cell
+- $$c_1, c_2, c_3$$ — the class
 
-Now, the label vector for each grid cell becomes 16-dimensional (8 dimensions for each anchor box). It can be represented as follows:
+Eight numbers, one object. When $$p_c = 0$$ the remaining seven are ignored entirely — the loss does not penalise them, because there is no object whose position they could be wrong about.
 
-Y = [PC1, PX1, PY1, PH1, PW1, C11, C21, C31, PC2, PX2, PY2, PH2, PW2, C12, C22, C32]
+## Adding anchors
 
-Each anchor box is associated with a unique set of parameters. For example, anchor box 1 might be suitable for tall and skinny objects, while anchor box 2 might be more suitable for wide and fat objects. The object detection algorithm assigns objects to grid cells based on the anchor box that has the highest Intersection over Union (IoU) with the object's shape.
+Choose $$k$$ anchor shapes up front — say a tall narrow one for pedestrians and a wide flat one for cars — and give the cell one full slot per anchor:
 
-## Object Assignment with Anchor Boxes
+$$y = \big[\underbrace{p_c, b_x, b_y, b_h, b_w, c_1, c_2, c_3}_{\text{anchor 1}},\; \underbrace{p_c, b_x, b_y, b_h, b_w, c_1, c_2, c_3}_{\text{anchor 2}}\big]^{\mathsf{T}}$$
 
-When processing an image, the algorithm assigns objects to the grid cell and anchor box pair that provides the best fit for the object's shape. The assignment is based on calculating the IoU between each anchor box and the object's ground truth bounding box. The anchor box with the highest IoU is chosen for detection.
+With 3 classes and 2 anchors that is 16 numbers per cell. In general the output tensor is
 
-Once the anchor box is selected, the algorithm encodes the object's presence (PC), the bounding box coordinates (PX, PY, PH, PW), and the class probabilities (C1, C2, C3) into the corresponding positions in the label vector. This process is repeated for all objects in the image.
+$$n_{\text{grid}} \times n_{\text{grid}} \times \big(k \times (5 + n_{\text{classes}})\big)$$
 
-## Handling Ambiguous Cases
+so a 19×19 grid with 5 anchors and 80 classes gives $$19 \times 19 \times 425$$.
 
-While anchor boxes offer significant improvements, there are some cases that require careful consideration. For instance, when multiple objects share the same grid cell, or when multiple objects have similar anchor box shapes, conflicts can arise. In such situations, tiebreaking rules or default strategies are often applied to resolve the conflicts and assign objects to the appropriate grid cell and anchor box pair.
+## Assignment: which slot owns which object
 
-## Choosing Anchor Boxes
+Training needs a rule mapping each ground-truth object to exactly one (cell, anchor) pair:
 
-Choosing anchor boxes can be done manually or through more advanced techniques. In manual selection, experts analyze the dataset and select anchor boxes that cover a range of object shapes and aspect ratios. These anchor boxes should represent the typical characteristics of the objects expected to be detected.
+1. the **cell** is the one containing the object's midpoint;
+2. the **anchor** is whichever has the highest [IoU](/intersection-over-union/) with the object's shape.
 
-Alternatively, advanced methods like K-means clustering can be employed to automatically determine anchor box shapes. This involves grouping together object shapes that are commonly observed in the dataset. By using this approach, anchor boxes that are most representative of the object shapes can be selected, resulting in improved detection performance.
+Note what the second step compares. The anchor and the object box are aligned at a common centre and only their *shapes* are compared — an anchor is a width and a height, not a position. A tall thin person matches the tall thin anchor regardless of where in the cell they stand.
 
-## Conclusion
+Every other slot in that cell is labelled $$p_c = 0$$.
 
-Anchor boxes have revolutionized the field of object detection by enabling the detection of multiple objects within a single grid cell. By associating predefined bounding box shapes with grid cells, anchor boxes enhance the accuracy, flexibility, and specialization of object detection algorithms. Whether chosen manually or through advanced techniques, anchor boxes are a crucial component in empowering object detection algorithms to deliver more precise and reliable results.
+## Choosing the anchor shapes
+
+Hand-picking works and is what the original YOLO did. YOLOv2 replaced it with **k-means over the training set's box dimensions** {% cite redmon2017yolo9000 %}, which is a strictly better idea and comes with one subtlety.
+
+Standard k-means uses Euclidean distance, which would let large boxes dominate the objective — an error of 20 pixels matters far more on a 40-pixel box than a 400-pixel one. So the distance is defined in terms of IoU instead:
+
+$$d(\text{box}, \text{centroid}) = 1 - \text{IoU}(\text{box}, \text{centroid})$$
+
+Clustering under that metric on VOC with $$k = 5$$ gives anchors with better average IoU to the ground truth than 9 hand-picked ones. The shapes are a property of the dataset, not a universal constant — which means anchors tuned for COCO are wrong for aerial imagery or documents.
+
+## What actually matters
+
+**Anchors do not solve the co-located-objects problem, they raise its ceiling.** Two objects of *similar shape* whose midpoints fall in the same cell still collide, because they compete for the same best-IoU anchor. Two pedestrians standing together is exactly this case. More anchors and a finer grid both reduce the frequency; neither eliminates it.
+
+**The anchor count is a genuine cost, not free capacity.** Output size scales linearly with $$k$$, and so does the number of boxes entering [non-max suppression](/non-max-suppression/). The overwhelming majority of slots are background, so raising $$k$$ makes the foreground/background imbalance worse — and that imbalance is severe enough to warrant its own remedies, which is what focal loss was invented for.
+
+**Anchors are a hand-engineered prior, and their removal is where detection went next.** Their shapes, count, and the IoU thresholds for assignment are all tuned quantities — exactly the hand-engineering [part 21](/StateofComputerVision/) predicts for a data-scarce task. Anchor-free detectors (FCOS, CenterNet) and set-prediction models (DETR) drop them entirely, predicting object centres or a fixed set of queries instead, and reach comparable accuracy with fewer knobs.
+
+## References
+
+{% bibliography --cited --clear %}

@@ -77,6 +77,13 @@ jobs:
         # This is the check that would have caught the missing landmarks, the
         # unnamed share buttons, the iframe with no title and the 3.23:1 body
         # text, none of which html-proofer can see.
+        #
+        # /intersection-over-union/ is the exception to "one page per template".
+        # It is a post like /poolinglayers/, but it carries the only widget in
+        # the site with a pointer-drag interaction (assets/js/viz.js), and pa11y
+        # runs real headless Chrome so the widget actually executes here. The
+        # keyboard path for that widget is a pair of number inputs rather than
+        # custom key handling, and this is what proves they stay operable.
         run: |
           npm install --no-save pa11y-ci@4 http-server@14
           npx http-server ./_site -p 4000 --silent &
@@ -84,6 +91,7 @@ jobs:
           URLS="http://127.0.0.1:4000/ \
                 http://127.0.0.1:4000/page2/ \
                 http://127.0.0.1:4000/poolinglayers/ \
+                http://127.0.0.1:4000/intersection-over-union/ \
                 http://127.0.0.1:4000/about \
                 http://127.0.0.1:4000/topics/ \
                 http://127.0.0.1:4000/category/cnn/"

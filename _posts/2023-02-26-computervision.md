@@ -1,47 +1,79 @@
 ---
 layout: post
 title: Deep Learning Computer Vision Advancements and Exciting Applications
-description: "How deep learning reshaped computer vision, from self-driving perception and face recognition to image recommendation and art generation."
+description: "Why fully connected layers cannot read images, what ImageNet error rates did between 2010 and 2015, and the two ideas convolution replaces them with."
 
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 2
-image: /assets/images/cnn1.png
+series_order: 1
+image: /assets/images/og/computervision.png
 featured: false
 hidden: false
+katex: true
+mermaid: true
 ---
 
-## Deep Learning Computer Vision: Advancements and Exciting Applications
+Take a modest colour photograph — 1000×1000 pixels, three channels. That is three million numbers.
 
-### Introduction
+Feed it to an ordinary fully connected layer with 1000 hidden units and the weight matrix alone holds
 
-Deep learning has propelled significant advancements in computer vision, revolutionizing various applications such as self-driving cars, face recognition, image recommendation, and even art generation. In this blog article, we will explore the impact of deep learning in computer vision and highlight some exciting applications that have emerged as a result.
+$$3{,}000{,}000 \times 1000 = 3 \times 10^{9} \text{ parameters}$$
 
-### Advancements in Computer Vision
+Three billion weights, in the *first layer*, before the network has learned anything. You cannot fit that on a GPU, you cannot train it without overfitting catastrophically, and you have not yet asked it to do anything harder than "is this a cat".
 
-Deep learning has played a vital role in enhancing computer vision capabilities. Self-driving cars, for instance, utilize deep learning computer vision algorithms to detect and identify other vehicles and pedestrians, enabling them to navigate safely and avoid potential collisions. Face recognition systems have also seen remarkable improvements, allowing users to unlock devices or access secure areas using facial recognition technology.
+This is the problem the whole series is about. Convolution is the answer, and these notes are about why it works and what gets built on top of it.
 
-Furthermore, deep learning has facilitated the development of image recommendation systems. By leveraging convolutional neural networks (CNNs), companies can employ deep learning algorithms to analyze images and display the most appealing and relevant content to users. This has proven particularly useful in applications related to food, travel, and entertainment.
+## What "computer vision" actually asks for
 
-### The Intersection of Computer Vision and Art
+The tasks form a ladder, and each rung needs strictly more than the one below:
 
-Deep learning has even extended its reach into the realm of art. Neural style transfer is a captivating example where deep learning algorithms blend the content of one image with the artistic style of another, resulting in a new image that combines both elements. This fusion of content and style has led to the creation of unique and visually captivating artwork, showcasing the creative potential of deep learning in computer vision.
+```mermaid
+flowchart LR
+  C["Classification<br/>what is in it?<br/>one label"] --> L["Localisation<br/>where is it?<br/>label + one box"]
+  L --> D["Detection<br/>how many, where?<br/>N labels + N boxes"]
+  D --> S["Segmentation<br/>which pixels?<br/>per-pixel label"]
+```
 
-### Cross-Fertilization of Ideas:
+Classification returns a label. Localisation adds a bounding box for a single object. Detection handles an unknown number of objects at unknown positions and scales — that is where the second half of this series ends up, with anchor boxes and non-max suppression. Segmentation labels every pixel.
 
-One of the significant benefits of studying computer vision is the cross-fertilization of ideas it brings. The computer vision research community has been instrumental in inventing new neural network architectures and algorithms. These innovations have not only advanced computer vision but have also inspired progress in other domains. For instance, ideas from computer vision have influenced advancements in speech recognition algorithms, leading to improvements in voice-based applications.
+There is also a family of tasks that are not recognition at all — neural style transfer recombines the content of one image with the texture statistics of another — but the ladder above is what drove the architectures.
 
-### Key Computer Vision Problems:
+## The moment it changed
 
-Throughout the course, we will delve into various computer vision problems. Image classification, also known as image recognition, involves determining the content of an image, such as identifying whether it contains a cat or not. Object detection takes this a step further by not only recognizing objects but also determining their positions and drawing bounding boxes around them. Another fascinating application is neural style transfer, where images can be transformed to adopt the artistic style of another image.
+Vision had a benchmark, ImageNet {% cite deng2009imagenet %}, and an annual competition run on it {% cite russakovsky2015ilsvrc %}. The top-5 error rates tell the story better than any prose:
 
-### Challenges and Solutions:
+| Year | Winner | Top-5 error | What was new |
+|---|---|---|---|
+| 2010 | NEC-UIUC | 28.2% | hand-engineered features (SIFT, LBP) + SVM |
+| 2011 | XRCE | 25.8% | Fisher vectors |
+| 2012 | AlexNet {% cite krizhevsky2012alexnet %} | 16.4% | a deep ConvNet, trained on two GPUs |
+| 2013 | ZFNet {% cite zeiler2014visualizing %} | 11.7% | smaller first-layer filters |
+| 2014 | GoogLeNet {% cite szegedy2015googlenet %} | 6.7% | Inception modules |
+| 2015 | ResNet {% cite he2016resnet %} | 3.57% | residual connections, 152 layers |
 
-Computer vision presents challenges due to the large sizes of input images, which can contain millions of features. Handling such high-dimensional data becomes impractical when using traditional neural network architectures. However, convolutional neural networks (CNNs) offer an efficient solution. By implementing the convolution operation, CNNs effectively process and analyze large images, reducing the number of parameters and improving computational efficiency.
+Two things to notice. The first is 2012: a **9.4 point** drop in a single year, after two years of incremental progress on hand-engineered features. The second is that by 2015 the winning error was below the roughly 5.1% a careful human annotator achieves on the same task {% cite russakovsky2015ilsvrc %}.
 
-### Conclusion:
+Every architecture in that table gets its own post later in this series. They are all convolutional.
 
-Deep learning has revolutionized computer vision, leading to significant advancements and enabling a wide range of applications. From self-driving cars to facial recognition systems, deep learning algorithms have made remarkable strides in image analysis and understanding. Moreover, the fusion of computer vision and art has opened up new avenues for creative expression.
+## Why convolution instead
 
-By understanding the principles of deep learning in computer vision, you can tap into its potential, whether by developing innovative applications or leveraging its ideas to enhance algorithms in other domains. Join us on this exciting journey as we explore the world of deep learning computer vision and unlock its endless possibilities.
+Convolution replaces the dense layer with two constraints, and both are statements about what images *are*.
+
+**Parameter sharing.** A filter that detects a vertical edge at the top-left of an image detects one just as well at the bottom-right. So learn the filter once and slide it everywhere, rather than learning a separate weight per position. One 3×3 filter over three channels is 27 weights plus a bias — 28 numbers — whether the image is 32×32 or 1000×1000.
+
+**Sparse connectivity.** Each output value depends only on the small patch of input under the filter, not on all three million pixels. Distant pixels influence one another only after several layers have stacked, which matches the locality real images actually have.
+
+Together these turn that 3-billion-parameter layer into something with a few hundred weights that also *generalises better*, because the constraints happen to be true of the data. That is the whole trick, and the parameter count is worked through properly in part 8 of this series.
+
+## What actually matters
+
+**The parameter count is the argument, not an aside.** It is tempting to read "convolution exploits spatial structure" as a soft, intuitive claim. It is not — it is the difference between $$3 \times 10^{9}$$ and $$10^{2}$$ weights for the same layer. Every architecture in this series is a different answer to "given that, how should we spend what we saved?"
+
+**Benchmark numbers age badly, and the table above is a good example.** Those are top-5 error rates on ILSVRC classification. They are not comparable to numbers quoted for detection or segmentation, nor to the same networks under modern training recipes — a ResNet-50 trained with 2020s augmentation and schedules beats its 2015 self by several points with no architectural change at all. Compare architectures only when the training setup is held fixed.
+
+**Cross-pollination runs both ways.** Batch normalisation {% cite ioffe2015batchnorm %} and dropout {% cite srivastava2014dropout %} came out of this line of work and are now used far outside vision. Read these architectures for the ideas, not just for the leaderboard positions.
+
+## References
+
+{% bibliography --cited --clear %}

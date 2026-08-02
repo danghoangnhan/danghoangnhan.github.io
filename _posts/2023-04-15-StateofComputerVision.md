@@ -1,56 +1,55 @@
 ---
 layout: post
 title: "The State of Computer Vision"
-description: "Why computer vision leans on hand-engineering more than other machine learning fields, and what to reach for when data is scarce."
+description: "The data-versus-hand-engineering spectrum, why detection sits further along it than classification, and which benchmark tricks not to ship."
 author: danghoangnhan
-categories: [ deep-learning, cnn, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
-series_order: 16
-image: /assets/images/cnn1.png
+series_order: 21
+image: /assets/images/og/StateofComputerVision.png
 featured: false
 hidden: false
+katex: true
 ---
 
-Deep learning has made significant advancements in various domains such as computer vision, natural language processing, speech recognition, online advertising, and logistics. However, when it comes to computer vision, there are unique challenges and considerations that researchers and practitioners must navigate. In this article, we explore some observations and insights shared in a speech about deep learning for computer vision, aiming to provide guidance in understanding the literature and building effective computer vision systems.
+A useful way to read the whole series: every machine learning problem sits somewhere on a spectrum between *lots of data* and *lots of hand-engineering*, and where it sits determines what actually helps.
 
-## The Spectrum of Data Availability
+## The spectrum
 
-Machine learning problems can be categorized based on the amount of available data. For instance, speech recognition has relatively abundant datasets compared to the complexity of the problem. On the other hand, image recognition or classification, which involves analyzing pixel-level information, still requires more data to achieve optimal performance. Object detection, a task that involves identifying and locating objects within images, often faces an even greater scarcity of data due to the cost of labeling objects and bounding boxes.
+$$\text{little data} \;\longleftrightarrow\; \text{lots of data}$$
 
-## The Role of Data and Hand-Engineering
+$$\text{more hand-engineering} \;\longleftrightarrow\; \text{simpler algorithms, less structure}$$
 
-When it comes to training machine learning models for computer vision tasks, data and hand-engineering play crucial roles in achieving optimal performance. The sources of knowledge can be categorized into two main types:
+With abundant data, simple architectures trained end to end win, and the effort goes into the pipeline. With scarce data the missing information has to come from somewhere else: architectural priors, hand-designed features, augmentation, transfer learning.
 
+Vision has historically sat toward the data-poor end *relative to what the problem demands*. A million images sounds enormous until you consider that the function being learned maps $$10^5$$-dimensional inputs to fine-grained categories. That is why the field produces so much architectural ingenuity — Inception modules, residual connections and depthwise separable convolutions are all structure substituting for data.
 
-### 1. Labeled Data
+Within vision the tasks differ sharply:
 
-Labeled data serves as a direct source of information for supervised learning algorithms. It consists of pairs of input data (x) and corresponding labels (y), allowing the algorithm to learn patterns and make accurate predictions. The availability of labeled data is essential for training machine learning models effectively. In the context of computer vision, the speaker emphasizes that despite the existence of reasonably large datasets for image recognition or classification, the demand for more labeled data remains prevalent. Analyzing vast amounts of pixel information and identifying objects accurately necessitates substantial labeled data, which is often limited in the field of computer vision.
+| Task | Labelling cost | Typical dataset | Hand-engineering |
+|---|---|---|---|
+| Classification | one label per image | ImageNet, 1.2M {% cite russakovsky2015ilsvrc %} | less |
+| Detection | box + class per object | COCO, ~200K images {% cite lin2014coco %} | more |
+| Segmentation | per-pixel labels | far smaller | most |
 
-### 2. Hand-Engineering
+Drawing a bounding box takes far longer than picking a label, and outlining every object pixel by pixel takes longer still. So detection and segmentation architectures carry much more built-in structure — anchor boxes, region proposals, multi-scale feature pyramids. The [detection posts](/anchorboxes/) that follow are, in this framing, entirely about compensating for scarce labels.
 
-Hand-engineering refers to the process of designing features, network architectures, and other components of the system manually. In scenarios where abundant labeled data is not available, hand-engineering becomes crucial in compensating for the scarcity of data. It involves leveraging domain knowledge, intuition, and expertise to extract relevant features and design effective network architectures. Hand-engineering plays a significant role in achieving good performance when data is limited, as it allows the model to learn from the available data more efficiently.
+## Two things that win benchmarks and should not ship
 
-## Challenges in Computer Vision
+**Ensembling.** Train 3–15 networks independently and average their output probabilities. Reliably worth a point or two on a benchmark, and essentially always used by competition winners. It also multiplies inference cost and memory by the number of models, for a gain usually within the noise of simply choosing a better single model.
 
-Computer vision tasks entail learning complex functions, and even with the growing size of datasets, data scarcity remains a challenge. As a result, computer vision has historically relied heavily on hand-engineering. Complex network architectures have emerged to overcome the limitations of data availability. These intricate architectures often require meticulous hyperparameter tuning and exhibit more complexity compared to other domains. Object detection, with its smaller datasets, demands even more specialized components and algorithms.
+**Multi-crop at test time.** Run the network on several crops of the test image — corners, centre, and their mirrors, the "10-crop" evaluation — and average. No training cost, but inference cost scales with the number of crops.
 
-## Leveraging Transfer Learning
+Both are legitimate and both are why published numbers sometimes cannot be reproduced from a single forward pass. When comparing architectures, check whether the figures are single-model single-crop; the [ResNet](/resnets-residual-blocks/) and [EfficientNet](/EfficientNet/) tables in this series are, while their headline ILSVRC competition results are not.
 
-Transfer learning is a valuable technique in computer vision, especially when working with limited data. It involves utilizing pre-trained models on related tasks to boost performance on the target task. Transfer learning has shown significant improvements in areas such as object detection, where limited labeled data is available. By leveraging pre-existing knowledge captured in pre-trained models, the performance on the target task can be enhanced.
+## What actually matters
 
-## Balancing Benchmarks and Real-World Applications
+**"Use open-source implementations" is real advice, not a platitude.** These architectures carry a great deal of unstated detail — initialisation schemes, learning-rate schedules, weight decay applied to some parameters and not others, the exact augmentation pipeline. A faithful reimplementation from the paper alone routinely lands a couple of points below the published number, and the gap is almost never in the architecture. Start from released weights and released training code.
 
-The computer vision community places significant emphasis on achieving high performance on standardized benchmark datasets and winning competitions. While this focus helps identify effective algorithms, it sometimes leads to techniques that are not suitable for real-world applications. Here are some tips to navigate benchmarks effectively:
+**This post's framing is now partly historical, and the reversal is instructive.** The data-poor diagnosis was accurate when vision datasets were ImageNet-sized. Vision transformers subsequently showed that with enough data — hundreds of millions of images — an architecture with *fewer* built-in priors than a ConvNet beats one with more, because what it lacks it can learn instead. Below that data scale, ConvNets still win. The spectrum is right; where vision sits on it moved, and the conclusion moved with it.
 
-1. **Ensembling** : Ensembling involves training multiple neural networks independently and averaging their outputs. It is a technique commonly used to improve benchmark performance. However, due to increased computational requirements, it is rarely employed in production systems.
-2. **Multi-Crop at Test Time** : Multi-crop at test time is a technique involving data augmentation during testing. It can enhance performance on benchmarks but may significantly impact runtime and is not commonly used in production systems.
+**The training recipe now matters as much as the architecture.** ResNet-50 was published at 24.7% top-1 error and reaches roughly 20% under modern schedules, augmentation and regularisation, with no architectural change at all. That is a larger improvement than several generations of architecture search delivered. When a paper claims an architectural win, check whether the baseline received the same recipe — very often it did not.
 
-These techniques should be carefully considered, keeping in mind the trade-offs between benchmark performance and real-world applicability.
+## References
 
-## Leveraging Existing Architectures
-
-When building production systems, leveraging pre-existing neural network architectures can be advantageous. Open-source implementations provide ready-to-use architectures that can be fine-tuned on specific datasets, saving time and effort. These pre-trained models have often undergone extensive training on large datasets, allowing for a faster start in real-world applications. However, training networks from scratch is still an option for those with sufficient computational resources and expertise.
-
-In conclusion, deep learning has revolutionized computer vision, but challenges persist due to limited data availability. Hand-engineering and specialized network architectures have been instrumental in compensating for data scarcity. Techniques like transfer learning and leveraging pre-trained models can significantly improve performance in small data regimes. While achieving high benchmarks is important, it is crucial to differentiate between techniques suitable for competitions and those applicable to real-world production systems.
-
-Understanding the nuances and techniques specific to computer vision enables researchers and practitioners to navigate the field effectively and build robust computer vision systems.
+{% bibliography --cited --clear %}
