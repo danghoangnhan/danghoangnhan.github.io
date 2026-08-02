@@ -102,7 +102,7 @@ jobs:
           bytes=$(printf '%s' "$css" | wc -c)
           echo "main.css -> ${bytes} bytes"
           [ "$bytes" -gt 5000 ] || { echo "::error::main.css is ${bytes} bytes; the _sass partials did not compile."; exit 1; }
-          printf '%s' "$css" | grep -q 'data-theme' || { echo "::error::main.css contains no data-theme rules; dark mode is not deployed."; exit 1; }
-          printf '%s' "$css" | grep -q '@use' && { echo "::error::main.css contains literal @use; the builder did not resolve the Sass modules."; exit 1; }
+          grep -q 'data-theme' <<<"$css" || { echo "::error::main.css contains no data-theme rules; dark mode is not deployed."; exit 1; }
+          grep -q '@use' <<<"$css" && { echo "::error::main.css contains literal @use; the builder did not resolve the Sass modules."; exit 1; }
 
           echo "All production smoke checks passed."
