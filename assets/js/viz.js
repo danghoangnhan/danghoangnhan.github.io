@@ -121,6 +121,27 @@
     return { wrap: wrap, input: input };
   }
 
+  /*
+   * A labelled <select>. Native rather than a pair of styled buttons: this is an
+   * either/or choice, which aria-pressed does not model, and a real select is
+   * keyboard- and screen-reader-operable without any custom key handling.
+   */
+  function choice(id, labelText, options, value, onChange) {
+    var wrap = el("span", { class: "viz-control" });
+    var sel = el("select", { id: id });
+    options.forEach(function (o) {
+      var opt = el("option", { value: o.value }, o.label);
+      if (o.value === value) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    wrap.appendChild(el("label", { for: id }, labelText));
+    wrap.appendChild(sel);
+    sel.addEventListener("change", function () {
+      onChange(sel.value);
+    });
+    return { wrap: wrap, select: sel };
+  }
+
   function button(labelText, onClick) {
     var b = el("button", { type: "button", class: "viz-button" }, labelText);
     b.addEventListener("click", onClick);
@@ -446,6 +467,363 @@
     return root;
   }
 
+  // --- widget: pooling -----------------------------------------------------
+
+  /*
+   * Max vs average pooling over the same input, stepped window by window.
+   *
+   * This one ships onto /poolinglayers/, which is in the pa11y URL list in
+   * .github/workflows/ci.yml — so the select, the number inputs and the live
+   * readout here are audited on every PR.
+   */
+  function poolingWidget(cfg) {
+    var PCELL = 30;
+    var base = cfg.values
+      ? parseMatrix(cfg.values)
+      : [[1, 3, 2, 1], [2, 9, 1, 1], [1, 3, 2, 3], [5, 6, 1, 2]];
+
+    var state = {
+      mode: cfg.mode === "average" ? "average" : "max",
+      f: num(cfg, "f", 2, 1, 4),
+      s: num(cfg, "s", 2, 1, 4),
+      pos: 0
+    };
+
+    var uid = "viz-" + Math.floor(Math.random() * 1e9).toString(36);
+    var root = el("div", { class: "viz viz-pooling" });
+    var figure = el("div", { class: "viz-figure" });
+    var controls = el("div", { class: "viz-controls" });
+    var readout = el("p", { class: "viz-readout", "aria-live": "polite" });
+
+    var modeC = choice(
+      uid + "-mode",
+      "pooling",
+      [{ value: "max", label: "max" }, { value: "average", label: "average" }],
+      state.mode,
+      function (v) {
+        state.mode = v;
+        render();
+      }
+    );
+    var fC = control(uid + "-f", "window f", state.f, 1, 4, function (v) {
+      state.f = v;
+      state.pos = 0;
+      render();
+    });
+    var sC = control(uid + "-s", "stride s", state.s, 1, 4, function (v) {
+      state.s = v;
+      state.pos = 0;
+      render();
+    });
+    controls.appendChild(modeC.wrap);
+    controls.appendChild(fC.wrap);
+    controls.appendChild(sC.wrap);
+
+    var prev = button("‹ prev", function () {
+      state.pos = Math.max(0, state.pos - 1);
+      render();
+    });
+    var next = button("next ›", function () {
+      state.pos = state.pos + 1;
+      render();
+    });
+    var stepper = el("span", { class: "viz-stepper" });
+    stepper.appendChild(prev);
+    stepper.appendChild(next);
+    controls.appendChild(stepper);
+
+    function render() {
+      var n = base.length;
+      var f = state.f,
+        s = state.s;
+      var out = Math.floor((n - f) / s) + 1;
+
+      if (out < 1) {
+        figure.textContent = "";
+        readout.textContent =
+          "No valid window: f = " + f + " is larger than the " + n + "×" + n + " input.";
+        prev.disabled = true;
+        next.disabled = true;
+        return;
+      }
+
+      var count = out * out;
+      state.pos = Math.min(state.pos, count - 1);
+      prev.disabled = state.pos === 0;
+      next.disabled = state.pos === count - 1;
+
+      var orow = Math.floor(state.pos / out),
+        ocol = state.pos % out;
+
+      var result = [];
+      var window = [];
+      for (var i = 0; i < out; i++) {
+        var rrow = [];
+        for (var j = 0; j < out; j++) {
+          var vals = [];
+          for (var a = 0; a < f; a++) {
+            for (var b = 0; b < f; b++) vals.push(base[i * s + a][j * s + b]);
+          }
+          if (i === orow && j === ocol) window = vals.slice();
+          rrow.push(
+            state.mode === "max"
+              ? Math.max.apply(null, vals)
+              : vals.reduce(function (x, y) {
+                  return x + y;
+                }, 0) / vals.length
+          );
+        }
+        result.push(rrow);
+      }
+
+      var inW = n * PCELL,
+        outW = out * PCELL;
+      var gap = 40;
+      var w = 10 + inW + gap + outW + 10;
+      var tallest = Math.max(n, out);
+      var h = 26 + tallest * PCELL + 10;
+
+      var svg = svgEl("svg", {
+        viewBox: "0 0 " + w + " " + h,
+        width: w,
+        height: h,
+        role: "img",
+        "aria-labelledby": uid + "-title",
+        style: "max-width:100%;height:auto"
+      });
+      var title = svgEl("title", { id: uid + "-title" });
+      title.textContent =
+        state.mode +
+        " pooling with a " + f + " by " + f + " window at stride " + s +
+        " over a " + n + " by " + n + " input, giving " + out + " by " + out +
+        ". Window " + (state.pos + 1) + " of " + count + " covers " +
+        window.join(", ") + " and outputs " + fmt(result[orow][ocol]) + ".";
+      svg.appendChild(title);
+
+      function place(g, x, y) {
+        g.setAttribute("transform", "translate(" + x + "," + y + ")");
+        svg.appendChild(g);
+      }
+      function midOf(rows) {
+        return 26 + ((tallest - rows) * PCELL) / 2;
+      }
+
+      place(
+        matrixGroup(base, PCELL, {
+          label: n + "×" + n + " input",
+          hl: { r: orow * s, c: ocol * s, rows: f, cols: f }
+        }),
+        10,
+        midOf(n)
+      );
+      place(
+        matrixGroup(result, PCELL, {
+          label: out + "×" + out + " output",
+          hl: { r: orow, c: ocol, rows: 1, cols: 1 },
+          revealUpTo: state.pos
+        }),
+        10 + inW + gap,
+        midOf(out)
+      );
+
+      var arrow = svgEl("text", {
+        x: 10 + inW + gap / 2,
+        y: 26 + (tallest * PCELL) / 2 + 6,
+        "text-anchor": "middle",
+        "font-size": "17",
+        fill: "currentColor"
+      });
+      arrow.textContent = "→";
+      svg.appendChild(arrow);
+
+      figure.textContent = "";
+      figure.appendChild(svg);
+
+      readout.textContent =
+        "window " + (state.pos + 1) + " of " + count + ":   " +
+        (state.mode === "max" ? "max" : "mean") +
+        "(" + window.map(fmt).join(", ") + ") = " + fmt(result[orow][ocol]);
+    }
+
+    root.appendChild(figure);
+    root.appendChild(controls);
+    root.appendChild(readout);
+    render();
+    return root;
+  }
+
+  // --- widget: iou ---------------------------------------------------------
+
+  /*
+   * Two boxes, one of them movable, with IoU updating as it moves.
+   *
+   * Accessibility note, because this is the one widget where it constrains the
+   * design: dragging is an *enhancement*. The x and y number inputs are the
+   * real interface, and they are what a keyboard user operates — no custom
+   * arrow-key handling, no div-with-a-mousedown, nothing to get wrong. The
+   * pointer handler simply writes to the same state and syncs the inputs.
+   * This post is in the pa11y URL list, so that is checked on every PR.
+   */
+  function iouWidget(cfg) {
+    var UNIT = 34;
+    var GRID = 9;
+    var a = (cfg.a ? cfg.a.split(",").map(Number) : [0, 0, 4, 4]);
+    var bSize = num(cfg, "size", 4, 1, 6);
+
+    var state = { bx: num(cfg, "bx", 1, 0, GRID - 1), by: num(cfg, "by", 1, 0, GRID - 1) };
+
+    var uid = "viz-" + Math.floor(Math.random() * 1e9).toString(36);
+    var root = el("div", { class: "viz viz-iou" });
+    var figure = el("div", { class: "viz-figure" });
+    var controls = el("div", { class: "viz-controls" });
+    var readout = el("p", { class: "viz-readout", "aria-live": "polite" });
+
+    var maxPos = GRID - bSize;
+    var xC = control(uid + "-bx", "box B x", state.bx, 0, maxPos, function (v) {
+      state.bx = v;
+      render();
+    });
+    var yC = control(uid + "-by", "box B y", state.by, 0, maxPos, function (v) {
+      state.by = v;
+      render();
+    });
+    controls.appendChild(xC.wrap);
+    controls.appendChild(yC.wrap);
+
+    function iou() {
+      var ax1 = a[0], ay1 = a[1], ax2 = a[2], ay2 = a[3];
+      var bx1 = state.bx, by1 = state.by, bx2 = state.bx + bSize, by2 = state.by + bSize;
+
+      // The two clamps at zero: without them disjoint boxes give negative
+      // widths whose product is positive, and the function reports overlap
+      // between boxes at opposite corners.
+      var iw = Math.max(0, Math.min(ax2, bx2) - Math.max(ax1, bx1));
+      var ih = Math.max(0, Math.min(ay2, by2) - Math.max(ay1, by1));
+      var inter = iw * ih;
+      var areaA = (ax2 - ax1) * (ay2 - ay1);
+      var areaB = bSize * bSize;
+      var union = areaA + areaB - inter;
+      return { inter: inter, union: union, value: union ? inter / union : 0,
+               ix: Math.max(ax1, bx1), iy: Math.max(ay1, by1), iw: iw, ih: ih };
+    }
+
+    function render() {
+      var r = iou();
+      var w = GRID * UNIT + 20;
+      var h = GRID * UNIT + 20;
+
+      var svg = svgEl("svg", {
+        viewBox: "0 0 " + w + " " + h,
+        width: w,
+        height: h,
+        role: "img",
+        "aria-labelledby": uid + "-title",
+        style: "max-width:100%;height:auto;touch-action:none"
+      });
+      var title = svgEl("title", { id: uid + "-title" });
+      title.textContent =
+        "Box A at " + a.join(", ") + " and box B at " + state.bx + ", " + state.by +
+        " size " + bSize + ". Intersection " + r.inter + ", union " + r.union +
+        ", IoU " + (Math.round(r.value * 100) / 100) + ".";
+      svg.appendChild(title);
+
+      var i;
+      for (i = 0; i <= GRID; i++) {
+        svg.appendChild(svgEl("line", {
+          x1: 10, y1: 10 + i * UNIT, x2: 10 + GRID * UNIT, y2: 10 + i * UNIT,
+          stroke: "currentColor", "stroke-width": "0.5", "stroke-opacity": "0.18"
+        }));
+        svg.appendChild(svgEl("line", {
+          x1: 10 + i * UNIT, y1: 10, x2: 10 + i * UNIT, y2: 10 + GRID * UNIT,
+          stroke: "currentColor", "stroke-width": "0.5", "stroke-opacity": "0.18"
+        }));
+      }
+
+      if (r.inter > 0) {
+        svg.appendChild(svgEl("rect", {
+          x: 10 + r.ix * UNIT, y: 10 + r.iy * UNIT,
+          width: r.iw * UNIT, height: r.ih * UNIT,
+          fill: "currentColor", "fill-opacity": "0.2"
+        }));
+      }
+
+      svg.appendChild(svgEl("rect", {
+        x: 10 + a[0] * UNIT, y: 10 + a[1] * UNIT,
+        width: (a[2] - a[0]) * UNIT, height: (a[3] - a[1]) * UNIT,
+        fill: "none", stroke: "currentColor", "stroke-width": "2"
+      }));
+
+      var bRect = svgEl("rect", {
+        x: 10 + state.bx * UNIT, y: 10 + state.by * UNIT,
+        width: bSize * UNIT, height: bSize * UNIT,
+        fill: "none", stroke: "currentColor", "stroke-width": "2",
+        "stroke-dasharray": "6 4", style: "cursor:grab"
+      });
+      svg.appendChild(bRect);
+
+      [{ t: "A", x: a[0], y: a[1] }, { t: "B", x: state.bx, y: state.by }].forEach(function (m) {
+        var t = svgEl("text", {
+          x: 10 + m.x * UNIT + 6, y: 10 + m.y * UNIT + 16,
+          "font-size": "13", fill: "currentColor"
+        });
+        t.textContent = m.t;
+        svg.appendChild(t);
+      });
+
+      if (r.inter > 0) {
+        var it = svgEl("text", {
+          x: 10 + (r.ix + r.iw / 2) * UNIT, y: 10 + (r.iy + r.ih / 2) * UNIT + 5,
+          "text-anchor": "middle", "font-size": "13", fill: "currentColor"
+        });
+        it.textContent = r.inter;
+        svg.appendChild(it);
+      }
+
+      // Pointer drag, purely additive to the number inputs above.
+      bRect.addEventListener("pointerdown", function (ev) {
+        ev.preventDefault();
+        var startX = ev.clientX, startY = ev.clientY;
+        var ox = state.bx, oy = state.by;
+        var rect = svg.getBoundingClientRect();
+        var scale = rect.width / w;
+
+        function move(e) {
+          var dx = Math.round((e.clientX - startX) / (UNIT * scale));
+          var dy = Math.round((e.clientY - startY) / (UNIT * scale));
+          var nx = Math.max(0, Math.min(maxPos, ox + dx));
+          var ny = Math.max(0, Math.min(maxPos, oy + dy));
+          if (nx === state.bx && ny === state.by) return;
+          state.bx = nx;
+          state.by = ny;
+          xC.input.value = nx;
+          yC.input.value = ny;
+          render();
+        }
+        function up() {
+          document.removeEventListener("pointermove", move);
+          document.removeEventListener("pointerup", up);
+        }
+        document.addEventListener("pointermove", move);
+        document.addEventListener("pointerup", up);
+      });
+
+      figure.textContent = "";
+      figure.appendChild(svg);
+
+      readout.textContent =
+        "intersection " + r.inter + " / union " + r.union +
+        " = IoU " + (Math.round(r.value * 1000) / 1000) +
+        (r.value >= 0.5 ? "   — counts as a detection at the 0.5 threshold"
+                        : "   — below the 0.5 threshold, scored as a miss");
+    }
+
+    root.appendChild(figure);
+    root.appendChild(controls);
+    root.appendChild(readout);
+    render();
+    return root;
+  }
+
   // --- widget: shape -------------------------------------------------------
 
   /*
@@ -655,7 +1033,9 @@
 
   var WIDGETS = {
     shape: shapeWidget,
-    convolution: convolutionWidget
+    convolution: convolutionWidget,
+    pooling: poolingWidget,
+    iou: iouWidget
   };
 
   Array.prototype.forEach.call(hosts, function (node) {

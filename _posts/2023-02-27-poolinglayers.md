@@ -10,6 +10,7 @@ image: /assets/images/cnn1.png
 featured: false
 hidden: false
 katex: true
+viz: true
 ---
 
 Pooling shrinks a feature map by replacing each small window with a single summary number. It is the one layer in a ConvNet with **no parameters at all** — nothing about it is learned, and backpropagation has nothing to update.
@@ -21,6 +22,16 @@ Take the window, keep the largest value, discard the rest. With $$f = 2$$, $$s =
 $$\begin{bmatrix} 1 & 3 & 2 & 1 \\ 2 & 9 & 1 & 1 \\ 1 & 3 & 2 & 3 \\ 5 & 6 & 1 & 2 \end{bmatrix} \;\longrightarrow\; \begin{bmatrix} 9 & 2 \\ 6 & 3 \end{bmatrix}$$
 
 Each 2×2 block collapses to its maximum. The output is half the height and half the width, so a quarter of the values survive.
+
+Step through the four windows, and switch to average pooling to see the same input give a different answer:
+
+```viz
+type: pooling
+mode: max
+f: 2
+s: 2
+values: 1,3,2,1; 2,9,1,1; 1,3,2,3; 5,6,1,2
+```
 
 The output size rule is the same one from [part 4](/strided-convolution/), with the filter size now meaning the pooling window:
 

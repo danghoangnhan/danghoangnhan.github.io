@@ -11,6 +11,7 @@ image: /assets/images/cnn1.png
 featured: false
 hidden: false
 katex: true
+viz: true
 ---
 
 Classification is either right or wrong. Detection is not: a predicted box is never exactly the ground-truth box, so "correct" needs a definition with a number in it.
@@ -41,16 +42,13 @@ $$|A \cap B| = \max\big(0,\; x_{\text{right}} - x_{\text{left}}\big) \times \max
 
 ## A worked example
 
-<svg viewBox="0 0 300 250" role="img" aria-labelledby="iou-title" style="max-width:100%;height:auto">
-  <title id="iou-title">Two overlapping 4 by 4 boxes offset by 1 unit, with their 3 by 3 intersection shaded, giving an IoU of 9 over 23</title>
-  <rect x="60" y="60" width="120" height="120" fill="currentColor" opacity="0.18" />
-  <rect x="20" y="20" width="160" height="160" fill="none" stroke="currentColor" stroke-width="2" />
-  <rect x="60" y="60" width="160" height="160" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4" />
-  <text x="28" y="38" font-size="13" fill="currentColor">A</text>
-  <text x="206" y="214" font-size="13" fill="currentColor">B</text>
-  <text x="120" y="125" font-size="12" text-anchor="middle" fill="currentColor">9</text>
-  <text x="150" y="242" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">A = (0,0,4,4)   B = (1,1,5,5)</text>
-</svg>
+```viz
+type: iou
+a: 0,0,4,4
+size: 4
+bx: 1
+by: 1
+```
 
 Box $$A = (0,0,4,4)$$, box $$B = (1,1,5,5)$$. Both have area 16.
 
@@ -63,6 +61,8 @@ $$|A \cap B| = 9, \qquad |A \cup B| = 16 + 16 - 9 = 23, \qquad \text{IoU} = \fra
 Look at the figure and then at that number. The boxes overlap substantially — 9 of 16 units, more than half of each box — and IoU is **0.39**, which fails the conventional 0.5 threshold. The prediction would be scored as a miss.
 
 That gap between visual impression and the metric is the single most useful thing to internalise here. IoU punishes offset far harder than intuition expects, because the union grows at the same time the intersection shrinks.
+
+Drag box B, or step it with the x and y controls, and watch how little it takes. One unit of offset in a single direction already lands at 0.6; one unit diagonally — the figure above — is 0.39. Two units diagonally is 0.14, and the boxes still visibly overlap.
 
 ## The 0.5 convention
 
