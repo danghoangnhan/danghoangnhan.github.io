@@ -5,6 +5,11 @@ title: Home
 # URL people actually paste into Slack, LinkedIn and X — was the one page on the
 # site with no og:image, and previewed as a bare grey card.
 image: /assets/images/logo.png
+# Opt in to jekyll-paginate-v2. Its _config.yml block only supplies defaults;
+# without this key the page renders unpaginated, which is exactly what keeps
+# /about, /topics/ and /archive/ out of it.
+pagination:
+  enabled: true
 ---
 
 {%- comment -%}
@@ -12,15 +17,26 @@ image: /assets/images/logo.png
   read by nothing, so stubs and drafts sat on the front page. Both are honoured
   here.
 
-  Pagination is gone deliberately: jekyll-paginate v1 populates paginator.posts
-  from site.posts unconditionally and offers no filter hook, so filtering inside
-  the loop produced ragged pages of 6, 4, 6, 5. With 23 visible posts, one page
-  is the right answer anyway.
+  Pagination is back, on jekyll-paginate-v2 rather than the v1 gem that was here
+  before. v1 populated paginator.posts from site.posts unconditionally with no
+  filter hook, so `hidden: true` had to be filtered inside the loop below and the
+  pages came out ragged (6, 4, 6, 5) — which is why it was removed. v2 rejects
+  hidden documents in the generator itself, so paginator.posts is already the
+  visible set and no `hidden` filter belongs in this file any more.
+
+  The Featured block and the de-duplication below are both gated on page 1, and
+  gating them TOGETHER is the point. Gate only the block, and a featured post that
+  ever fell outside page 1's slice would vanish from the site entirely: the dedupe
+  would still skip it while nothing rendered it. Gated together, such a post just
+  appears as an ordinary card on whichever page it lands on.
 {%- endcomment -%}
 
-{%- assign visible  = site.posts | where_exp: "p", "p.hidden != true" -%}
-{%- assign featured = visible | where_exp: "p", "p.featured == true" | slice: 0, 2 -%}
-{%- assign featured_urls = featured | map: "url" | join: "," -%}
+{%- assign featured_urls = '' -%}
+{%- if paginator.page == 1 -%}
+  {%- assign visible  = site.posts | where_exp: "p", "p.hidden != true" -%}
+  {%- assign featured = visible | where_exp: "p", "p.featured == true" | slice: 0, 2 -%}
+  {%- assign featured_urls = featured | map: "url" | join: "," -%}
+{%- endif -%}
 
 {%- if featured.size > 0 %}
 <section class="featured-posts">
@@ -44,16 +60,18 @@ image: /assets/images/logo.png
 
   <div class="row listrecent">
     {%- comment -%}
-      Featured posts are skipped so nothing renders twice.
+      Featured posts are skipped so nothing renders twice. featured_urls is empty
+      on pages 2+, so nothing is skipped there.
 
       `first_card` marks the first card actually rendered, which postbox.html uses
       for its eager/high-priority image hint. It cannot use forloop.first: this
       loop starts at the newest visible post, which is normally featured and
       therefore skipped, so forloop.first was true for a card that never rendered
-      and every real card ended up lazy — including the LCP element.
+      and every real card ended up lazy — including the LCP element. The counter
+      restarts on each paginated page, so every page marks its own LCP card.
     {%- endcomment -%}
     {%- assign rendered = 0 -%}
-    {%- for post in visible -%}
+    {%- for post in paginator.posts -%}
       {%- unless featured_urls contains post.url -%}
         {%- if rendered == 0 -%}
           {%- include postbox.html first_card=true -%}
@@ -64,4 +82,6 @@ image: /assets/images/logo.png
       {%- endunless -%}
     {%- endfor %}
   </div>
+
+  {% include pagination.html %}
 </section>

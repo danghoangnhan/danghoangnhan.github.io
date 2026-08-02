@@ -4,8 +4,8 @@ source "https://rubygems.org"
 ruby file: ".ruby-version"
 
 # Jekyll proper, NOT the `github-pages` gem. That gem pins Jekyll 3.10 and a fixed
-# plugin allowlist which silently drops jekyll-archives. Building it ourselves via
-# GitHub Actions is what unlocks Jekyll 4 and arbitrary plugins.
+# plugin allowlist which silently drops jekyll-paginate-v2. Building it ourselves
+# via GitHub Actions is what unlocks Jekyll 4 and arbitrary plugins.
 gem "jekyll", "~> 4.4.1"
 
 group :jekyll_plugins do
@@ -15,8 +15,21 @@ group :jekyll_plugins do
   # every build log, for a gem that produced nothing.
   gem "jekyll-sitemap",  "~> 1.4.0"
   gem "jekyll-seo-tag",  "~> 2.9.0"
-  # Ignored by GitHub's legacy builder; starts working once we control the build.
-  gem "jekyll-archives", "~> 2.3.0"
+  # Replaces both jekyll-archives and the decommissioned jekyll-paginate v1.
+  #
+  # v1 filled paginator.posts from site.posts unconditionally with no filter
+  # hook, so `hidden: true` posts had to be skipped inside the Liquid loop and
+  # the pages came out ragged — which is why pagination was removed from this
+  # site entirely. v2 rejects hidden documents in the generator itself
+  # (paginationModel.rb: `docs.reject { |doc| doc['hidden'] }`), so the same
+  # markup now yields full pages and pagination is worth having again.
+  #
+  # Its autopages generator also emits the /category/<name>/ pages that
+  # jekyll-archives used to, with pagination built in, so the two would collide
+  # on the same permalinks. Only one of them can be installed.
+  #
+  # Ignored by GitHub's legacy builder; works because we control the build.
+  gem "jekyll-paginate-v2", "~> 3.0.0"
 end
 
 # Windows and JRuby ship no system tzdata.
