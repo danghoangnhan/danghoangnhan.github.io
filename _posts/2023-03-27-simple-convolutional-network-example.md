@@ -49,6 +49,8 @@ $$\left\lfloor \frac{17 + 0 - 5}{2} \right\rfloor + 1 = \lfloor 6 \rfloor + 1 = 
 
 **Flatten** — $$7 \times 7 \times 40 = 1960$$ values into a vector, then one logistic unit for the binary decision.
 
+Worth noticing: every one of those divisions is exact. $$(39-3)/1 = 36$$, $$(37-5)/2 = 16$$, $$(17-5)/2 = 6$$ — so the floor never rounds anything away and no input position goes unread. That is a property of this particular set of hyperparameters, not a general one, and [part 4](/strided-convolution/) has an interactive version of the case where it does not hold.
+
 ## The full accounting
 
 | Layer | Output shape | Activation size | Parameters |
@@ -73,7 +75,7 @@ The activation size rising at layer 1 before falling is normal, and worth watchi
 
 ## What actually matters
 
-**Do this arithmetic before writing the code, every time.** Layer 2 above produces 17×17 from 37×37 — not 18, not 16. The floor discards a filter position, so the last row and column of the layer-1 output never reach layer 2. That is invisible in a diagram and invisible in the code, and it is the single most common cause of a shape mismatch surfacing three layers later.
+**Do this arithmetic before writing the code, every time.** Layer 2 above produces 17×17 from 37×37 — not 18, not 16. Change the stride to 3 and it becomes 11×11 while quietly dropping two input rows, because $$(37-5)/3$$ is no longer whole. The shapes stay plausible either way, which is why a mismatch here surfaces three layers later as a failed residual addition or a flatten of the wrong size rather than at the layer that caused it.
 
 **Where the parameters sit is the whole story of the architectures that follow.** Here, conv 3 holds 73% of the weights and the classifier holds 7%. Now scale it: at 224×224 with VGG-sized dense layers, the fully connected block holds ~90% of the parameters {% cite simonyan2015vgg %}. That imbalance is what global average pooling was invented to fix {% cite lin2014nin %}, and it is why [Inception](/Inception-Network/) and ResNet look the way they do.
 
