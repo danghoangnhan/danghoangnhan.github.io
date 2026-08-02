@@ -7,7 +7,7 @@ author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
 series_order: 25
-image: /assets/images/cnn1.png
+image: /assets/images/og/yolo-algorithm-end-to-end.png
 featured: false
 hidden: false
 katex: true

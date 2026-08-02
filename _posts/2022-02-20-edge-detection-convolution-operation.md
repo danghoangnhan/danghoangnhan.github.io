@@ -7,7 +7,7 @@ author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
 series_order: 2
-image: /assets/images/cnn1.png
+image: /assets/images/og/edge-detection-convolution-operation.png
 featured: false
 hidden: false
 katex: true
@@ -65,7 +65,7 @@ Classical vision spent decades designing these by hand. Two you will meet:
 
 The deep learning move is to stop choosing. Treat all nine numbers as parameters and learn them by backpropagation:
 
-$$K = \begin{bmatrix} w_1 & w_2 & w_3 \ w_4 & w_5 & w_6 \ w_7 & w_8 & w_9 \end{bmatrix}$$
+$$K = \begin{bmatrix} w_1 & w_2 & w_3 \\ w_4 & w_5 & w_6 \\ w_7 & w_8 & w_9 \end{bmatrix}$$
 
 The network can recover Sobel if Sobel is optimal, but it is not restricted to it — it can learn edges at 37°, or filters that respond to texture rather than edges at all, or anything else the loss rewards. Nine numbers, learned from data, and that is one filter in one layer.
 

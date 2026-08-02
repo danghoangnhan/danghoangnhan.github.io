@@ -7,7 +7,7 @@ author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision, coursera ]
 series: cnn-course
 series_order: 23
-image: /assets/images/cnn1.png
+image: /assets/images/og/non-max-suppression.png
 featured: false
 hidden: false
 katex: true

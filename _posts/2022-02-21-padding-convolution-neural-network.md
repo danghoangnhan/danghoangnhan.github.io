@@ -4,7 +4,7 @@ title: "Understanding Padding in Convolutional Neural Networks"
 description: "Why convolution shrinks its input and under-uses the border, the p = (f-1)/2 rule that fixes both, and why filter sizes are almost always odd."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision, coursera ]
-image: /assets/images/cnn1.png
+image: /assets/images/og/padding-convolution-neural-network.png
 featured: true
 hidden: false
 series: cnn-course
