@@ -108,11 +108,12 @@ $link-hover: #a5d6ff;
     border-color: $rule;
   }
 
-  // Ties .card-text above on specificity (0,2,1) and currently only wins
-  // because main.css is linked after screen.css. Naming the same selectors
-  // makes the excerpt colour independent of link order.
-  .listfeaturedtag h4.card-text,
-  .listrecent h4.card-text {
+  // The card summary. Written as `h4.card-text` when the markup used an <h4>;
+  // it is a <p> now, so the element token stopped matching and the dark excerpt
+  // colour was silently doing nothing. Matched to the light rule in
+  // _components.scss, which uses the same class-only form.
+  .listfeaturedtag .card-text,
+  .listrecent .card-text {
     color: $text-muted;
   }
 
@@ -178,6 +179,27 @@ $link-hover: #a5d6ff;
   .site-footer.bg-dark {
     background-color: #010409 !important;
     border-top: 1px solid $rule;
+  }
+
+  /*
+   * The skip link, which the blanket `a` rule above would otherwise ruin.
+   *
+   * _components.scss gives it `background: #fff; color: $accent` on focus — a
+   * white chip, deliberately loud. But `a { color: $link !important }` at the top
+   * of this file wins on !important however specific the other rule is, so in dark
+   * mode the link painted #79c0ff on #fff: 1.95:1, on the one control the
+   * accessibility work added. It is also the very first thing a keyboard user
+   * reaches, and only visible while focused, so it is easy to never see.
+   *
+   * !important to compete at all, and (0,3,1) against that rule's (0,1,1) to win
+   * once both are important. The chip goes dark here rather than staying white,
+   * which is both consistent with the theme and a larger contrast margin.
+   */
+  .skip-link:focus,
+  .skip-link:focus-within {
+    background: $surface !important;
+    color: $text !important;
+    border-color: $link !important;
   }
 
   hr {
@@ -345,6 +367,28 @@ $link-hover: #a5d6ff;
   // separates the TOC from the share block above it, and the share icon rings.
   .toc {
     border-top-color: $rule;
+  }
+
+  /*
+   * The mobile TOC panel, added when the table of contents stopped being hidden
+   * below 1024px. It takes its box from _components.scss, which draws it with
+   * $rule = #eaeaea — a near-white 1px frame on a #0d1117 page, and the same on
+   * the .toc-list rail inside it. Its keyboard focus ring is $accent (#0a2b46),
+   * 1.30:1 against the page: the disclosure is operable but a keyboard user
+   * cannot see where they are.
+   *
+   * Scoped to the same max-width as the rules it corrects, so the desktop rail —
+   * which has no panel and no focus ring — is untouched.
+   */
+  @media (max-width: 1023.98px) {
+    .toc {
+      border-color: $rule;
+      background: $surface;
+    }
+
+    .toc-heading:focus-visible {
+      outline-color: $link;
+    }
   }
 
   // screen.css:386 sets `.share { color: rgba(0,0,0,.44) }` with no dark

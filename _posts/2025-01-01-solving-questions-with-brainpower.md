@@ -4,7 +4,7 @@ title: "LeetCode 1422: Maximum Score After Splitting a String"
 description: "A prefix-sum solution to LeetCode 1422, Maximum Score After Splitting a String, evaluating every split in O(n) time."
 author: danghoangnhan
 categories: [ leetcode ]
-image: assets/images/leetcode/leetcode.png
+image: /assets/images/leetcode/leetcode.png
 featured: true
 hidden: false
 katex: True

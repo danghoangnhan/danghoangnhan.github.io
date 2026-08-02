@@ -4,7 +4,7 @@ title: "Understanding Padding in Convolutional Neural Networks"
 description: "Why convolutions shrink a feature map, and how valid and same padding keep spatial resolution intact through a deep CNN."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
-image: assets/images/cnn1.png
+image: /assets/images/cnn1.png
 featured: true
 hidden: false
 series: cnn-course

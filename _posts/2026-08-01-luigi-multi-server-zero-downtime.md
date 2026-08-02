@@ -10,7 +10,7 @@ mermaid: true
 # social platform renders SVG — Facebook, LinkedIn and X all skip it — so this post
 # previewed with no image at all anywhere it was shared. TODO: replace with a PNG
 # screenshot of the architecture diagram, which would serve both jobs properly.
-image: assets/images/logo.png
+image: /assets/images/logo.png
 featured: true
 hidden: false
 ---

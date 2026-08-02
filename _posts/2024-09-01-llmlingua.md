@@ -4,7 +4,7 @@ title: "LLMLingua: Compressing Prompts for Accelerated LLM Inference"
 description: "How LLMLingua compresses prompts using a budget controller, iterative token-level compression and distribution alignment."
 author: danghoangnhan
 categories: [ llm ]
-image: assets/images/llmlingua/LLMLingua.png
+image: /assets/images/llmlingua/LLMLingua.png
 featured: true
 hidden: false
 katex: True

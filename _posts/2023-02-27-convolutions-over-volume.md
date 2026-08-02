@@ -7,7 +7,7 @@ author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
 series_order: 4
-image: assets/images/cnn1.png
+image: /assets/images/cnn1.png
 featured: false
 hidden: false
 ---
@@ -52,7 +52,5 @@ In the next blog post, we will explore how to implement a convolutional neural n
 
 Stay tuned for more insights into the fascinating world of deep learning and computer vision!
 
-**References:**
-- Insert reference to original speech or source of information.
 
 *[CNN]: Convolutional Neural Network

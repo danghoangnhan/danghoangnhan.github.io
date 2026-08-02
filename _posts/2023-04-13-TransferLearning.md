@@ -8,7 +8,7 @@ author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
 series_order: 14
-image: assets/images/cnn1.png
+image: /assets/images/cnn1.png
 featured: false
 hidden: false
 ---

@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 #
-# Content lint for _posts and _pages.
+# Content lint for _posts.
 #
 # Every check here corresponds to a defect that shipped to production and stayed
 # there, invisible to the existing CI. That check is `jekyll build` plus
@@ -26,9 +26,9 @@ require "set"
 ROOT = ENV.fetch("CONTENT_LINT_ROOT", File.expand_path("..", __dir__))
 POSTS = File.join(ROOT, "_posts")
 
-# Body text below this is a stub, not an article. The four posts deleted in this
-# pass measured 0, 23, 46 and 66 bytes; the shortest real post is ~890.
-MIN_BODY_BYTES = 400
+# Body text below this is a stub, not an article. Measured in characters. The four posts deleted in this
+# pass measured 0, 23, 46 and 66 characters; the shortest real post is ~890.
+MIN_BODY_CHARS = 400
 
 # Languages that may appear in `lang:`, and the locale each one requires.
 LOCALES = YAML.safe_load_file(File.join(ROOT, "_data", "languages.yml"))
@@ -38,12 +38,22 @@ failures = []
 warnings = []
 
 def split_front_matter(raw)
+  # A UTF-8 BOM is invisible in an editor and Jekyll copes with it, but it makes
+  # `start_with?("---")` false and the whole file look like it has no front
+  # matter. Strip it rather than reporting a bogus error.
+  raw = raw.sub(/\A﻿/, "")
   return [nil, raw] unless raw.start_with?("---")
 
-  parts = raw.split(/^---\s*$/, 3)
+  parts = raw.split(/^---\s*\R?$/, 3)
   return [nil, raw] if parts.length < 3
 
-  [YAML.safe_load(parts[1], permitted_classes: [Date, Time]) || {}, parts[2]]
+  # Malformed YAML used to escape as a bare Psych backtrace, which aborted the run
+  # and hid every remaining check behind one bad file. Report it as what it is.
+  begin
+    [YAML.safe_load(parts[1], permitted_classes: [Date, Time]) || {}, parts[2]]
+  rescue Psych::SyntaxError => e
+    [:invalid, e.message]
+  end
 end
 
 posts = Dir.glob(File.join(POSTS, "*.{md,markdown}")).sort
@@ -57,6 +67,11 @@ posts.each do |path|
 
   front, body = split_front_matter(raw)
 
+  if front == :invalid
+    failures << Failure.new(name, "front matter is not valid YAML: #{body.to_s.lines.first.to_s.strip}")
+    next
+  end
+
   if front.nil?
     failures << Failure.new(name, "no YAML front matter")
     next
@@ -69,8 +84,8 @@ posts.each do |path|
   # every reader of the CNN course straight at it, and they got a title, a
   # featured image, a comment thread and no article.
   stripped = body.to_s.strip
-  if stripped.length < MIN_BODY_BYTES
-    failures << Failure.new(name, "body is #{stripped.length} bytes; a post needs at least #{MIN_BODY_BYTES}")
+  if stripped.length < MIN_BODY_CHARS
+    failures << Failure.new(name, "body is #{stripped.length} characters; a post needs at least #{MIN_BODY_CHARS}")
   end
 
   # --- title ---------------------------------------------------------------
@@ -98,18 +113,39 @@ posts.each do |path|
   # _layouts/post.html renders `title:` as the article's h1. An `# ` heading in
   # the body makes a second one, directly under the first, usually saying almost
   # the same thing. 18 of 29 posts did this.
-  h1 = stripped.lines.find { |l| l.start_with?("# ") }
+  # Fenced code is skipped: a shell snippet whose comments start with "# " is not
+  # a heading, and flagging it would fail CI on a perfectly good post.
+  in_fence = false
+  h1 = stripped.lines.find do |l|
+    in_fence = !in_fence if l.start_with?("```", "~~~")
+    !in_fence && l.start_with?("# ")
+  end
   if h1
     failures << Failure.new(name, "body starts a level-1 heading (#{h1.strip.inspect}); the layout already renders title: as the h1 — use ##")
   end
 
   # --- image ---------------------------------------------------------------
+  # The leading slash is load-bearing, which is why this checks the SHAPE of the
+  # value and not just that the file exists.
+  #
+  # jekyll-seo-tag's ImageDrop only calls absolute_url directly when the path
+  # starts with "/". Otherwise it does File.join(page.url, path) first, so
+  # `image: assets/images/cnn1.png` on /poolinglayers/ emits
+  # https://…/poolinglayers/assets/images/cnn1.png — a 404, on og:image,
+  # twitter:image and the BlogPosting JSON-LD alike. Every post on this site had
+  # that shape, so every social preview was a broken image, and an existence check
+  # against the source tree passed on all of them because the FILE is fine; it is
+  # the emitted URL that is wrong.
   image = front["image"].to_s.strip
   if image.empty?
-    warnings << Failure.new(name, "no image:; the card and og:image fall back to the site logo")
+    warnings << Failure.new(name, "no image:; jekyll-seo-tag reads page.image only, so this post emits no og:image at all")
   elsif image.end_with?(".svg")
     failures << Failure.new(name, "image: is an SVG; og:image is not rendered as SVG by Facebook, LinkedIn or X, so the post previews blank")
-  elsif !image.start_with?("http") && !File.exist?(File.join(ROOT, image))
+  elsif image.start_with?("http")
+    # An absolute URL is emitted verbatim; nothing local to check.
+  elsif !image.start_with?("/")
+    failures << Failure.new(name, "image: #{image} needs a leading slash, or jekyll-seo-tag resolves it against the post's own URL and og:image 404s")
+  elsif !File.exist?(File.join(ROOT, image.sub(%r{\A/}, "")))
     failures << Failure.new(name, "image: #{image} does not exist")
   end
 

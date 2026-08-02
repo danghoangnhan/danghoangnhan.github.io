@@ -4,7 +4,7 @@ title: "Introduction to Federated Learning"
 description: "A practical introduction to federated learning: training one shared model across decentralised data without ever moving that data."
 author: danghoangnhan
 categories: [ federated-learning ]
-image: assets/images/fed.png
+image: /assets/images/fed.png
 featured: false
 hidden: false
 ---
