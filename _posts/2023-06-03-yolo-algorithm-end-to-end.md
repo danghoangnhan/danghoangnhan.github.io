@@ -18,6 +18,8 @@ Everything in this series, assembled. YOLO is a convolutional backbone, a grid, 
 
 The name is the claim: you only look once. Prior detectors ran a classifier at many locations and scales, or generated region proposals and classified each {% cite girshick2014rcnn %}{% cite ren2015fasterrcnn %}. YOLO makes detection a single regression from image to tensor.
 
+The sliding-window half of that history is worth one note, because it is the same insight arriving early: OverFeat showed that running a classifier at every window is equivalent to one convolutional pass over the whole image, since the fully connected layers can be rewritten as convolutions {% cite sermanet2014overfeat %}. Shared computation across overlapping windows is what makes a dense grid of predictions affordable at all.
+
 ## The pipeline
 
 ```mermaid

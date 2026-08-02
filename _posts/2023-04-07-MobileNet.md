@@ -83,6 +83,8 @@ Within a point of VGG at **27× fewer multiplies and 33× fewer parameters**. Mo
 
 **The 9× is in multiplies and almost never in wall-clock.** Depthwise convolution has terrible arithmetic intensity: it reads a whole feature map to do very little arithmetic per byte, so it is memory-bandwidth-bound where a dense convolution is compute-bound. GPUs are built for the latter. A MobileNet with 27× fewer multiplies than VGG is nowhere near 27× faster on a desktop GPU, and can be slower per FLOP than a much larger dense model. It was designed for phone CPUs, where the arithmetic really is the constraint. Benchmark on the hardware you will deploy on — this is the single most misleading number in efficient-architecture papers.
 
+**The same factorisation scales up, not just down.** Xception applies depthwise separable convolutions to a full-size Inception-style network rather than a mobile one, and beats Inception-v3 at equal parameter count {% cite chollet2017xception %}. The idea is not inherently about small models — it is a better use of a parameter budget at any size, which is what makes it the default block in [EfficientNet](/EfficientNet/) too.
+
 **The two halves are not interchangeable.** Depthwise alone cannot change the channel count and never mixes channels, so a network of only depthwise convolutions has channels that never interact — three independent greyscale networks. The pointwise step is not an optimisation detail; without it the block does not work at all.
 
 ## Source code

@@ -15,6 +15,8 @@ katex: true
 
 Early layers of a convolutional network detect edges. Later layers combine edges into textures, textures into parts, parts into objects {% cite zeiler2014visualizing %}. So edges are where to start — and the operation that finds them is the one the entire architecture is named after.
 
+The idea is older than deep learning. Hubel and Wiesel found cells in the cat visual cortex that respond to edges at particular orientations, with receptive fields covering small patches of the visual field {% cite hubel1962receptive %}; the Neocognitron built a layered network on that observation two decades before backpropagation was applied to it {% cite fukushima1980neocognitron %}{% cite lecun1989backprop %}.
+
 ## The operation
 
 Convolution slides a small grid of weights, the **filter** or **kernel**, over the image. At each position it multiplies the overlapping numbers elementwise and sums them into a single output value.

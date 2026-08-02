@@ -2,6 +2,7 @@
 cnn-course:
   name: "Convolutional Neural Networks"
   description: >-
-    Working notes on convolutional networks — from padding and strided
-    convolutions through to Inception, MobileNet, EfficientNet and object
-    detection.
+    Twenty-five notes on convolutional networks, in order — from the convolution
+    operation itself through the classic architectures, ResNet, Inception,
+    MobileNet and EfficientNet, ending with object detection and YOLO. Each part
+    carries the arithmetic, a diagram and the papers it draws on.

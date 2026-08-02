@@ -34,7 +34,7 @@ Same window, mean instead of maximum:
 
 $$\begin{bmatrix} 1 & 3 & 2 & 1 \\ 2 & 9 & 1 & 1 \\ 1 & 3 & 2 & 3 \\ 5 & 6 & 1 & 2 \end{bmatrix} \;\longrightarrow\; \begin{bmatrix} 3.75 & 1.25 \\ 3.75 & 2 \end{bmatrix}$$
 
-Max pooling dominates inside networks. Average pooling survives in one very important place — **global average pooling**, where the window is the entire feature map, turning $$n_H \times n_W \times n_C$$ into $$1 \times 1 \times n_C$$. That single trick is what lets an architecture drop the enormous fully connected layers discussed in [part 6](/one-layer-of-convolotional-network/); it was introduced with Network in Network {% cite lin2014nin %} and adopted by GoogLeNet {% cite szegedy2015googlenet %} and ResNet {% cite he2016resnet %}.
+Max pooling dominates inside networks, and the preference is empirical rather than principled — a direct comparison on recognition tasks found max consistently ahead of average {% cite scherer2010pooling %}. Average pooling survives in one very important place — **global average pooling**, where the window is the entire feature map, turning $$n_H \times n_W \times n_C$$ into $$1 \times 1 \times n_C$$. That single trick is what lets an architecture drop the enormous fully connected layers discussed in [part 6](/one-layer-of-convolotional-network/); it was introduced with Network in Network {% cite lin2014nin %} and adopted by GoogLeNet {% cite szegedy2015googlenet %} and ResNet {% cite he2016resnet %}.
 
 ## Pooling acts per channel
 
