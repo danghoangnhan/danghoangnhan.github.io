@@ -10,6 +10,7 @@ hidden: false
 series: cnn-course
 series_order: 3
 katex: true
+viz: true
 ---
 
 Plain convolution has two defects. Padding fixes both with one change.
@@ -52,6 +53,16 @@ $$p = \frac{f - 1}{2}$$
 For a 3×3 filter, $$p = 1$$. For 5×5, $$p = 2$$. For 7×7, $$p = 3$$.
 
 The corner pixel now sits inside a padded border, so it is read as often as any other pixel, and the feature map survives arbitrarily many layers.
+
+Set $$p$$ to 0 below and the 6×6 input gives a 4×4 output; set it to 1 and the output is 6×6 again. The dashed cells are the zeros being added, and stepping to the first position shows the corner pixel now sitting inside a full window rather than at its corner:
+
+```viz
+type: convolution
+n: 6
+filter: vertical
+stride: 1
+padding: 1
+```
 
 The two conventions have names:
 

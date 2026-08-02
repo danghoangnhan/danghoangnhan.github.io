@@ -127,6 +127,325 @@
     return b;
   }
 
+  // --- matrices ------------------------------------------------------------
+
+  function parseMatrix(str) {
+    return str.split(";").map(function (row) {
+      return row.split(",").map(function (v) {
+        return parseFloat(v.trim());
+      });
+    });
+  }
+
+  // A vertical edge: bright on the left, dark on the right. The worked example
+  // in the edge-detection post uses exactly this.
+  function edgeInput(n) {
+    var m = [];
+    for (var r = 0; r < n; r++) {
+      var row = [];
+      for (var c = 0; c < n; c++) row.push(c < n / 2 ? 10 : 0);
+      m.push(row);
+    }
+    return m;
+  }
+
+  var FILTERS = {
+    vertical: [[1, 0, -1], [1, 0, -1], [1, 0, -1]],
+    horizontal: [[1, 1, 1], [0, 0, 0], [-1, -1, -1]],
+    sobel: [[1, 0, -1], [2, 0, -2], [1, 0, -1]],
+    blur: [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+  };
+
+  function padMatrix(m, p) {
+    if (!p) return m;
+    var n = m.length + 2 * p;
+    var out = [];
+    for (var r = 0; r < n; r++) {
+      var row = [];
+      for (var c = 0; c < n; c++) {
+        var sr = r - p,
+          sc = c - p;
+        row.push(sr >= 0 && sr < m.length && sc >= 0 && sc < m[0].length ? m[sr][sc] : 0);
+      }
+      out.push(row);
+    }
+    return out;
+  }
+
+  function fmt(v) {
+    return Math.round(v * 100) / 100;
+  }
+
+  /*
+   * Draws a matrix of numbers as a <g>. Returns the group so the caller can
+   * position it; `hl` marks a window of cells to emphasise.
+   */
+  function matrixGroup(m, cell, opts) {
+    opts = opts || {};
+    var g = svgEl("g", {});
+    var rows = m.length,
+      cols = m[0].length;
+
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var x = c * cell,
+          y = r * cell;
+        var inHl =
+          opts.hl &&
+          r >= opts.hl.r &&
+          r < opts.hl.r + opts.hl.rows &&
+          c >= opts.hl.c &&
+          c < opts.hl.c + opts.hl.cols;
+        var isPad =
+          opts.pad &&
+          (r < opts.pad || c < opts.pad || r >= rows - opts.pad || c >= cols - opts.pad);
+        var hidden = opts.revealUpTo != null && r * cols + c > opts.revealUpTo;
+
+        g.appendChild(
+          svgEl("rect", {
+            x: x,
+            y: y,
+            width: cell,
+            height: cell,
+            fill: "currentColor",
+            "fill-opacity": inHl ? "0.14" : isPad ? "0" : "0.05",
+            stroke: "currentColor",
+            "stroke-width": inHl ? "1.6" : "1",
+            "stroke-dasharray": isPad ? "3 2" : "",
+            "stroke-opacity": inHl ? "1" : "0.5"
+          })
+        );
+
+        if (!hidden) {
+          var t = svgEl("text", {
+            x: x + cell / 2,
+            y: y + cell / 2 + 4,
+            "text-anchor": "middle",
+            "font-size": "11",
+            fill: "currentColor",
+            "fill-opacity": isPad ? "0.45" : "1"
+          });
+          t.textContent = fmt(m[r][c]);
+          g.appendChild(t);
+        }
+      }
+    }
+
+    if (opts.label) {
+      var lbl = svgEl("text", {
+        x: (cols * cell) / 2,
+        y: -8,
+        "text-anchor": "middle",
+        "font-size": "12",
+        fill: "currentColor",
+        "fill-opacity": "0.75"
+      });
+      lbl.textContent = opts.label;
+      g.appendChild(lbl);
+    }
+    return g;
+  }
+
+  // --- widget: convolution -------------------------------------------------
+
+  /*
+   * The convolution operation, stepped one filter position at a time. Output
+   * cells are revealed as they are computed rather than shown up front — the
+   * point is the sliding, not the answer.
+   */
+  function convolutionWidget(cfg) {
+    var CCELL = 28;
+    var base = cfg.values ? parseMatrix(cfg.values) : edgeInput(num(cfg, "n", 6, 3, 10));
+    var kernel = FILTERS[cfg.filter] || (cfg.filter ? parseMatrix(cfg.filter) : FILTERS.vertical);
+
+    var state = {
+      p: num(cfg, "padding", 0, 0, 3),
+      s: num(cfg, "stride", 1, 1, 4),
+      pos: 0
+    };
+
+    var uid = "viz-" + Math.floor(Math.random() * 1e9).toString(36);
+    var root = el("div", { class: "viz viz-convolution" });
+    var figure = el("div", { class: "viz-figure" });
+    var controls = el("div", { class: "viz-controls" });
+    var readout = el("p", { class: "viz-readout", "aria-live": "polite" });
+
+    var padC = control(uid + "-p", "padding p", state.p, 0, 3, function (v) {
+      state.p = v;
+      state.pos = 0;
+      render();
+    });
+    var strC = control(uid + "-s", "stride s", state.s, 1, 4, function (v) {
+      state.s = v;
+      state.pos = 0;
+      render();
+    });
+    controls.appendChild(padC.wrap);
+    controls.appendChild(strC.wrap);
+
+    var prev = button("‹ prev", function () {
+      state.pos = Math.max(0, state.pos - 1);
+      render();
+    });
+    var next = button("next ›", function () {
+      state.pos = state.pos + 1;
+      render();
+    });
+    var stepper = el("span", { class: "viz-stepper" });
+    stepper.appendChild(prev);
+    stepper.appendChild(next);
+    controls.appendChild(stepper);
+
+    function render() {
+      var padded = padMatrix(base, state.p);
+      var n = padded.length;
+      var f = kernel.length;
+      var out = Math.floor((n - f) / state.s) + 1;
+
+      if (out < 1) {
+        figure.textContent = "";
+        readout.textContent =
+          "No valid filter position: the " + f + "×" + f + " filter is larger than the " +
+          n + "×" + n + " padded input.";
+        prev.disabled = true;
+        next.disabled = true;
+        return;
+      }
+
+      var count = out * out;
+      state.pos = Math.min(state.pos, count - 1);
+      prev.disabled = state.pos === 0;
+      next.disabled = state.pos === count - 1;
+
+      var orow = Math.floor(state.pos / out),
+        ocol = state.pos % out;
+      var r0 = orow * state.s,
+        c0 = ocol * state.s;
+
+      // Every output value, so the grid can reveal them in order.
+      var result = [];
+      var terms = [];
+      var i, j;
+      for (i = 0; i < out; i++) {
+        var rrow = [];
+        for (j = 0; j < out; j++) {
+          var acc = 0;
+          for (var a = 0; a < f; a++) {
+            for (var b = 0; b < f; b++) {
+              var prod = padded[i * state.s + a][j * state.s + b] * kernel[a][b];
+              acc += prod;
+              if (i === orow && j === ocol && kernel[a][b] !== 0) {
+                terms.push(
+                  fmt(padded[i * state.s + a][j * state.s + b]) +
+                    "·" +
+                    (kernel[a][b] < 0 ? "(" + kernel[a][b] + ")" : kernel[a][b])
+                );
+              }
+            }
+          }
+          rrow.push(acc);
+        }
+        result.push(rrow);
+      }
+
+      var inW = n * CCELL,
+        fW = f * CCELL,
+        outW = out * CCELL;
+      var gap = 34;
+      var w = 10 + inW + gap + fW + gap + outW + 10;
+      var h = 26 + Math.max(n, f, out) * CCELL + 10;
+
+      var svg = svgEl("svg", {
+        viewBox: "0 0 " + w + " " + h,
+        width: w,
+        height: h,
+        role: "img",
+        "aria-labelledby": uid + "-title",
+        style: "max-width:100%;height:auto"
+      });
+      var title = svgEl("title", { id: uid + "-title" });
+      title.textContent =
+        "A " + n + " by " + n + " input convolved with a " + f + " by " + f +
+        " filter at stride " + state.s + ", giving a " + out + " by " + out +
+        " output. Filter position " + (state.pos + 1) + " of " + count +
+        " covers input rows " + (r0 + 1) + " to " + (r0 + f) +
+        " and produces " + fmt(result[orow][ocol]) + ".";
+      svg.appendChild(title);
+
+      function place(g, x, y) {
+        g.setAttribute("transform", "translate(" + x + "," + y + ")");
+        svg.appendChild(g);
+      }
+
+      /*
+       * Each grid is centred against the tallest of the three rather than
+       * top-aligned, so the ∗ and = glyphs line up with the middle of every
+       * grid instead of only the input's.
+       */
+      var top = 26;
+      var tallest = Math.max(n, f, out);
+      function midOf(rows) {
+        return top + ((tallest - rows) * CCELL) / 2;
+      }
+
+      place(
+        matrixGroup(padded, CCELL, {
+          label: n + "×" + n + (state.p ? " padded" : " input"),
+          hl: { r: r0, c: c0, rows: f, cols: f },
+          pad: state.p
+        }),
+        10,
+        midOf(n)
+      );
+      place(
+        matrixGroup(kernel, CCELL, { label: f + "×" + f + " filter" }),
+        10 + inW + gap,
+        midOf(f)
+      );
+      place(
+        matrixGroup(result, CCELL, {
+          label: out + "×" + out + " output",
+          hl: { r: orow, c: ocol, rows: 1, cols: 1 },
+          revealUpTo: state.pos
+        }),
+        10 + inW + gap + fW + gap,
+        midOf(out)
+      );
+
+      // The operator glyphs, on the shared centre line.
+      var midY = top + (tallest * CCELL) / 2 + 6;
+      [
+        { x: 10 + inW + gap / 2, s: "∗" },
+        { x: 10 + inW + gap + fW + gap / 2, s: "=" }
+      ].forEach(function (op) {
+        var t = svgEl("text", {
+          x: op.x,
+          y: midY,
+          "text-anchor": "middle",
+          "font-size": "17",
+          fill: "currentColor"
+        });
+        t.textContent = op.s;
+        svg.appendChild(t);
+      });
+
+      figure.textContent = "";
+      figure.appendChild(svg);
+
+      readout.textContent =
+        "position " + (state.pos + 1) + " of " + count + ":   " +
+        (terms.length ? terms.join(" + ") : "0") +
+        " = " + fmt(result[orow][ocol]) +
+        "      (zero-weight terms omitted)";
+    }
+
+    root.appendChild(figure);
+    root.appendChild(controls);
+    root.appendChild(readout);
+    render();
+    return root;
+  }
+
   // --- widget: shape -------------------------------------------------------
 
   /*
@@ -335,7 +654,8 @@
   // --- dispatch ------------------------------------------------------------
 
   var WIDGETS = {
-    shape: shapeWidget
+    shape: shapeWidget,
+    convolution: convolutionWidget
   };
 
   Array.prototype.forEach.call(hosts, function (node) {

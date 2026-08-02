@@ -11,6 +11,7 @@ image: /assets/images/cnn1.png
 featured: false
 hidden: false
 katex: true
+viz: true
 ---
 
 Early layers of a convolutional network detect edges. Later layers combine edges into textures, textures into parts, parts into objects {% cite zeiler2014visualizing %}. So edges are where to start — and the operation that finds them is the one the entire architecture is named after.
@@ -35,149 +36,17 @@ A 6×6 image with a 3×3 filter gives 4×4. That shrinkage is the subject of the
 
 Take an image whose left half is bright (10) and right half is dark (0) — a single vertical edge straight down the middle. Convolve it with a filter whose left column is $$1$$, middle column $$0$$, right column $$-1$$:
 
-<svg viewBox="0 0 470 224" role="img" aria-labelledby="edge-conv-title" style="max-width:100%;height:auto">
-  <title id="edge-conv-title">A 6 by 6 image whose left half is 10 and right half is 0, convolved with a 3 by 3 vertical edge filter, giving a 4 by 4 output with a bright band of 30 down the middle two columns</title>
-  <text x="92.0" y="30" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.75">6 x 6 input</text>
-  <rect x="8" y="40" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="8" y="40" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="22" y="58" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="36" y="40" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="36" y="40" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="50" y="58" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="64" y="40" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="64" y="40" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="78" y="58" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="92" y="40" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="106" y="58" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="120" y="40" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="134" y="58" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="148" y="40" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="162" y="58" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="8" y="68" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="8" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="22" y="86" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="36" y="68" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="36" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="50" y="86" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="64" y="68" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="64" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="78" y="86" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="92" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="106" y="86" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="120" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="134" y="86" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="148" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="162" y="86" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="8" y="96" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="8" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="22" y="114" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="36" y="96" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="36" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="50" y="114" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="64" y="96" width="28" height="28" fill="currentColor" opacity="0.12" />
-  <rect x="64" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" opacity="1" />
-  <text x="78" y="114" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="92" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="106" y="114" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="120" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="134" y="114" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="148" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="162" y="114" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="8" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="22" y="142" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="36" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="50" y="142" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="64" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="78" y="142" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="92" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="106" y="142" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="120" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="134" y="142" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="148" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="162" y="142" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="8" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="22" y="170" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="36" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="50" y="170" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="64" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="78" y="170" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="92" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="106" y="170" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="120" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="134" y="170" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="148" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="162" y="170" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="8" y="180" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="22" y="198" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="36" y="180" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="50" y="198" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="64" y="180" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="78" y="198" text-anchor="middle" font-size="11" fill="currentColor">10</text>
-  <rect x="92" y="180" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="106" y="198" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="120" y="180" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="134" y="198" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="148" y="180" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="162" y="198" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <text x="198" y="124" text-anchor="middle" font-size="18" fill="currentColor">*</text>
-  <text x="262.0" y="72.0" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.75">3 x 3 filter</text>
-  <rect x="220" y="82.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="234" y="100.0" text-anchor="middle" font-size="11" fill="currentColor">1</text>
-  <rect x="248" y="82.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="262" y="100.0" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="276" y="82.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="290" y="100.0" text-anchor="middle" font-size="11" fill="currentColor">-1</text>
-  <rect x="220" y="110.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="234" y="128.0" text-anchor="middle" font-size="11" fill="currentColor">1</text>
-  <rect x="248" y="110.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="262" y="128.0" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="276" y="110.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="290" y="128.0" text-anchor="middle" font-size="11" fill="currentColor">-1</text>
-  <rect x="220" y="138.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="234" y="156.0" text-anchor="middle" font-size="11" fill="currentColor">1</text>
-  <rect x="248" y="138.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="262" y="156.0" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="276" y="138.0" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="290" y="156.0" text-anchor="middle" font-size="11" fill="currentColor">-1</text>
-  <text x="326" y="124" text-anchor="middle" font-size="18" fill="currentColor">=</text>
-  <text x="404.0" y="58" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.75">4 x 4 output</text>
-  <rect x="348" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="362" y="86" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="376" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="390" y="86" text-anchor="middle" font-size="11" fill="currentColor">30</text>
-  <rect x="404" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="418" y="86" text-anchor="middle" font-size="11" fill="currentColor">30</text>
-  <rect x="432" y="68" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="446" y="86" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="348" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="362" y="114" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="376" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="390" y="114" text-anchor="middle" font-size="11" fill="currentColor">30</text>
-  <rect x="404" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="418" y="114" text-anchor="middle" font-size="11" fill="currentColor">30</text>
-  <rect x="432" y="96" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="446" y="114" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="348" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="362" y="142" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="376" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="390" y="142" text-anchor="middle" font-size="11" fill="currentColor">30</text>
-  <rect x="404" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="418" y="142" text-anchor="middle" font-size="11" fill="currentColor">30</text>
-  <rect x="432" y="124" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="446" y="142" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="348" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="362" y="170" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-  <rect x="376" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="390" y="170" text-anchor="middle" font-size="11" fill="currentColor">30</text>
-  <rect x="404" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="418" y="170" text-anchor="middle" font-size="11" fill="currentColor">30</text>
-  <rect x="432" y="152" width="28" height="28" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55" />
-  <text x="446" y="170" text-anchor="middle" font-size="11" fill="currentColor">0</text>
-</svg>
+```viz
+type: convolution
+n: 6
+filter: vertical
+stride: 1
+padding: 0
+```
 
 The highlighted 3×3 window is the first position. Every pixel under it is 10, so the $$+1$$ column contributes $$+30$$, the $$-1$$ column contributes $$-30$$, and they cancel to $$0$$ — flat region, no edge.
 
-Slide two steps right and the window straddles the boundary. Now the $$+1$$ column sits on 10s while the $$-1$$ column sits on 0s, and nothing cancels:
+Press **next** twice. The window now straddles the boundary: the $$+1$$ column sits on 10s while the $$-1$$ column sits on 0s, and nothing cancels.
 
 $$(10 + 10 + 10) \times 1 \;+\; 0 \;+\; (0 + 0 + 0) \times (-1) \;=\; 30$$
 
