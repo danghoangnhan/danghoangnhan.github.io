@@ -1127,6 +1127,51 @@ blockquote {
     }
   }
 
+  /*
+   * The filter widget: input image, kernel editor, output image in a row that
+   * wraps to a column on a narrow screen.
+   */
+  .viz-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+  }
+
+  .viz-filter-cell {
+    margin: 0;
+    text-align: center;
+
+    canvas {
+      display: block;
+      border: 1px solid $rule;
+    }
+
+    figcaption {
+      margin-top: 0.35rem;
+      font-size: 0.85rem;
+      color: $muted-aa;
+    }
+  }
+
+  .viz-kernel {
+    display: grid;
+    grid-template-columns: repeat(3, 3rem);
+    gap: 0.25rem;
+
+    input {
+      width: 3rem;
+      padding: 0.2rem;
+      border: 1px solid $rule;
+      border-radius: 3px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: center;
+    }
+  }
+
   .viz-readout {
     margin: 0.6rem 0 0;
     font-size: 0.9rem;

@@ -995,6 +995,202 @@
     return root;
   }
 
+  // --- widget: filter ------------------------------------------------------
+
+  /*
+   * An editable 3×3 kernel applied to an image. The only canvas widget here,
+   * because it is the only one doing per-pixel work.
+   *
+   * The image is drawn procedurally rather than loaded. That is not a stylistic
+   * choice: canvas taints on a cross-origin image and getImageData then throws,
+   * and a committed photograph would need a licence compatible with the CC BY
+   * grant this repo's content carries. A drawn scene has neither problem and is
+   * same-origin by construction.
+   *
+   * Note there is NO themechange handler, unlike what a canvas widget usually
+   * needs. The scene is a fixed greyscale image — content, like a photograph —
+   * and photographs do not invert with the theme. Only the chrome around it is
+   * themed, and that is HTML handled by CSS.
+   */
+  function filterWidget(cfg) {
+    var SIZE = 132;
+
+    var state = {
+      k: FILTERS[cfg.filter] ? FILTERS[cfg.filter].map(function (r) { return r.slice(); })
+                             : FILTERS.vertical.map(function (r) { return r.slice(); })
+    };
+
+    var uid = "viz-" + Math.floor(Math.random() * 1e9).toString(36);
+    var root = el("div", { class: "viz viz-filter" });
+    var figure = el("div", { class: "viz-figure viz-filter-row" });
+    var controls = el("div", { class: "viz-controls" });
+    var readout = el("p", { class: "viz-readout", "aria-live": "polite" });
+
+    // --- the source image, drawn once --------------------------------------
+    var src = document.createElement("canvas");
+    src.width = SIZE;
+    src.height = SIZE;
+    var sctx = src.getContext("2d");
+    if (!sctx) return el("p", {}, "");
+
+    (function scene() {
+      sctx.fillStyle = "#808080";
+      sctx.fillRect(0, 0, SIZE, SIZE);
+      // A bright block with hard vertical and horizontal edges.
+      sctx.fillStyle = "#e8e8e8";
+      sctx.fillRect(12, 16, 52, 46);
+      // A dark block.
+      sctx.fillStyle = "#202020";
+      sctx.fillRect(76, 20, 44, 40);
+      // A circle, for curved edges.
+      sctx.fillStyle = "#d0d0d0";
+      sctx.beginPath();
+      sctx.arc(44, 96, 24, 0, Math.PI * 2);
+      sctx.fill();
+      // A diagonal bar, so orientation-selective filters differ visibly.
+      sctx.strokeStyle = "#f0f0f0";
+      sctx.lineWidth = 9;
+      sctx.beginPath();
+      sctx.moveTo(78, 124);
+      sctx.lineTo(124, 74);
+      sctx.stroke();
+      // A soft gradient, so a blur has something to act on that an edge
+      // detector ignores.
+      var grad = sctx.createLinearGradient(0, 0, SIZE, 0);
+      grad.addColorStop(0, "rgba(255,255,255,0.14)");
+      grad.addColorStop(1, "rgba(0,0,0,0.14)");
+      sctx.fillStyle = grad;
+      sctx.fillRect(0, 0, SIZE, SIZE);
+    })();
+
+    var srcData = sctx.getImageData(0, 0, SIZE, SIZE);
+    // Collapse to one luminance channel up front; the kernel is applied to it
+    // on every edit and re-deriving grey each time would be wasted work.
+    var grey = new Float32Array(SIZE * SIZE);
+    for (var i = 0; i < SIZE * SIZE; i++) {
+      grey[i] =
+        0.299 * srcData.data[i * 4] +
+        0.587 * srcData.data[i * 4 + 1] +
+        0.114 * srcData.data[i * 4 + 2];
+    }
+
+    var outCanvas = document.createElement("canvas");
+    outCanvas.width = SIZE;
+    outCanvas.height = SIZE;
+    outCanvas.setAttribute("role", "img");
+    var octx = outCanvas.getContext("2d");
+
+    src.setAttribute("role", "img");
+    src.setAttribute("aria-label",
+      "The source image: a light rectangle, a dark rectangle, a light circle and a diagonal bar on a mid-grey background.");
+
+    // --- the kernel editor -------------------------------------------------
+    var kernelBox = el("div", { class: "viz-kernel", role: "group",
+                                "aria-label": "Filter weights, 3 by 3" });
+    var inputs = [];
+    for (var r = 0; r < 3; r++) {
+      for (var c = 0; c < 3; c++) {
+        (function (rr, cc) {
+          var inp = el("input", {
+            type: "number",
+            step: "1",
+            value: state.k[rr][cc],
+            "aria-label": "weight row " + (rr + 1) + " column " + (cc + 1)
+          });
+          inp.addEventListener("input", function () {
+            var v = parseFloat(inp.value);
+            state.k[rr][cc] = isNaN(v) ? 0 : v;
+            apply();
+          });
+          inputs.push(inp);
+          kernelBox.appendChild(inp);
+        })(r, c);
+      }
+    }
+
+    var presetC = choice(
+      uid + "-preset",
+      "preset",
+      [
+        { value: "vertical", label: "vertical edges" },
+        { value: "horizontal", label: "horizontal edges" },
+        { value: "sobel", label: "Sobel" },
+        { value: "blur", label: "box blur" },
+        { value: "sharpen", label: "sharpen" }
+      ],
+      cfg.filter || "vertical",
+      function (v) {
+        var k = v === "sharpen" ? [[0, -1, 0], [-1, 5, -1], [0, -1, 0]] : FILTERS[v];
+        state.k = k.map(function (row) { return row.slice(); });
+        inputs.forEach(function (inp, idx) {
+          inp.value = state.k[Math.floor(idx / 3)][idx % 3];
+        });
+        apply();
+      }
+    );
+    controls.appendChild(presetC.wrap);
+
+    function apply() {
+      var k = state.k;
+      var sum = 0;
+      k.forEach(function (row) {
+        row.forEach(function (v) { sum += v; });
+      });
+
+      var out = octx.createImageData(SIZE, SIZE);
+      for (var y = 0; y < SIZE; y++) {
+        for (var x = 0; x < SIZE; x++) {
+          var acc = 0;
+          for (var a = -1; a <= 1; a++) {
+            for (var b = -1; b <= 1; b++) {
+              // Clamp at the border rather than zero-padding: zero padding puts
+              // a bright artificial edge round the whole frame, which is the
+              // filter responding to the padding instead of the picture.
+              var sy = Math.min(SIZE - 1, Math.max(0, y + a));
+              var sx = Math.min(SIZE - 1, Math.max(0, x + b));
+              acc += grey[sy * SIZE + sx] * k[a + 1][b + 1];
+            }
+          }
+          /*
+           * Weights summing to zero — every edge detector — produce signed
+           * output centred on 0, so it is offset to mid-grey to be visible at
+           * all. Weights summing to non-zero are normalised by that sum, which
+           * is what keeps a box blur from saturating to white.
+           */
+          var v = sum === 0 ? acc + 128 : acc / sum;
+          v = Math.max(0, Math.min(255, v));
+          var o = (y * SIZE + x) * 4;
+          out.data[o] = out.data[o + 1] = out.data[o + 2] = v;
+          out.data[o + 3] = 255;
+        }
+      }
+      octx.putImageData(out, 0, 0);
+
+      var desc = sum === 0
+        ? "edge-detecting: the weights sum to zero, so flat regions cancel to mid-grey and only changes survive"
+        : "smoothing or sharpening: the weights sum to " + fmt(sum) + ", so the output is normalised by it";
+      outCanvas.setAttribute("aria-label", "The filtered result — " + desc + ".");
+      readout.textContent = "weights sum to " + fmt(sum) + " — " + desc + ".";
+    }
+
+    function labelled(node, text) {
+      var box = el("figure", { class: "viz-filter-cell" });
+      box.appendChild(node);
+      box.appendChild(el("figcaption", {}, text));
+      return box;
+    }
+
+    figure.appendChild(labelled(src, "input"));
+    figure.appendChild(labelled(kernelBox, "filter"));
+    figure.appendChild(labelled(outCanvas, "output"));
+
+    root.appendChild(figure);
+    root.appendChild(controls);
+    root.appendChild(readout);
+    apply();
+    return root;
+  }
+
   // --- widget: shape -------------------------------------------------------
 
   /*
@@ -1207,7 +1403,8 @@
     convolution: convolutionWidget,
     pooling: poolingWidget,
     iou: iouWidget,
-    nms: nmsWidget
+    nms: nmsWidget,
+    filter: filterWidget
   };
 
   Array.prototype.forEach.call(hosts, function (node) {

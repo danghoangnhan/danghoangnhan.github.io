@@ -69,6 +69,17 @@ $$K = \begin{bmatrix} w_1 & w_2 & w_3 \ w_4 & w_5 & w_6 \ w_7 & w_8 & w_9 \end{b
 
 The network can recover Sobel if Sobel is optimal, but it is not restricted to it — it can learn edges at 37°, or filters that respond to texture rather than edges at all, or anything else the loss rewards. Nine numbers, learned from data, and that is one filter in one layer.
 
+Here are the nine numbers, editable. Type into them and watch what the same image becomes:
+
+```viz
+type: filter
+filter: vertical
+```
+
+Two things are worth noticing. Every edge detector has weights **summing to zero** — that is what makes flat regions cancel and only changes survive, and it is why the output sits on mid-grey rather than black. Change one weight so the sum is non-zero and the filter stops detecting edges and starts brightening or darkening the whole picture.
+
+And orientation is not a special property built into the operation. It falls out of where the positive and negative weights sit: swap the rows for the columns and a vertical edge detector becomes a horizontal one.
+
 ## What actually matters
 
 **What deep learning calls "convolution" is really cross-correlation.** The mathematical convolution operator flips the kernel both horizontally and vertically before sliding:

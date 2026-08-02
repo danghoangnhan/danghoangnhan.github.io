@@ -503,8 +503,21 @@ $link-hover: #a5d6ff;
     }
 
     .viz-readout,
-    .viz-control label {
+    .viz-control label,
+    .viz-filter-cell figcaption {
       color: $text-muted;
+    }
+
+    // The canvases themselves are left alone: they hold a greyscale image, and
+    // an image is content rather than chrome — it does not invert with the
+    // theme any more than a photograph in a post would. Only the frame is themed.
+    .viz-filter-cell canvas,
+    .viz-kernel input {
+      border-color: $rule;
+    }
+
+    .viz-kernel input {
+      color: $text;
     }
   }
 }
