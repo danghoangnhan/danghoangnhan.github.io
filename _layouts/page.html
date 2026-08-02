@@ -3,9 +3,18 @@ layout: default
 ---
 
 
+{%- comment -%}
+  The page title is an <h1>.
+
+  It was an <h2> because _layouts/default.html used to render the site name as the
+  page's <h1> on every URL. That is now home-page only, so /about, /topics,
+  /archive and /list-100 had no <h1> at all — a page whose most important heading
+  is a level 2 under nothing. Same markup and same .section-title styling
+  otherwise, so it looks identical.
+{%- endcomment -%}
 <section>
     <div class="section-title">
-        <h2><span>{{ page.title }}</span></h2>
+        <h1><span>{{ page.title }}</span></h1>
     </div>
     
     <div class="article-post">

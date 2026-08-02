@@ -13,12 +13,22 @@ layout: default
   page with the same heading and feed jekyll-seo-tag the wrong <title>.
 {%- endcomment -%}
 {%- assign posts = page.posts | where_exp: "p", "p.hidden != true" -%}
+{%- comment -%}
+  An empty category page is marked noindex, but that has to happen in
+  _layouts/default.html: Jekyll renders this layout first and hands the result to
+  the parent as `content`, so a variable assigned here never reaches its <head>.
+  default.html recomputes the same filter over page.posts.
+{%- endcomment -%}
 
 <!-- Begin List Posts
 ================================================== -->
 <section class="recent-posts">
   <div class="section-title">
-    <h2>Posts tagged <span>{{ page.title }}</span></h2>
+    {%- comment -%}
+      <h1>, for the same reason _layouts/page.html now uses one: the site name is
+      no longer rendered as an <h1> on every page, so a category archive had none.
+    {%- endcomment -%}
+    <h1>Posts tagged <span>{{ page.title }}</span></h1>
   </div>
 
   {%- if posts.size > 0 %}

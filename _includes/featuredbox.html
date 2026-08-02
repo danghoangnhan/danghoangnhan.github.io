@@ -1,14 +1,34 @@
 <!-- begin post -->
-{% assign author = site.authors[post.author] %}
+{% assign author = site.data.authors[post.author] %}
 <div class="col-md-6 mb-30px">
     <div class="listfeaturedtag h-100">
         <div class="row h-100">
             <div class="col-lg-5 col-md-12 pe-lg-0">
                 <div class="h-100">
                     <div class="wrapthumbnail">
-                        <a href="{{ post.url | absolute_url }}">
-                            <span class="thumbnail d-block" style="background-image:url({% if post.image contains "://" %}{{ post.image }}{% else %}{{ post.image | absolute_url }}{% endif %});">
-                            </span>
+                        {%- comment -%}
+                          A real <img>, not a CSS background on an empty <span>.
+
+                          These are the two largest images on the site and they were
+                          invisible to assistive tech and to anything that reads markup:
+                          a background image carries no alt text, and the <a> wrapping an
+                          empty span had no accessible name at all — a screen reader
+                          announced the most prominent link on the home page as "link".
+                          A background also cannot be lazily loaded or given intrinsic
+                          dimensions, so these two were eager, unsized and above the fold.
+
+                          aria-hidden on the image plus a text label on the link: the
+                          card's <h2> already names the post, so announcing the same
+                          title twice per card is noise. object-fit in _components.scss
+                          reproduces the background-size: cover crop.
+                        {%- endcomment -%}
+                        <a href="{{ post.url | absolute_url }}" aria-label="{{ post.title | strip_html }}" tabindex="-1">
+                            <img class="thumbnail d-block"
+                                 src="{% if post.image contains "://" %}{{ post.image }}{% else %}{{ post.image | absolute_url }}{% endif %}"
+                                 alt=""
+                                 aria-hidden="true"
+                                 width="600" height="450"
+                                 {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %} />
                         </a>
                     </div>
                 </div>
@@ -18,21 +38,23 @@
                     <div class="card">
                         <div class="card-body">
                             <h2 class="card-title"><a class="text-dark" href="{{ post.url | absolute_url }}">{{ post.title }}</a></h2>
-                            <h4 class="card-text">{{ post.excerpt | strip_html | truncatewords:25 }}</h4>
+                            {%- comment -%}See the note in postbox.html — same reasons, same fallback chain.{%- endcomment -%}
+                            <p class="card-text">{{ post.description | default: post.excerpt | strip_html | truncatewords: 25 }}</p>
                         </div>
                         <div class="card-footer b-0 bg-white mt-auto">
                             {% include post-tags.html item=post class="post-tags--card" %}
                             <div class="wrapfooter">
-                                {% if post.author %}
-                                <span class="meta-footer-thumb">
-                                <img class="author-thumb" src="https://www.gravatar.com/avatar/{{ author.gravatar }}?s=250&d=mm&r=x" alt="{{ author.display_name }}">
-                                </span>
+                                {%- comment -%}See the note in postbox.html — same unbalanced span, same rel fix.{%- endcomment -%}
                                 <span class="author-meta">
-                                <span class="post-name"><a target="_blank" href="{{ author.web }}">{{ author.display_name }}</a></span><br/>
-                                {% endif %}
+                                {%- if post.author %}
+                                <span class="meta-footer-thumb">
+                                <img class="author-thumb" src="https://www.gravatar.com/avatar/{{ author.gravatar }}?s=250&d=mm&r=x" alt="" aria-hidden="true" width="40" height="40" loading="lazy">
+                                </span>
+                                <span class="post-name"><a target="_blank" rel="noopener" href="{{ author.web }}">{{ author.display_name }}</a></span><br/>
+                                {%- endif %}
                                 <span class="post-date">{{ post.date | date_to_string }}</span>
                                 </span>
-                                <span class="post-read-more"><a href="{{ post.url | absolute_url }}" title="Read Story"><svg class="svgIcon-use" width="25" height="25" viewbox="0 0 25 25"><path d="M19 6c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v14.66h.012c.01.103.045.204.12.285a.5.5 0 0 0 .706.03L12.5 16.85l5.662 4.126a.508.508 0 0 0 .708-.03.5.5 0 0 0 .118-.285H19V6zm-6.838 9.97L7 19.636V6c0-.55.45-1 1-1h9c.55 0 1 .45 1 1v13.637l-5.162-3.668a.49.49 0 0 0-.676 0z" fill-rule="evenodd"></path></svg></a></span>
+                                <span class="post-read-more"><a href="{{ post.url | absolute_url }}" tabindex="-1" aria-hidden="true"><svg class="svgIcon-use" width="25" height="25" viewbox="0 0 25 25" aria-hidden="true" focusable="false"><path d="M19 6c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v14.66h.012c.01.103.045.204.12.285a.5.5 0 0 0 .706.03L12.5 16.85l5.662 4.126a.508.508 0 0 0 .708-.03.5.5 0 0 0 .118-.285H19V6zm-6.838 9.97L7 19.636V6c0-.55.45-1 1-1h9c.55 0 1 .45 1 1v13.637l-5.162-3.668a.49.49 0 0 0-.676 0z" fill-rule="evenodd"></path></svg></a></span>
                                 <div class="clearfix"></div>
                             </div>
                         </div>

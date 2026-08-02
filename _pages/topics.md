@@ -6,8 +6,20 @@ description: Every post on this blog, grouped by topic.
 comments: false
 ---
 
+{%- comment -%}
+  The headline count is computed the same way the cloud below is filtered, rather
+  than from `site.categories | size`. That raw count includes categories whose
+  only posts are hidden, so the page announced "10 topics" and then rendered 9 —
+  `android` has exactly one post and it is unlisted.
+{%- endcomment -%}
+{%- assign shown_topics = 0 -%}
+{%- for cat in site.categories -%}
+  {%- assign v = cat[1] | where_exp: "p", "p.hidden != true" -%}
+  {%- if v.size > 0 -%}{%- assign shown_topics = shown_topics | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+
 <p class="lead">
-  {{ site.categories | size }} topics across
+  {{ shown_topics }} topic{% unless shown_topics == 1 %}s{% endunless %} across
   {{ site.posts | where_exp: "p", "p.hidden != true" | size }} posts.
 </p>
 

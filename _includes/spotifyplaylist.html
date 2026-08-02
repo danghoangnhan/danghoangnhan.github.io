@@ -1,22 +1,21 @@
-<div class="embed-spotify">
-    <iframe src="https://open.spotify.com/embed/playlist/{{ include.id }}"
-           width="700"
-           height="480"
-           frameborder="0" 
-           allowtransparency="true"
-           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-           webkitallowfullscreen
-           mozallowfullscreen
-           allowfullscreen
-           loading="lazy"
-           >
-   </iframe>
-   </div>
+{%- comment -%}
+  Spotify playlist embed.
 
-<!-- <iframe style="border-radius:12px" 
-   src="https://open.spotify.com/embed/playlist/68DXxYTn25JzqqF9Xez4hV?utm_source=generator"
-   width="100%" 
-   height="380" 
-   frameBorder="0" 
-   allowfullscreen="" 
-</iframe> -->
+  `title` is required, not decoration: an <iframe> without one is announced by a
+  screen reader as "frame", with nothing to say what is inside it (WCAG 4.1.2), and
+  this one contains an interactive player.
+
+  frameborder, allowtransparency, webkitallowfullscreen and mozallowfullscreen are
+  gone — all four are obsolete attributes that HTML5 dropped, and the border is a
+  CSS concern that _sass/_spotify-embed.scss already owns. The commented-out second
+  iframe underneath went with them.
+{%- endcomment -%}
+<div class="embed-spotify">
+  <iframe src="https://open.spotify.com/embed/playlist/{{ include.id }}"
+          title="Spotify playlist"
+          width="700"
+          height="480"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          allowfullscreen
+          loading="lazy"></iframe>
+</div>

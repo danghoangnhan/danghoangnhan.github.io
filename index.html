@@ -1,6 +1,10 @@
 ---
 layout: default
 title: Home
+# jekyll-seo-tag reads page.image and never site.image, so the home page — the
+# URL people actually paste into Slack, LinkedIn and X — was the one page on the
+# site with no og:image, and previewed as a bare grey card.
+image: assets/images/logo.png
 ---
 
 {%- comment -%}
@@ -39,10 +43,24 @@ title: Home
   </div>
 
   <div class="row listrecent">
-    {%- comment -%}Featured posts are skipped so nothing renders twice.{%- endcomment -%}
+    {%- comment -%}
+      Featured posts are skipped so nothing renders twice.
+
+      `first_card` marks the first card actually rendered, which postbox.html uses
+      for its eager/high-priority image hint. It cannot use forloop.first: this
+      loop starts at the newest visible post, which is normally featured and
+      therefore skipped, so forloop.first was true for a card that never rendered
+      and every real card ended up lazy — including the LCP element.
+    {%- endcomment -%}
+    {%- assign rendered = 0 -%}
     {%- for post in visible -%}
       {%- unless featured_urls contains post.url -%}
-        {%- include postbox.html -%}
+        {%- if rendered == 0 -%}
+          {%- include postbox.html first_card=true -%}
+        {%- else -%}
+          {%- include postbox.html -%}
+        {%- endif -%}
+        {%- assign rendered = rendered | plus: 1 -%}
       {%- endunless -%}
     {%- endfor %}
   </div>

@@ -2,9 +2,58 @@
 layout: default
 title: "404: Page not found"
 permalink: 404.html
+sitemap: false
 ---
+
+{%- comment -%}
+  A 404 that offers somewhere to go.
+
+  This was two lines: an apology and a link home. Someone arriving from a stale
+  link — and this site has just renamed several posts, so that traffic is real —
+  got no search, no suggestions and no sense of what the site contains. The navbar
+  search is above, but it is a small field in a bar most people scan past on an
+  error page.
+
+  Recent posts and topics come straight from the same filtered collections the
+  home page and /topics/ use, so this list can never drift from what is published.
+{%- endcomment -%}
 
 <div class="page">
   <h1 class="page-title">404: Page not found</h1>
-  <p class="lead">Sorry, we've misplaced that URL or it's pointing to something that doesn't exist. <a href="{{ '/' | relative_url }}">Head back home</a> to try finding it again.</p>
+  <p class="lead">
+    Sorry — that URL has moved or never existed. A few posts were renamed recently,
+    so an old bookmark may be the cause.
+  </p>
+
+  <p>
+    Try the search box in the bar above, head
+    <a href="{{ '/' | relative_url }}">back home</a>, or browse
+    <a href="{{ '/archive/' | relative_url }}">every post</a> and
+    <a href="{{ '/topics/' | relative_url }}">every topic</a>.
+  </p>
+
+  {%- assign recent = site.posts | where_exp: "p", "p.hidden != true" -%}
+
+  <h2>Recent posts</h2>
+  <ul class="archive-list">
+    {%- for post in recent limit: 5 %}
+    <li>
+      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %Y" }}</time>
+      <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    </li>
+    {%- endfor %}
+  </ul>
+
+  <h2>Topics</h2>
+  <ul class="topic-cloud">
+    {%- assign cats = site.categories | sort -%}
+    {%- for cat in cats -%}
+      {%- assign visible = cat[1] | where_exp: "p", "p.hidden != true" -%}
+      {%- if visible.size > 0 %}
+    <li>
+      <a href="{{ cat[0] | slugify | prepend: '/category/' | append: '/' | relative_url }}">{{ cat[0] }} <span class="topic-count">{{ visible.size }}</span></a>
+    </li>
+      {%- endif -%}
+    {%- endfor %}
+  </ul>
 </div>

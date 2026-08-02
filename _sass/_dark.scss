@@ -126,7 +126,9 @@ $link-hover: #a5d6ff;
     color: $text-muted;
   }
 
-  // The rule above each card grid — "Featured", "All Stories", "Posts tagged X".
+  // The rule above each card grid — "Featured", "All Stories", "Posts tagged X" —
+  // and, on the standalone pages, their <h1>.
+  .section-title h1,
   .section-title h2 {
     border-bottom-color: $rule;
   }
@@ -241,17 +243,55 @@ $link-hover: #a5d6ff;
     border-color: $rule;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
 
-    li a:hover,
-    li a:focus,
-    li a.is-active {
+    li a:hover {
       background: #21262d;
+    }
+
+    // Matched to the light rule: the keyboard selection has to read as different
+    // from a hover, because focus stays in the input and this marker is all a
+    // keyboard user gets. Same reasoning as the note in _components.scss.
+    li a.is-active {
+      background: #2d333b;
+      border-left-color: $link;
     }
 
     .search-meta,
     .search-date,
-    .search-empty {
+    .search-empty,
+    .search-excerpt {
       color: $text-muted;
     }
+
+    // The category chips inside a result. .post-tag renders as a link elsewhere
+    // and picks up the dark treatment from `a.post-tag`; inside the dropdown they
+    // are <span>s, so that selector never matched and they kept the light pill's
+    // near-black text on a #161b22 row.
+    .post-tag {
+      background: #21262d;
+      border-color: $rule;
+      color: $link;
+    }
+  }
+
+  /*
+   * Diagrams keep their light background, matted rather than inverted.
+   *
+   * assets/images/luigi-ha/architecture.svg is a pre-rendered Mermaid export whose
+   * root element carries `style="background-color: white"` and paints its text at
+   * #333, so it lands on a #0d1117 page as an unbordered white slab — and it
+   * cannot be recoloured from here, because an <img> is an opaque box to the
+   * parent document's CSS. Inverting it with a filter would wreck the colour-coded
+   * nodes it uses to mean something.
+   *
+   * Matting is the same answer _sass/_resume-embed.scss reaches for with the PDF:
+   * frame it deliberately so it reads as a panel rather than a hole burned in the
+   * page. Scoped to .svg so photographs are untouched.
+   */
+  .article-post img[src$=".svg"] {
+    background: #f6f8fa;
+    padding: 0.75rem;
+    border: 1px solid $rule;
+    border-radius: 8px;
   }
 
   .topic-cloud a {

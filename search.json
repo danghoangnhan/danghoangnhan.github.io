@@ -21,7 +21,13 @@ sitemap: false
 "d": {{ post.date | date: "%b %Y" | jsonify }},
 "c": {{ post.categories | jsonify }},
 "l": {{ post.lang | default: site.lang | default: 'en' | jsonify }},
-"e": {{ post.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }},
+{%- comment -%}
+  `description` first. The excerpt fallback is the whole post: `excerpt_separator`
+  is <!--more-->, which almost no post contains, so Jekyll returns the entire
+  document and the first 200 characters are just the opening paragraph — which for
+  the posts with near-identical titles was no help in telling them apart.
+{%- endcomment -%}
+"e": {{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 200 | jsonify }},
 "b": {{ post.content | strip_html | strip_newlines | jsonify }}
 }{%- unless forloop.last -%},{%- endunless -%}
 {%- endfor -%}
