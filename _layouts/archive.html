@@ -2,22 +2,30 @@
 layout: default
 ---
 {%- comment -%}
-  Used by jekyll-archives for the /category/<name>/ pages.
+  Used by jekyll-paginate-v2's autopages generator for the /category/<name>/
+  pages, configured under `autopages:` in _config.yml. It replaced jekyll-archives,
+  which wrote the same permalinks and could not paginate them.
 
-  page.posts is filtered on `hidden` so these pages agree with the homepage,
-  /topics/ and /archive/. jekyll-archives itself offers no filter hook, so it
-  has to happen here.
+  paginator.posts, NOT page.posts. Autopages hands the posts over through the
+  paginator and sets no page.posts at all, so leaving the old key here would send
+  all nine categories down the empty-state branch below — with valid HTML, a green
+  html-proofer run and a 200 from the smoke job. That failure is silent, so it is
+  worth spelling out.
 
-  `title` is deliberately not set in front matter: jekyll-archives supplies the
-  category name as page.title, and hardcoding it would override every archive
-  page with the same heading and feed jekyll-seo-tag the wrong <title>.
+  No `hidden` filter either: the generator rejects hidden documents itself, which
+  is the job this line used to do by hand.
+
+  `title` is deliberately not set in front matter: autopages supplies the category
+  name as page.title (`title: ':cat'` in _config.yml, matching what jekyll-archives
+  supplied), and hardcoding it would override every archive page with the same
+  heading and feed jekyll-seo-tag the wrong <title>.
 {%- endcomment -%}
-{%- assign posts = page.posts | where_exp: "p", "p.hidden != true" -%}
+{%- assign posts = paginator.posts -%}
 {%- comment -%}
   An empty category page is marked noindex, but that has to happen in
   _layouts/default.html: Jekyll renders this layout first and hands the result to
   the parent as `content`, so a variable assigned here never reaches its <head>.
-  default.html recomputes the same filter over page.posts.
+  default.html keys off paginator.total_posts instead.
 {%- endcomment -%}
 
 <!-- Begin List Posts
@@ -53,4 +61,10 @@ layout: default
   {%- else %}
   <p>Nothing published under this topic yet. <a href="{{ '/topics/' | relative_url }}">Browse all topics</a>.</p>
   {%- endif %}
+
+  {%- comment -%}
+    The same control the home page uses. It renders nothing at all when a category
+    fits on one page, which is six of the nine today.
+  {%- endcomment -%}
+  {% include pagination.html %}
 </section>

@@ -875,6 +875,75 @@ blockquote {
   opacity: 1; // Firefox dims placeholders by default, undoing the fix above
 }
 
+// --------------------------------------------------------------- pagination
+
+/*
+ * The pagination control from _includes/pagination.html, used by the home page
+ * and the /category/<name>/ listings.
+ *
+ * Deliberately NOT named `.pagination`. screen.css line 620 declares
+ * `.pagination { display: block }`, and _layouts/default.html links screen.css
+ * after the Bootstrap CDN — so that vendored rule beats Bootstrap's own
+ * `display: flex` on load order alone. Anything given that class name here would
+ * inherit a fight with a file this repo does not edit by convention.
+ *
+ * The pill is the same 999px / 1px $rule / $accent idiom as .post-tag and
+ * .topic-cloud a: three chip rows on one site should read as one widget.
+ *
+ * Placed after the contrast section because --disabled uses $muted-aa, and Sass
+ * resolves variables in source order.
+ */
+.post-pagination {
+  margin: 1.5rem 0 0.5rem;
+}
+
+.post-pagination__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+// One geometry for all three states, so the row does not resize as the current
+// page moves along it or a direction runs out. 44px is the comfortable touch
+// target; WCAG 2.2's floor is 24px.
+.post-pagination__link {
+  display: inline-block;
+  min-width: 2.75rem;
+  min-height: 44px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid $rule;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  color: $accent;
+}
+
+a.post-pagination__link:hover {
+  background: #f6f8fa;
+  text-decoration: none;
+}
+
+// Filled rather than outlined: aria-current="page" marks the current page for a
+// screen reader, and a sighted reader never sees it. #fff on $accent is 14.5:1.
+.post-pagination__link--current {
+  background: $accent;
+  border-color: $accent;
+  color: #fff;
+  font-weight: 600;
+}
+
+// Still painted on screen even though it links nowhere, so it still has to clear
+// 4.5:1 — $muted-aa is the 5.74:1 value the rest of the site's small print uses.
+.post-pagination__link--disabled {
+  color: $muted-aa;
+}
+
 // ------------------------------------------------------------------- tables
 
 /*
@@ -1248,6 +1317,7 @@ blockquote {
   .no-print,
   .series-nav,
   .PageNavigation,
+  .post-pagination,
   .post-read-more,
   /*
    * The interactive figure keeps its SVG on paper but loses its controls: a

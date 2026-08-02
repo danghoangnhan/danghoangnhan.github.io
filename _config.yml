@@ -55,11 +55,13 @@ defaults:
     values:
       locale: en_US
   # KNOWN GAP: this does not reach the nine /category/ pages, which still emit the
-  # bare `og:locale: en`. jekyll-archives builds them itself and applies no
-  # front-matter defaults, so neither the scope above nor a `type: archives` scope
-  # touches them — the latter was tried and changed nothing. Fixing it properly
-  # needs a _plugins/ hook, which is more machinery than an Open Graph locale on a
-  # category listing is worth. Recorded rather than papered over.
+  # bare `og:locale: en`. They are built by a generator that constructs its own
+  # page objects and applies no front-matter defaults, so neither the scope above
+  # nor a type-scoped one touches them — that was tried under jekyll-archives and
+  # changed nothing, and jekyll-paginate-v2's autopages behaves the same way for
+  # the same reason. Fixing it properly needs a _plugins/ hook, which is more
+  # machinery than an Open Graph locale on a category listing is worth. Recorded
+  # rather than papered over.
   - scope:
       path: ""
       type: posts
@@ -152,20 +154,87 @@ plugins:
   # the source, and this repo hand-writes one (RSS 2.0 rather than the Atom the gem
   # emits). The gem has been inert since the day feed.xml was committed.
   - jekyll-sitemap
-  - jekyll-archives
+  - jekyll-paginate-v2
   - jekyll-seo-tag
   - jekyll-scholar
 
-# Archives.
-# NOTE: jekyll-archives is not on GitHub Pages' plugin allowlist, so this block is
-# inert on the legacy builder and every /category/:name/ link 404s. It starts
-# working once the build moves to GitHub Actions with this repo's own Gemfile.
-jekyll-archives:
-  enabled:
-    - categories
-  layout: archive
-  permalinks:
-    category: '/category/:name/'
+# Pagination.
+#
+# This is jekyll-paginate-v2, not the v1 gem that used to be here. v1 populated
+# paginator.posts straight from site.posts with no filter hook, so `hidden: true`
+# posts had to be skipped inside the Liquid loop and the pages came out ragged
+# (6, 4, 6, 5) — which is why pagination was dropped from the site entirely. v2
+# rejects hidden documents in the generator, so paginator.posts is already the
+# visible set and every page is full.
+#
+# `enabled: true` here only supplies the defaults. A page is paginated only when it
+# opts in from its own front matter, which is what keeps /about, /topics/ and
+# /archive/ out of it — see index.html.
+#
+# Not on GitHub Pages' plugin allowlist; works because this repo controls its own
+# build via GitHub Actions.
+pagination:
+  enabled: true
+  per_page: 6
+  # These exact URLs were live until pagination was removed, so this restores them
+  # rather than minting /page/2/ and leaving the old ones 404ing. It matches the
+  # gem's code default; the README documents '/page/:num/' instead, so setting it
+  # explicitly is what stops a future README-led edit from silently moving them.
+  permalink: '/page:num/'
+  # ':title' means "leave page.title alone", and it has to be said out loud: the
+  # gem's own default is ':title - page :num', so omitting this key is NOT the same
+  # as switching it off. That default broke two things at once — jekyll-seo-tag
+  # already prefixes paginated pages itself, so the <title> came out "Page 2 of 4
+  # for Home - page 2", and _layouts/archive.html renders page.title as its <h1>,
+  # so category page 2 was headed "Posts tagged cnn - page 2". Titles are still
+  # unique per page; seo-tag supplies the "Page 2 of 4 for" part.
+  title: ':title'
+  sort_field: 'date'
+  # REQUIRED, and easy to miss: the generator sorts ascending and reverses only
+  # when this is true, and it defaults to FALSE. Omit it and the home page opens
+  # with the 2022 padding post instead of the newest one.
+  sort_reverse: true
+  # A window, not the full list: the control stays a fixed width as the blog grows.
+  # Also required — both bounds default to 0, and at 0/0 the gem never builds
+  # paginator.page_trail at all, so _includes/pagination.html renders no numbers.
+  trail:
+    before: 2
+    after: 2
+
+# Category archives, previously jekyll-archives.
+#
+# Swapped because both generators write the same /category/<name>/ permalinks and
+# would collide, so only one of them can be installed. Autopages produces the same
+# nine URLs and additionally paginates them through the block above.
+autopages:
+  enabled: true
+  categories:
+    layouts:
+      - 'archive.html'
+    # The bare category name, matching what jekyll-archives put in page.title.
+    # _layouts/archive.html renders it as the <h1> and jekyll-seo-tag uses it as the
+    # <title>; the ':title - page :num' suffix above is appended from page 2 on.
+    title: ':cat'
+    # The trailing slash is load-bearing. The plugin's own default is
+    # '/category/:cat' with no slash, which writes category/cnn.html instead of
+    # category/cnn/index.html and 404s all nine existing URLs.
+    permalink: '/category/:cat/'
+    slugify:
+      mode: 'default'
+      case: false
+  # Both explicitly off. The plugin's README says omitting a block disables it; that
+  # is not true of 3.0.0, which falls back to its built-in defaults and tries to
+  # build the pages anyway — "AutoPages: Generating collections pages" followed by
+  # four `Layout 'autopage_collection' requested` warnings, because the layout it
+  # defaults to does not exist here. Only `enabled: false` actually stops them.
+  #
+  # Worth keeping off beyond the noise: the site has no tags, and tag autopages are
+  # the one code path with a reported Errno::EEXIST crash under Jekyll 4 (upstream
+  # issue #170).
+  tags:
+    enabled: false
+  collections:
+    enabled: false
 
 # Citations, jekyll-scholar. See Readme.md "Citing a paper".
 #

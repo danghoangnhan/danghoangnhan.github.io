@@ -1,0 +1,55 @@
+{%- comment -%}
+  Shared by the home page and the /category/<name>/ autopages.
+
+  Every branch that has nowhere to link emits a <span>, never an <a>. The version
+  of this include that was deleted along with jekyll-paginate v1 linked page 1 to
+  paginator.previous_page_path, which is empty on page 1 — i.e. href="". That is a
+  hard failure in the html-proofer step, and it is the reason this file is written
+  fresh rather than restored.
+
+  paginator.page_trail is the window configured by `pagination.trail` in
+  _config.yml, so the control stays a fixed width instead of growing a number per
+  page as the blog does. Leave `trail` unset and both bounds default to 0, at which
+  point the plugin never builds page_trail at all and this loop silently renders no
+  numbers.
+
+  `| replace: 'index.html', ''` is load-bearing, not tidying. The trail's paths come
+  from the paginator's page_path, which is run through the plugin's ensure_full_path
+  and so always carries the index file — "/index.html", "/page2/index.html" — while
+  previous_page_path and next_page_path are built from the raw permalink and come
+  back clean as "/" and "/page2/". Left alone, this one nav would offer two
+  different URLs for the same page, and the ugly one is not the one in sitemap.xml.
+
+  aria-label is not decorative: _layouts/default.html already emits the
+  .mediumnavigation landmark, and two unlabelled <nav>s is a WCAG failure that the
+  pa11y-ci gate would catch.
+{%- endcomment -%}
+{%- if paginator.total_pages > 1 %}
+<nav class="post-pagination" aria-label="Pagination">
+  <ul class="post-pagination__list">
+    <li>
+      {%- if paginator.previous_page_path %}
+      <a class="post-pagination__link" rel="prev" href="{{ paginator.previous_page_path | relative_url }}">&laquo; Newer</a>
+      {%- else %}
+      <span class="post-pagination__link post-pagination__link--disabled">&laquo; Newer</span>
+      {%- endif %}
+    </li>
+    {%- for trail in paginator.page_trail %}
+    <li>
+      {%- if trail.num == paginator.page %}
+      <span class="post-pagination__link post-pagination__link--current" aria-current="page">{{ trail.num }}</span>
+      {%- else %}
+      <a class="post-pagination__link" href="{{ trail.path | replace: 'index.html', '' | relative_url }}" aria-label="Page {{ trail.num }}">{{ trail.num }}</a>
+      {%- endif %}
+    </li>
+    {%- endfor %}
+    <li>
+      {%- if paginator.next_page_path %}
+      <a class="post-pagination__link" rel="next" href="{{ paginator.next_page_path | relative_url }}">Older &raquo;</a>
+      {%- else %}
+      <span class="post-pagination__link post-pagination__link--disabled">Older &raquo;</span>
+      {%- endif %}
+    </li>
+  </ul>
+</nav>
+{%- endif %}

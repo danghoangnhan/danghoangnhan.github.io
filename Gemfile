@@ -4,8 +4,8 @@ source "https://rubygems.org"
 ruby file: ".ruby-version"
 
 # Jekyll proper, NOT the `github-pages` gem. That gem pins Jekyll 3.10 and a fixed
-# plugin allowlist which silently drops jekyll-archives. Building it ourselves via
-# GitHub Actions is what unlocks Jekyll 4 and arbitrary plugins.
+# plugin allowlist which silently drops jekyll-paginate-v2. Building it ourselves
+# via GitHub Actions is what unlocks Jekyll 4 and arbitrary plugins.
 gem "jekyll", "~> 4.4.1"
 
 group :jekyll_plugins do
@@ -15,8 +15,9 @@ group :jekyll_plugins do
   # every build log, for a gem that produced nothing.
   gem "jekyll-sitemap",  "~> 1.4.0"
   gem "jekyll-seo-tag",  "~> 2.9.0"
-  # Ignored by GitHub's legacy builder; starts working once we control the build.
-  gem "jekyll-archives", "~> 2.3.0"
+  # Replaces the old jekyll-archives setup and paginates archive pages.
+  # Ignored by GitHub's legacy builder; works because we control the build.
+  gem "jekyll-paginate-v2", "~> 3.0.0"
 
   # Citations for the CNN series, which cites ~15 papers across 25 posts.
   #
@@ -31,7 +32,7 @@ group :jekyll_plugins do
   # definitions, so the build needs no network beyond bundler — which matters
   # because CI builds with JEKYLL_ENV=production on a clean runner.
   #
-  # Ignored by GitHub's legacy builder, same as jekyll-archives above.
+  # Ignored by GitHub's legacy builder.
   gem "jekyll-scholar", "~> 7.3"
 end
 

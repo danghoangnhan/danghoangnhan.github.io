@@ -26,20 +26,29 @@
 
         - `hidden: true` posts. Eight surfaces filter them, but jekyll-sitemap knows
           nothing about the flag, so every one was submitted to search engines.
-        - Category pages whose only posts are hidden. jekyll-archives builds a page
-          per category from the unfiltered list, so /category/android/ is a live URL
-          reading "Nothing published under this topic yet". Computed here rather than
-          in _layouts/archive.html because that layout's output becomes this one's
-          `content` — a variable assigned there never reaches this <head>.
+        - Category pages with nothing visible in them, which are built from the
+          unfiltered category list and render "Nothing published under this topic
+          yet". Computed here rather than in _layouts/archive.html because that
+          layout's output becomes this one's `content` — a variable assigned there
+          never reaches this <head>.
+
+      The empty-category test reads paginator.total_posts, not page.posts. Category
+      pages come from jekyll-paginate-v2's autopages now, which pass their posts
+      through the paginator and set no page.posts at all, so the old key is never
+      populated. No category is empty today — the one that was, /category/android/,
+      went away with the post that created it — so this is a net kept in place for
+      the next time, not a live fix.
+
+      paginator is nil on unpaginated pages, so `nil == 0` is false and they are
+      untouched. Paginated home pages have total_posts > 0 and stay indexable, which
+      is deliberate: noindex on /page2/ … /page4/ would cut the crawl path to the
+      posts that only those pages link to.
 
       `follow` is deliberate: don't index the page, do keep crawling out of it.
     {%- endcomment -%}
     {%- assign noindex = false -%}
     {%- if page.hidden == true -%}{%- assign noindex = true -%}{%- endif -%}
-    {%- if page.posts -%}
-      {%- assign archive_visible = page.posts | where_exp: "p", "p.hidden != true" -%}
-      {%- if archive_visible.size == 0 -%}{%- assign noindex = true -%}{%- endif -%}
-    {%- endif -%}
+    {%- if paginator.total_posts == 0 -%}{%- assign noindex = true -%}{%- endif -%}
     {%- if noindex %}<meta name="robots" content="noindex, follow" />{% endif %}
     {%- comment -%}
       NOT {% feed_meta %}. That tag advertises the feed as application/atom+xml,
@@ -136,6 +145,25 @@
     {%- endcomment -%}
     <a class="skip-link visually-hidden-focusable" href="#main-content">Skip to content</a>
 
+    {%- comment -%}
+      "The home page" is now four URLs, not one: jekyll-paginate-v2 renders /,
+      /page2/, /page3/ and /page4/ from the same index.html through this layout.
+      Two things below keyed off `page.url == '/'` and so were wrong on pages 2+ —
+      the active state on the Blog nav item, and the .mainheading block that carries
+      the only <h1> those pages have. A paginated page with no <h1> at all is both
+      an accessibility defect and a crawler one.
+
+      The test is `paginator.first_page_path`, not a bare `paginator`: the
+      /category/<name>/ autopages have a paginator too, and matching them here would
+      put the site title above every category listing and light up the wrong nav
+      item. first_page_path is the URL that page's series starts at, so it is '/'
+      for exactly this series and '/category/<name>/' for those.
+    {%- endcomment -%}
+    {%- assign is_home = false -%}
+    {%- if page.url == '/' or paginator.first_page_path == '/' -%}
+      {%- assign is_home = true -%}
+    {%- endif -%}
+
     <!-- Begin Menu Navigation
 ================================================== -->
     <!-- No data-bs-theme here. Bootstrap 5.3 resolves it at the nearest ancestor,
@@ -176,8 +204,8 @@
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
               <a
-                class="nav-link{% if page.url == '/' %} active{% endif %}"
-                {% if page.url == '/' %}aria-current="page"{% endif %}
+                class="nav-link{% if is_home %} active{% endif %}"
+                {% if is_home %}aria-current="page"{% endif %}
                 href="{{ '/' | relative_url }}"
                 >Blog</a
               >
@@ -239,8 +267,11 @@
           sat between the navbar and the article. Two h1s per page is ambiguous to a
           screen reader and to a crawler deciding what the page is about; interior
           pages already name themselves.
+
+          "Home page" includes /page2/ … /page4/ — see the is_home note above. It is
+          the only <h1> those pages have.
         {%- endcomment -%}
-        {%- if page.url == '/' %}
+        {%- if is_home %}
         <div class="mainheading">
           <h1 class="sitetitle">{{ site.name }}</h1>
           <p class="lead">
