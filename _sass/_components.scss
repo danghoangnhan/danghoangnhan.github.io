@@ -757,34 +757,44 @@ a.post-tag:hover {
 // -------------------------------------------------------------------- footer
 
 /*
- * White text over a photograph.
+ * A flat colour, not a photograph.
  *
  * screen.css:708 gives .site-footer `background-image: url(footer.jpg)` and
- * `color: white`, with no colour underneath it. Contrast is therefore whatever
- * that photograph happens to be at that pixel — unverifiable by any tool, and
- * genuinely poor wherever the image is light. It is also the only thing keeping
- * the footer dark: if the image 404s or is still loading, white text lands on the
- * page background.
+ * `color: white`, with no colour underneath it. Three problems, in order of how
+ * much they matter:
  *
- * A scrim fixes both. The gradient is a solid translucent black layer painted
- * over the photo, so every pixel behind the text is at least 72% black and the
- * ratio is knowable: white on rgba(0,0,0,.72) over the lightest possible photo is
- * still above 7:1. background-color underneath covers the image failing entirely.
+ * 1. The contrast of every footer link is whatever the photograph happens to be at
+ *    that pixel. It is genuinely poor wherever the image is light, and there is no
+ *    value anyone — a person or a tool — can state and check.
+ * 2. Nothing keeps the footer dark if the image is missing or still loading. White
+ *    text then lands on the page background. That is not hypothetical: the image
+ *    was accidentally deleted one commit ago and the whole footer went invisible.
+ * 3. It costs 183 KB on every page for decoration.
  *
- * The URL stays relative to assets/css/, which is where both this file's output
- * and screen.css live.
+ * A scrim was tried first — a translucent black layer over the photo — and it does
+ * fix the human problem, but axe still cannot resolve a background it cannot
+ * sample, so it returns `incomplete` (needsFurtherReview) for all eight elements
+ * rather than a pass. An accessibility check that can only ever say "someone
+ * should look at this" is not worth having in CI, and the honest way to get a
+ * verifiable answer is to give it something verifiable to measure.
  *
- * height: 300px becomes a minimum. A fixed height leaves dead space at desktop
- * widths and clips the content out of the box at 200% text zoom, which WCAG 1.4.4
- * requires to work.
+ * #212529 is Bootstrap's own $dark, which the markup already asks for via .bg-dark
+ * and which _dark.scss deepens to #010409. White on it is 15.9:1.
+ *
+ * footer.jpg stays in the repo because screen.css still references it and a
+ * dangling url() is how the last mistake happened. The override means no browser
+ * ever requests it.
+ *
+ * height: 300px becomes a minimum while this rule exists: a fixed height leaves
+ * dead space at desktop widths and clips content out of the box at 200% text zoom,
+ * which WCAG 1.4.4 requires to work.
  */
 .site-footer {
   background-color: #212529;
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.72)),
-    url("../images/footer.jpg");
+  background-image: none;
   height: auto;
-  min-height: 300px;
+  min-height: 0;
+  padding: 2.5rem 0;
 }
 
 // ------------------------------------------------------------------ contrast
