@@ -1,11 +1,13 @@
 ---
 layout: post
 title: EfficientNet
+description: "Compound scaling in EfficientNet: tuning image resolution, network depth and layer width together to fit a fixed compute budget."
 
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 13
 image: assets/images/cnn1.png
 featured: false
 hidden: false

@@ -1,6 +1,7 @@
 ---
 layout: post
-title: Leetcode-2140. Solving Questions With Brainpower
+title: "LeetCode 1422: Maximum Score After Splitting a String"
+description: "A prefix-sum solution to LeetCode 1422, Maximum Score After Splitting a String, evaluating every split in O(n) time."
 author: danghoangnhan
 categories: [ leetcode ]
 image: assets/images/leetcode/leetcode.png
@@ -8,8 +9,6 @@ featured: true
 hidden: false
 katex: True
 ---
-# Leetcode-2140. Solving Questions With Brainpower
-
 ## Intuition
 
 We need to split the binary string `s` into two non-empty parts—left and right—so that the score, defined as “number of zeros in the left part” plus “number of ones in the right part,” is maximized. If we can quickly determine, for any split position `i`:

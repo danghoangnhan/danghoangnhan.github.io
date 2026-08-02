@@ -1,10 +1,12 @@
 ---
 layout: post
 title: Convolutions Over Volume
+description: "How convolution extends from flat images to 3D volumes, and why stacking multiple filters is what gives a CNN layer its depth."
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 4
 image: assets/images/cnn1.png
 featured: false
 hidden: false

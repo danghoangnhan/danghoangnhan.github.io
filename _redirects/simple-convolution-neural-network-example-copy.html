@@ -1,0 +1,36 @@
+---
+layout: null
+sitemap: false
+permalink: /simple-convolution-neural-network-example-copy/
+redirect_to: /simple-convolutional-network-example/
+---
+{%- comment -%}
+  Redirect stub.
+
+  The post behind this URL was authored as "…-example copy.md" — a duplicated
+  filename whose " copy" suffix Jekyll slugified straight into the public URL. The
+  file is renamed, but the old URL is already published, linked and indexed, so it
+  has to keep resolving.
+
+  Written by hand rather than with jekyll-redirect-from: one redirect does not
+  justify a new runtime dependency, and this emits the same thing the gem does —
+  a canonical link (so search engines fold the old URL into the new one), a
+  noindex, and a meta refresh with a real link behind it for anyone whose browser
+  ignores the refresh.
+{%- endcomment -%}
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en' }}">
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting&hellip;</title>
+    <link rel="canonical" href="{{ page.redirect_to | absolute_url }}" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0; url={{ page.redirect_to | absolute_url }}" />
+  </head>
+  <body>
+    <p>
+      This post has moved to
+      <a href="{{ page.redirect_to | absolute_url }}">A Simple Convolutional Network Example</a>.
+    </p>
+  </body>
+</html>

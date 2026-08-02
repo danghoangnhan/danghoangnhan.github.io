@@ -1,10 +1,16 @@
 ---
 layout: post
 title: "One Scheduler, Many Workers: Running Luigi Across Multiple Servers with Zero Downtime"
+description: "Growing a single-VM Luigi pipeline into a fleet: a highly available luigid scheduler, multiple workers, and zero-downtime GitLab CI/CD."
 author: danghoangnhan
 categories: [ data-engineering, devops ]
 mermaid: true
-image: assets/images/luigi-ha/architecture.svg
+# Was assets/images/luigi-ha/architecture.svg. That file is still the diagram in
+# the body, but it cannot be the share image: `image:` feeds og:image, and no major
+# social platform renders SVG — Facebook, LinkedIn and X all skip it — so this post
+# previewed with no image at all anywhere it was shared. TODO: replace with a PNG
+# screenshot of the architecture diagram, which would serve both jobs properly.
+image: assets/images/logo.png
 featured: true
 hidden: false
 ---

@@ -1,15 +1,15 @@
 ---
 layout: post
-title: anchorbox
+title: "Anchor Boxes in Object Detection"
+description: "How anchor boxes let a single grid cell detect several overlapping objects, and how IoU decides which box owns which object."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 17
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-# Understanding Anchor Boxes in Object Detection
-
 Anchor boxes play a crucial role in overcoming the limitation of traditional object detection approaches, where each grid cell can detect only one object. By allowing multiple objects to be detected within a single grid cell, anchor boxes significantly enhance the accuracy and flexibility of object detection algorithms. Let's delve into how anchor boxes work in detail.
 
 ## The Motivation for Anchor Boxes
@@ -26,7 +26,7 @@ In the YOLO (You Only Look Once) algorithm, anchor boxes are integrated into the
 
 Now, the label vector for each grid cell becomes 16-dimensional (8 dimensions for each anchor box). It can be represented as follows:
 
-Y = [PC1, PX1, PY1, PH1, PW1, C11, C21, C31, PC2, PX2, PY2, PH2, PW2, C12, C22, C32]<pre><div class="bg-black rounded-md mb-4"><div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans justify-between rounded-t-md"><br class="Apple-interchange-newline"/></div></div></pre>
+Y = [PC1, PX1, PY1, PH1, PW1, C11, C21, C31, PC2, PX2, PY2, PH2, PW2, C12, C22, C32]
 
 Each anchor box is associated with a unique set of parameters. For example, anchor box 1 might be suitable for tall and skinny objects, while anchor box 2 might be more suitable for wide and fat objects. The object detection algorithm assigns objects to grid cells based on the anchor box that has the highest Intersection over Union (IoU) with the object's shape.
 

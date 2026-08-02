@@ -1,15 +1,15 @@
 ---
 layout: post
-title: Strided Convolutions
+title: "Pooling Layers in Convolutional Neural Networks"
+description: "How max and average pooling downsample a representation, the hyperparameters they take, and why they have no weights to learn."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 6
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-
-# Summary: Pooling Layers in Convolutional Neural Networks
 
 In Convolutional Neural Networks (ConvNets), pooling layers are often used alongside convolutional layers to reduce the size of the representation and enhance certain features' robustness. This blog post summarizes the key concepts and operations involved in pooling layers.
 

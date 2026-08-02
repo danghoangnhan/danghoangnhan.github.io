@@ -1,14 +1,17 @@
 ---
 layout: post
-title: Federated Optimization Algorithms - FedSGD and FedAvg
+title: "Federated Optimization Algorithms: FedSGD and FedAvg"
+description: "How FedAvg improves on the naive FedSGD baseline, from Google's Communication-Efficient Learning of Deep Networks from Decentralized Data."
 author: danghoangnhan
 categories: [ federated-learning ]
 image: assets/images/fed.png
 featured: false
 hidden: true
+# Unlisted: kept out of sitemap.xml too. jekyll-sitemap has no concept of the
+# `hidden` flag the other eight surfaces honour, so this post was filtered from
+# every listing on the site and then submitted to search engines anyway.
+sitemap: false
 ---
-# Federated Optimization Algorithms - FedSGD and FedAvg
-
 There was a paper, Communication-Efficient Learning of Deep Networks from Decentralized Data by Google (3637 citations!!!), in which the authors had proposed a federated optimization algorithm called FedAvg and compared it with a naive baseline, FedSGD.
 
 ## FedSGD

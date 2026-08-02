@@ -1,16 +1,20 @@
 ---
 layout: post
-title: Inception Network Motivation
+title: "Inception Network Motivation"
+description: "Why the Inception module saves you from choosing between 1x1, 3x3, 5x5 and pooling, and how 1x1 convolutions keep the cost down."
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 9
 image: assets/images/cnn1.png
 featured: false
 hidden: true
+# Unlisted: kept out of sitemap.xml too. jekyll-sitemap has no concept of the
+# `hidden` flag the other eight surfaces honour, so this post was filtered from
+# every listing on the site and then submitted to search engines anyway.
+sitemap: false
 ---
-
-# Understanding the Inception Network Architecture
 
 When designing a layer for a Convolutional Neural Network (ConvNet), you often have to choose between different filter sizes or decide whether to use a convolutional or pooling layer. The Inception network introduces a novel approach by combining various filter sizes and pooling layers in a single layer, allowing the network to learn the best combinations. In this blog post, we will explore the inception module and how it reduces computational costs while maintaining performance.
 

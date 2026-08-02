@@ -1,6 +1,7 @@
 ---
 layout: post
-title: LongLLMLingua
+title: "LongLLMLingua: Prompt Compression for Long-Context LLMs"
+description: "LongLLMLingua's question-aware compression, document reordering and subsequence recovery, for prompts that run to long contexts."
 author: danghoangnhan
 categories: [ llm ]
 image: assets/images/llmlingua/LongLLMLingua.png
@@ -8,8 +9,6 @@ featured: true
 hidden: false
 katex: True
 ---
-# LongLLMLingua Model: A Solution for LLMs in Long Context Scenarios
-
 ## Core Challenges
 
 ![Illustration showing the challenge of long prompts in LLMs](../assets/images/llmlingua/LongLLMLingua_Motivation.png "Challenges with LLM int long context")
@@ -52,7 +51,7 @@ Impact:
 
 Current compression methods often use fixed compression ratios:
 
-# LongLLMLingua Methodology
+## LongLLMLingua Methodology
 
 ## 1. Question-Aware Coarse-to-Fine Compression
 

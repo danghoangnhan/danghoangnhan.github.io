@@ -1,44 +1,47 @@
 ---
 layout: post
-title: Deep-Q-Learning
+title: "Deep Q-Learning (DQN)"
 author: danghoangnhan
 categories: [ deep-learning, reinforcement-learning ]
 image: assets/images/dqn.jpeg
 featured: false
 hidden: false
+description: "Why tabular Q-learning breaks down in continuous state spaces, and how DQN replaces the Q-table with a neural network and a replay buffer."
 ---
 
-## Deep-Q-Learning(DQN)
+## Why DQN?
 
-### Why DQN?
+In an environment with a continuous state space it is impossible to visit every
+state-action pair repeatedly: there are infinitely many of them, and the Q-table
+would be unmanageably large.
 
-- in an enviroment with a continue state space, it is impossible to go through all the possible states and actions repeatedly, since there are an infinite number of them and the Q-table would be too big.
-- DQN solves this problem by approximating the Q-function thourgh a Neural Network and learning from the previous traning experiences, so that the agent can learn more times from experience already lived without the need to live them again, as well as avoiding the excesive computational cost calculating and updating the Q-table for continous state spaces.
+DQN sidesteps this by approximating the Q-function with a neural network and
+learning from previously stored experiences. The agent can therefore learn
+repeatedly from episodes it has already lived without having to live them again,
+which also avoids the cost of computing and updating a Q-table over a continuous
+state space.
 
-### Component
+## Components
 
- 1. Main Neural network:
-    The main NN tries to predict the expected return of taking each action for the given state.
-    Train and update every episode.
- 2. Replay Buffer:
-    The replay buffer is a list that is filled with the experiences lived by the agent.
-    An experience is represented by the current state, theaction taken in the current state, the reward obtaind after taking that action, whether is it a terminal state or not, and the next state reached after taking the action.
- 3. State size
- 4. Action size
- 5. Gamme
- 6. Episode
- 7. Number of steps
- 8. Epsilon value, epsilon decay
- 9. Learning rate
- 10. Target NN update rate
+1. **Main neural network** — predicts the expected return of taking each action in
+   a given state. Trained and updated every episode.
+2. **Replay buffer** — a list filled with the experiences the agent has lived. An
+   experience records the current state, the action taken in it, the reward
+   obtained, whether it is a terminal state, and the next state reached.
+3. **State size**
+4. **Action size**
+5. **Gamma** — the discount factor
+6. **Episode**
+7. **Number of steps**
+8. **Epsilon value and epsilon decay**
+9. **Learning rate**
+10. **Target-network update rate**
 
-### Source Code
+## Source code
 
-- https://github.com/danghoangnhan/DQN
+- [danghoangnhan/DQN](https://github.com/danghoangnhan/DQN)
 
+## References
 
-### References
-
-- https://www.youtube.com/watch?v=97gDXdA7kVc&t=232s
-- https://pytorch.org/tutorials/intermediate/reinforcement_q_learning
-
+- [Deep Q-Learning walkthrough (YouTube)](https://www.youtube.com/watch?v=97gDXdA7kVc&t=232s)
+- [Reinforcement Learning (DQN) Tutorial — PyTorch](https://pytorch.org/tutorials/intermediate/reinforcement_q_learning)

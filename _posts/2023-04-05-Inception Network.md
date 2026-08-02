@@ -1,16 +1,16 @@
 ---
 layout: post
-title: Inception Network
+title: "The Inception Network"
+description: "How Google's Inception architecture stacks Inception modules into GoogLeNet, and what those auxiliary side branches are for."
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 10
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-
-# Understanding the Inception Network: A Powerful Architecture for Image Classification
 
 The Inception network, developed by researchers at Google, is a convolutional neural network architecture that has revolutionized image classification tasks. In this blog, we will delve into the key concepts behind the Inception network and explore its significance in the field of computer vision.
 

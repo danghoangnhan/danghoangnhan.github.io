@@ -1,15 +1,16 @@
 ---
 layout: post
-title: Understanding Padding in Convolutional Neural Networks
+title: "Understanding Padding in Convolutional Neural Networks"
+description: "Why convolutions shrink a feature map, and how valid and same padding keep spatial resolution intact through a deep CNN."
 author: danghoangnhan
-categories: [ deep-learning, computer-vision ]
+categories: [ deep-learning, cnn, computer-vision ]
 image: assets/images/cnn1.png
 featured: true
 hidden: false
+series: cnn-course
+series_order: 1
 ---
 
-
-# Understanding Padding in Convolutional Neural Networks
 
 Convolutional Neural Networks (CNNs) have revolutionized the field of computer vision, enabling impressive results in tasks such as image classification and object detection. In CNNs, convolutions are a fundamental operation used to extract features from input images. However, convolutions can result in downsampling and loss of information from the edges of the image. To overcome these challenges, padding is commonly used in CNNs. In this article, we will explore the concept of padding in convolutional operations and understand its importance.
 

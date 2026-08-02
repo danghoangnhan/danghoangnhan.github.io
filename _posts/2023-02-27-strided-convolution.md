@@ -1,15 +1,15 @@
 ---
 layout: post
-title: Strided Convolutions
+title: "Strided Convolutions"
+description: "How stride changes the way a filter moves across an image, and the formula that gives you the resulting output size."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 3
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
-
-# Understanding Strided Convolutions in Convolutional Neural Networks
 
 Convolutional Neural Networks (CNNs) are a key component in various computer vision tasks, such as image classification, object detection, and image segmentation. One fundamental building block of CNNs is convolutions, which involve sliding a filter over an input image to extract relevant features. In this article, we'll focus on a specific type of convolution called strided convolutions and explore how they work using a simple example.
 

@@ -1,11 +1,13 @@
 ---
 layout: post
 title: Transfer Learning
+description: "How to reuse pre-trained ImageNet weights for your own vision task, and how much of the network to freeze given your dataset size."
 
 
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 14
 image: assets/images/cnn1.png
 featured: false
 hidden: false

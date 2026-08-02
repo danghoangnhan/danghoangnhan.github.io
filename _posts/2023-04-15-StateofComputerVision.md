@@ -1,17 +1,15 @@
 ---
 layout: post
-title: Data Augmentation
+title: "The State of Computer Vision"
+description: "Why computer vision leans on hand-engineering more than other machine learning fields, and what to reach for when data is scarce."
 author: danghoangnhan
 categories: [ deep-learning, cnn, computer-vision ]
 series: cnn-course
+series_order: 16
 image: assets/images/cnn1.png
 featured: false
 hidden: false
 ---
----
-
-
-# Deep Learning for Computer Vision: Navigating the Landscape
 
 Deep learning has made significant advancements in various domains such as computer vision, natural language processing, speech recognition, online advertising, and logistics. However, when it comes to computer vision, there are unique challenges and considerations that researchers and practitioners must navigate. In this article, we explore some observations and insights shared in a speech about deep learning for computer vision, aiming to provide guidance in understanding the literature and building effective computer vision systems.
 

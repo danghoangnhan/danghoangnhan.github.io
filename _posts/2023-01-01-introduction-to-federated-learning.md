@@ -1,14 +1,13 @@
 ---
 layout: post
-title: Introduction to Federated Learning
+title: "Introduction to Federated Learning"
+description: "A practical introduction to federated learning: training one shared model across decentralised data without ever moving that data."
 author: danghoangnhan
 categories: [ federated-learning ]
 image: assets/images/fed.png
 featured: false
 hidden: false
 ---
-# Introduction to Federated Learning
-
 
 ## Motivation
 Privacy-preserving Machine Learning had always been exciting for me. Since my B.Tech. thesis involving PPML (SMPC + Computer Vision), I didn’t get a chance to work on it after that. So, after about 2 years, I have started to read about it again, and sharing it with the community.
