@@ -14,7 +14,7 @@ group :jekyll_plugins do
   # Dependabot subscription and a "Jekyll Feed: Generating feed for posts" line in
   # every build log, for a gem that produced nothing.
   gem "jekyll-sitemap",  "~> 1.4.0"
-  gem "jekyll-seo-tag",  "~> 2.9.0"
+  gem "jekyll-seo-tag",  "~> 2.9.1"
   # Replaces the old jekyll-archives setup and paginates archive pages.
   # Ignored by GitHub's legacy builder; works because we control the build.
   gem "jekyll-paginate-v2", "~> 3.0.0"
