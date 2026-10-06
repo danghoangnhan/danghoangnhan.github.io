@@ -78,6 +78,10 @@ jobs:
         # unnamed share buttons, the iframe with no title and the 3.23:1 body
         # text, none of which html-proofer can see.
         #
+        # Inconclusive axe results (such as contrast on KaTeX symbols) require
+        # manual review, not a build failure. .pa11yci.json caps them at warning;
+        # confirmed axe violations and HTML CodeSniffer errors still fail.
+        #
         # /intersection-over-union/ is the exception to "one page per template".
         # It is a post like /poolinglayers/, but it carries the only widget in
         # the site with a pointer-drag interaction (assets/js/viz.js), and pa11y
